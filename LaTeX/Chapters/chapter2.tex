@@ -33,16 +33,16 @@ The organisation of this chapter is as follows:\\
 \section{Virtualisation}
 \label{sec:virtualisation}
 
-Most of today's machines have such a level of performance that allows the simultaneous execution of multiple applications and the sharing of these resources by several users. In this sense, it is natural to have a line of thought in which all available resources are efficiently used. 
+Most of today's machines have such a level of performance that allows the simultaneous execution of multiple applications and the sharing of these resources by several users. In this sense, it is natural to have a line of thought in which all available resources are taken advantage of efficiently.
 
 Virtualisation is a technique that allows for the abstraction of the hardware layer and provides the ability to run multiple workloads on a shared set of resources. Nowadays, virtualisation is an integral part of many \textit{IT} sectors with applications ranging from hardware-level virtualisation, operating system-level virtualisation, and high-level language virtual machines.
 \nocite{VMware_VM2006}
 
-A virtual machine (VM) by design is an efficient, isolated duplicate of a real machine~\cite{Popek1974}, in that order, it was the capacity to virtualize all of the hardware resources, including processors, memory, storage, and network connectivity.
+A Virtual Machine by design is an efficient, isolated duplicate of a real machine~\cite{Popek1974}, in that order, it was the capacity to virtualise all of the hardware resources, including processors, memory, storage, and network connectivity.
 
-To manage the VMs, there is a need for a layer of software that has certain characteristics. One of them is the capability to provide an environment in which VMs conduct operations, acting both as a controller and a translator between the VM and the hardware for all \textit{IO} operations. This is known as a virtual machine monitor (VMM), or more common at this moment a \textit{hypervisor}.
+For the effort of managing the VMs, there is a need for a software layer that has specific characteristics. One of them is the capability to provide an environment in which VMs conduct operations, acting both as a controller and a translator between the VM and the hardware for all \textit{IO} operations. This piece of software is known as a \gls{VMM}.
 
-
+In today's architectures, a modern term was been coined, the \textit{Hypervisor}. It is common to mix both concepts (\textit{VMMs} and \textit{Hypervisors}), as being the same, but in fact, there are some details that make them not synonymous.~\cite{Agesen2010}
 
 %%-------------------------------------------------------------------
 %%	2.1.X - Hypervisors
@@ -50,17 +50,21 @@ To manage the VMs, there is a need for a layer of software that has certain char
 \subsection{Hypervisors} % (fold)
 \label{sub:hypervisors}
 
-The most important aspect of running a VM is that it must provide the illusion of being a real machine, allowing to boot and install any operating system (OS). It is the hypervisor which has that task and should do it in an efficient manner at the same time providing this three properties~\cite{Popek1974}:
+The most important aspect of running a VM is that it must provide the illusion of being a real machine, allowing to boot and install any Operating System (OS). It is the VMM which has that task and should do it efficiently at the same time providing this three properties~\cite{Popek1974}:
 
 \begin{description}
 	\item[Fidelity:] a program should behave on a VM the same way or in much the same way as if it were running on a physical machine.
 	%
 	\item[Performance:] much of the instructions in the virtual machine should be executed directly by the real processor without intervention by the hypervisor.
 	%
-	\item[Isolation:] the hypervisor must have complete control over the resources. 
+	\item[Isolation:] the VMM must have complete control over the resources. 
 \end{description}
 
-An hypervisor can be classified into two different types, symbolising two different design strategies to virtualisation, as shown in Figure~\ref{fig:hypervisors}:
+A hypervisor is the blend of an Operating System and a Virtual Machine Monitor. It can make use of a run-of-the-mill OS, such one of the several flavours of \textit{Linux} and the \textit{Microsoft Windows}, or a bare metal purpose-built one, such the \textit{VMware ESX/ESXi} family.
+
+Concerning the execution of a VM, the hypervisor kernel spins up a VMM, which holds the responsibility of virtualising the \textit{x86} architecture and provide the platform where the VM will lie. This way, since the VM executes on top of the VMM, there is a layer of separation between the guest VM and the host hypervisor kernel, with the communications within being made through the VMM. This feature confers a necessary degree of isolation among the system. With the host kernel taking care of host-centric tasks as \textit{CPU} and memory scheduling, and the network and storage \textit{I/O} stacks, and the VMM assumes responsibility to provide those resources to the VM.
+
+A hypervisor can be classified into two different types, symbolising two different design strategies to virtualisation, as shown in Figure~\ref{fig:hypervisors}:
 
 \begin{figure}[htbp]
 	\centering
@@ -70,7 +74,7 @@ An hypervisor can be classified into two different types, symbolising two differ
 \end{figure}
 
 \begin{description}
-	\item [Type 1 hypervisor:] sometimes referred as a bare-metal hypervisor, are very similar to an operating system since they run directly on the hardware and are the only program executed by the CPU in the most privileged mode. As there isn't a go-between itself and the resources, being able to communicate directly to the hardware, this type of hypervisor presents as a more efficient solution than the type 2 hypervisor.
+	\item [Type 1 hypervisor:] sometimes referred as a bare-metal hypervisor, since there is no need to rely on a host operating system, as they run directly on the hardware. Moreover, this software is the only program executed by the CPU in the most privileged mode. As there isn't a go-between itself and the resources, being able to communicate directly to the hardware, this type of hypervisor presents as a more efficient solution than the type 2 hypervisor.\\ In addition to the improved performance provided by the partitioning of devices between the several guest VMs, this kind of architecture provides the benefit of supporting the execution of real-time OSs. The low-level nature of these hypervisors with the broad access to the hardware is proven useful for use-cases that need to deploy a multiplicity of operating systems.\\ Recognizing all the facts above, we can point that there are also some disadvantages. Any drivers needed to support different hardware platforms must be covered by the hypervisor package. As do drivers for devices that have the capability of being shared amongst guests.\\ Furthermore, considering that type 1 hypervisors do not have an underlying OS, the complexity of installing and configuring this type of solution increases.
 	%
 	\item [Type 2 hypervisor:] In comparison, this kind of hypervisor relies on an already installed operating system, and acts very similarly as any conventional process. Having the need to request resources to the OS underneath. On the other hand, there are some advantages. Mainly this solution is easier to deploy since the work of supporting the hardware is already done by the OS below.
 \end{description}
