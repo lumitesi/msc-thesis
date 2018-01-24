@@ -64,7 +64,7 @@ A hypervisor is the blend of an Operating System and a Virtual Machine Monitor. 
 
 Concerning the execution of a VM, the hypervisor kernel spins up a VMM, which holds the responsibility of virtualising the \textit{x86} architecture and provide the platform where the VM will lie. This way, since the VM executes on top of the VMM, there is a layer of separation between the guest VM and the host hypervisor kernel, with the communications within being made through the VMM. This feature confers a necessary degree of isolation among the system. With the host kernel taking care of host-centric tasks as \textit{CPU} and memory scheduling, and the network and storage \textit{I/O} stacks, and the VMM assumes responsibility to provide those resources to the VM.
 
-A hypervisor can be classified into two different types, symbolising two different design strategies to virtualisation, as shown in Figure~\ref{fig:hypervisors}:
+A hypervisor can be classified into two different types~\cite{Aneja2011}, symbolising two different design strategies to virtualisation, as shown in Figure~\ref{fig:hypervisors}:
 
 \begin{figure}[htbp]
 	\centering
