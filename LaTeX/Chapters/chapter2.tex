@@ -89,9 +89,9 @@ A hypervisor can be classified into two different types~\cite{Aneja2011}, symbol
 	All the above culminates in some advantages. Type 2 hypervisors are regularly deployed for the use of software testing, dismissing the requirement for a dedicated test machine. Also, provide support for running multiple OSs on the same physical machine, which can be valuable for those who rely on multiple applications written for a particular or legacy OS.
 \end{description}
 
-Either way, the challenge lays in the fact that the hypervisor needs to execute the guests OS instructions in a safe manner and at the same time provide possible different machine configurations to each of them. These characteristics, such as the number and architecture of virtual CPUs (\textit{vCPU}), the amount and type of memory available (\textit{vRAM}), the allowed space to store files (\textit{vDisk}), and so on, are user configurable but is the hypervisor that is tasked to do all the management and load balancing. The settings of all these components are compiled in a VM configuration file. In the case of VMware hypervisors, the file employs the \texttt{.vmx} extension.\cite{VMWare_VMFiles,Portnoy2012} In a KVM environment, the configuration is handled in a \texttt{.xml} file.~\cite{chirammal2016}
+Either way, the challenge lays in the fact that the hypervisor needs to execute the guests OS instructions in a safe manner and at the same time provide possible different machine configurations to each of them. These characteristics, such as the number and architecture of virtual CPUs (vCPU), the amount and type of memory available (vRAM), the allowed space to store files (vDisk), and so on, are user configurable but is the hypervisor that is tasked to do all the management and load balancing. The settings of these components reside in a VM configuration file. In the case of VMware hypervisors, the file employs the \texttt{.vmx} extension.\cite{VMWare_VMFiles,Portnoy2012} In a KVM environment, the configuration is in a \texttt{.xml} file.~\cite{chirammal2016}
 
-With a virtualized infrastructure there is an opening for a substantial reduction in the number of servers. Which in turn diminishes the setup time of a server as those VMs are commonly created with a resource to cloning techniques. Software updates can be greatly simplified and made available to all users at once. Even availability is improved since it is an easy task to launch a new VM from a template and migrate all the services that were being made reachable by one that suffered a failure. 
+With a virtualised infrastructure there is an opening for a substantial reduction in the number of servers. Which in turn diminishes the setup time, as those VMs are, in a broad manner, created with the resource to cloning techniques. Software updates can be hugely simplified and made available to all users at once. Even availability is improved since it is an easy task to launch a new VM from a template and migrate all the services that were being made reachable by one that suffered a failure.
 
 % subsection hypervisors (end)
 
@@ -103,21 +103,38 @@ With a virtualized infrastructure there is an opening for a substantial reductio
 \subsection{Virtual Desktop Infrastructure} % (fold)
 \label{sub:vdi}
 
-%\begin{figure}[htbp]
-%	\centering
-%	\includegraphics[height=3in]{cap2_VDIv2}
-%	\caption{An exemple of a Virtual Desktop Infrastructure, adapted from AppDS~\cite{appds_2017}}
-%	\label{fig:VDI}
-%\end{figure}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=3in]{cap2_VDIv2}
+	\caption{An exemple of a Virtual Desktop Infrastructure, adapted from AppDS~\cite{appds_2017}}
+	\label{fig:VDI}
+\end{figure}
 
-It is common to find in a typical midsize corporate infrastructure hundreds of servers and thousands of workstations. All in a diverse ecosystem counting with many hardware configurations, different OSs and applications needs. Probably even supporting several versions of the same software required for the day to day operations.
+It is common to find in a typical midsize corporate infrastructure hundreds of servers and thousands of workstations. All in a diverse ecosystem counting with many hardware configurations, different OSs and applications needs. Probably even supporting several versions of the same software is required for the day to day operations.
 
-One solution to the predicament above is to use virtualization as a mechanism for virtualizing the complete workstation. The implementation with more relevance and with more expression at the moment is the virtual desktop infrastructure (VDI).
+Organizations debate themselves daily with the traditional problem of installing software in local workstations disks one-by-one (even if employing an automated process). This task tends to be daunting as a company escalates in size and leads to some other predicaments:
 
-The concept encompasses a series of techniques, providing on demand availability of desktops, in which, all computing is performed employing virtual machines~\cite{VMWare_VDI2006}.
-Typically this solution presents a centralised architecture, where the user's environment resides on a server in a data centre, as shown on Figure~\ref{fig:VDI}. However, other components are required, such as storage for the users and VMs data and a network capable of moving large data blocks quickly, all in a perspective where from the user's viewpoint there can't be any apparent difference between a virtual desktop and a local installation.
+\begin{itemize}
+	\item A Systems Administrator and IT Staff burden with significant infrastructure administration responsibilities.
+	%
+	\item A delay on the installation or reinstallation of new software and recovery from breakdowns.
+	%
+	\item Installation processes may consume much of the available bandwidth in a network, so if this job is to be executed simultaneously on several workstations, it tends to be scheduled off work hours to produce the shortest disturbances.
+	%
+	\item Periodical software updates (such Microsoft's famous Patch Tuesdays~\cite{patch_2017}) are ordinarily unleashed in the morning first boot of a workstation, which can bloat the traffic and render useless the workstation for the remainder of the update period.
+	%
+	\item If an update proves to be undesirable, by introducing some unexpected behaviour, it is quite difficult to reverse this situation, and may even demand a new configuration infrastructure-wise.
+\end{itemize}
+
+One solution to the unpleasant situations above is to minimise the footprint of installed software having in account the locality of the data. 
+It is possible to imagine a dimension where all the software required to execute a workstation (Operating System and applications) can be conjugated in a virtual machine. This mechanism allows for the virtualisation of a workstation that can be performed either locally on a typical PC / Laptop, or on a server. The implementation with more relevance and with more expression at the moment is the \gls{VDI}.
+
+The concept encompasses a series of techniques, providing on-demand availability of desktops, in which, all computing is performed employing virtual machines~\cite{VMWare_VDI2006}.
+Typically this solution offers a centralised architecture, where the user's environment resides on a server in a data centre, as shown on Figure~\ref{fig:VDI}. However, other components are required, such as storage for the users and VMs data and a network capable of moving large data blocks quickly, all in a perspective where from the user's viewpoint there can't be any apparent difference between a virtual desktop and a local installation.
 
 There are two antagonistic approaches to the architecture, one focused on the server-side and the other on the client-side:
+
+
 
 \begin{description}
 	\item [Server-based VDI] This is the most common approach, in which the VM runs remotely on a server using a hypervisor. Featuring such benefit, as the fact that only a low-performance thin client with support for a protocol such as Remote Desktop Protocol (RDP)~\cite{Microsoft_RDP} or the Remote Framebuffer Protocol (RFB)~\cite{rfc6143} is required to interact with the virtual desktop.
