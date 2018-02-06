@@ -153,22 +153,65 @@ In this section, we present a summary of the technologies mentioned above.
 		The points in favour are some: There is good potential for cost reduction in the field of purchase and maintenance of infrastructure since those charges are imposed on third parties. Every subject related to data security is also in the hands of the platform providers. Enables what is called zero clients, an ultrathin client, typically in a small box form factor, which the only purpose is to connect the required peripherals and rendering pixels onto the user’s display.~\cite{VMWare_Zikmund2014} With the added benefit of presenting very competitive costs per workstation when compared to other types of clients (thick and thin clients) and a reasonable saving on energetic resources.
 
 		However, in contrast, the downsides are also a few. Since the data location frequently is in a place elsewhere from its consumption, some bandwidth problems can arise, limiting the ability to handle a large number of connections. Adding to this mix is the issue of the unavoidable latency, a result of the finite propagation speed of data, which tends to escalate with the distance required to advance. Also, there is the jitter factor, caused by latency variations, which are observed when connections need to travel great lengths through multiple providers with different congestion rates. All these facts not only may lead to a cap on the numbers of clients that are able of connecting simultaneously but also can be a motive in a diminished experience and quality of service provided, when in comparison to the previously presented solutions.
+		
+		\begin{figure}[htbp]
+			\centering
+			\includegraphics[width=\textwidth]{cap2_daas}
+			\caption{Conceptual overview of DaaS architecture, adapted from Intel~\cite{Jain2014}}
+			\label{fig:daas}
+		\end{figure}
 
 		In this new field, a multitude of solutions is emerging with public cloud providers leading the way. Amazon in its AWS portfolio delivers Amazon Workspaces~\cite{aws_workspaces}, and Microsoft implements the RDS features~\cite{azure_rds} on the Azure product line. Nevertheless, there are also some smaller contenders, as an example, Workspot~\cite{workspot} (a company founded by ex-Citrix employees) makes use of the Microsoft Azure Cloud to provide there take on cloud-native Virtual Desktops.
 \end{description}
 
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[height=4in]{cap2_daas}
-	\caption{Conceptual overview of DaaS architecture, adapted from Intel~\cite{Jain2014}}
-	\label{fig:daas}
-\end{figure}
-
-
-As discussed earlier virtualization has paved the way for a class of services called IaaS. That leads to an apanage of modern times in which there is a desire to link all services to the cloud; so it is natural that an idea came to take the VDI paradigm to this medium. Thus giving rise to the emergence of Desktop as a Service (DaaS), with companies such as Amazon, VMware and Citrix entering the market.
-
-This model has a real potential for cost minimization since there is no need for concern in regards to the maintenance and acquisition of the infrastructure. Since the organisation only has to make available the workstations and a way of establishing a connection to the service. Although, there is always a dependence on the network conditions such as large latencies and low bandwidth.
+%\begin{table}[]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\begin{tabular}{ll}
+%                                  & \textbf{Client-Based VDI}                                        	\\
+%\textit{\textbf{Deployment}}      & Small server rooms to private data centres                       	\\
+%\textit{\textbf{User Experience}} & Should be as good as a local OS installation                     	\\
+%\textit{\textbf{Cost}}            & Medium to high in hardware, with some additional cost in software 	\\
+%\textit{\textbf{Managing Effort}} & Low                                                               	\\
+%\textit{\textbf{Data Location}}   & Within the organisation                                           
+%\end{tabular}%
+%}
+%\caption{Client-Based VDI Characteristics}
+%\label{table:clientVDI}
+%\end{table}
+%
+%\begin{table}[]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\begin{tabular}{ll}
+%                                  & \textbf{Server-Based VDI}                                       \\
+%\textit{\textbf{Deployment}}      & Small server rooms to private data centres                      \\
+%\textit{\textbf{User Experience}} & Not as seamless some lag should be accounted                    \\
+%\textit{\textbf{Cost}}            & High to very high in hardware, and also high in software 		\\
+%\textit{\textbf{Managing Effort}} & Low to medium                                                   \\
+%\textit{\textbf{Data Location}}   & Within the organisation                                           
+%\end{tabular}%
+%}
+%\caption{Server-Based VDI Characteristics}
+%\label{table:serverVDI}
+%\end{table}
+%
+%\begin{table}[]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\begin{tabular}{ll}
+%                                  & \textbf{DaaS}                                   \\
+%\textit{\textbf{Deployment}}      & Public Cloud                      				\\
+%\textit{\textbf{User Experience}} & Not as seamless some lag should be accounted    \\
+%\textit{\textbf{Cost}}            & Mostly low, but depending on the provider 		\\
+%\textit{\textbf{Managing Effort}} & Low                                             \\
+%\textit{\textbf{Data Location}}   & In the cloud, possibly in another geographic location                                           
+%\end{tabular}%
+%}
+%\caption{DaaS Characteristics}
+%\label{table:daas}
+%\end{table}
 
 \nocite{Nuno2016}
 \nocite{Eduardo2016}
@@ -181,27 +224,33 @@ This model has a real potential for cost minimization since there is no need for
 \subsection{Virtual Machine Image Storage} % (fold)
 \label{sub:vm_storage}
 
-The data storage is the focal point to address in this work. Therefore, it is important to understand how a virtual machine is composed and how is translated to a representation in a storage device.
+The data storage is one of the focal points to address in this work. Therefore, it is meaningful to understand how a virtual machine is composed and how is translated to a representation in a storage device.
 
-The representation of a machine's settings and state more the information about snapshots comprise to a set of metadata. On the other hand, the Operating System, applications, logs and snapshots constitute the remaining data. Such data and metadata must be saved in a storage system, regardless of type, but is typically defined by a set of files. 
+The basic anatomy of a Virtual Machine encompasses a collection of files that define the VM settings, store the data (i.e. Virtual Disks) and save information about the state of its execution. All of these data and metadata need to be deposited on storage devices of whatever type. \\
 
-Given the architecture presented by VMware software~\cite{VMWare_VMFiles}, the main files required for the operation of a VM are:
+\textbf{VMware Architecture} \quad Given the architecture presented by VMware software~\cite{VMWare_VMFiles}, the main files required for the operation of a VM are:
 
 \begin{itemize}
-	\item The VM configuration file - The \texttt{.vmx} file holds the fundamental configuration options, describing every aspect of the VM.
+    \item \emph{The VM configuration file} - The \texttt{.vmx} file holds the primary configuration options, defining every aspect of the VM. Any virtual hardware assigned to a VM is present here. 
+		At the creation time of a new virtual machine, the configurations regarding the guest operating system, disk sizes, and networking are appended to the \texttt{.vmx} file. Also, whenever an edit occurs to the settings of a virtual machine, this file is updated to reflect those modifications.
 	%
-	\item The virtual disk files - Embodying multiple \texttt{.vmdk}, which stores the contents of the virtual machine's hard disk drive.
+    \item \emph{The virtual disk files} - Embodying multiple \texttt{.vmdk}, which stores the contents of the virtual machine's hard disk drive and a small text disk descriptor file.
+		The descriptor file specifies the size and geometry of the virtual disk file. Also includes a pointer to the full data file as well as information regarding the virtual disks drive sectors, heads, cylinders and disk adapter type.
+		The virtual disk actual data file is conceived while adding a virtual hard drive to a VM. The size of these files will fluctuate based on the maximum size of the disk, and the type of provisioning employed (i.e. thick or thin provisioning)
+    %
+    \item \emph{The file that stores the BIOS} - The \texttt{.nvram} file stores the state of the virtual machine's BIOS.
+    %
+    \item \emph{The suspended state file} - The \texttt{.vmss} saves contains the state of a suspended virtual machine. This file is utilised when virtual machines enter a suspended state giving the functionality of preserving the memory contents of a running VM so it can start up again where it left off.  When a VM is returned from a suspend state, the contents of this file are rewritten into the physical memory of the host, being deleted in the event of the next VM Poweroff.
+    %
+    \item \emph{Log files} - A collection of \texttt{.log} files is created to log information about the virtual machine and often handled for troubleshooting purposes. A new log file is created either during a VM power off and back on process, or if the log file stretches to the maximum designated size limit.
 	%
-	\item The file that stores the BIOS - The \texttt{.nvram} file stores the state of the virtual machine's BIOS.
-	%
-	\item The suspended state file - The \texttt{.vmss} saves contains the state of a suspended virtual machine.
-	%
-	\item Log files - A collection of \texttt{.log} files is created to log information about the virtual machine and often handled for troubleshooting purposes.
+	\item \emph{The Swap file} - The \texttt{vswp} file warehouses the memory overflow in case  the host cannot provide sufficient memory to the VM, and Ballooning technique cannot be employed to free memory~\cite{VMWare_esxmem} 
 \end{itemize}
 
+In addition to the records described above, there may be some more files associated with the use of snapshots. More concretely, a \texttt{.vmsd} file and multiple \texttt{.vmsn}. The first is a file with the consolidation of storing and metadata information about snapshots. The other one, represents the snapshot itself, saving the state of the virtual machine in the moment of the creation of the snapshot.
 
-In addition to the records described above, there may be some more related to the use of snapshots. The implementation of snapshots can be described as follows: first, the state of the resource is stored in the form of an immutable and persistent object, and second all modifications that transform the state of the resource are saved in a different object. To save this objects the \texttt{.vmsn} extension is employed.
-The snapshotting technique is discussed in a more comprehensive sense in the Section~\ref{sub:snapshots}.
+The implementation of snapshots mentioned above applies to a specific implementation of VMware and takes form as follows: first, the state of the resource is stored in the form of an immutable and persistent object. Then, all modifications that transform the state of the resource are gathered in a different object. 
+The diverse snapshotting techniques are addressed in a more comprehensive sense in the Section~\ref{sub:snapshots}.
 
 
 %%-------------------------------------------------------------------
@@ -215,6 +264,21 @@ As stated in previous sections, the main problem to be addressed in this work is
 When applied to the VDI concept some demands appear in the form of a specific care at planning the storage system architecture, as well as the supporting infrastructure: the hardware picked, network topology, protocols used, and software implemented.
 
 At the end of the day, the idea is to present a solution that offers an appropriate cost to performance ratio, and that with little effort can scale when the need emerges.
+
+
+\subsection{Storage Challenges}
+\label{sub:storage_challenges}
+
+
+Custo por posto de trabalho
+I/O storms
+	 boot storm
+	 Login storm
+	 Varrimento de malware
+	 lancamento de applicacoes
+	 Updates
+	 
+	 
 
 
 %%-------------------------------------------------------------------
