@@ -266,17 +266,37 @@ When applied to the VDI concept some demands appear in the form of a specific ca
 At the end of the day, the idea is to present a solution that offers an appropriate cost to performance ratio, and that with little effort can scale when the need emerges.
 
 
+%%-------------------------------------------------------------------
+%%	2.2. - Storage Challenges
+%%-------------------------------------------------------------------
 \subsection{Storage Challenges}
 \label{sub:storage_challenges}
 
 
-Custo por posto de trabalho
-I/O storms
-	 boot storm
-	 Login storm
-	 Varrimento de malware
-	 lancamento de applicacoes
-	 Updates
+%%-------------------------------------------------------------------
+%%	2.2. - I/O storms
+%%-------------------------------------------------------------------
+\subsubsection{I/O storms}
+\label{subsub:ios_storms}
+
+\begin{description}
+	\item [Boot Storm] bla..
+	%
+	\item [Login Storm] bla..
+	%
+	\item [Malware and Anti-Virus Software Scanning] bla..
+	%
+	\item [Big Applications Needs] bla..
+	%
+	\item [Operating System Updates] bla .
+\end{description}
+
+
+%%-------------------------------------------------------------------
+%%	2.2. - Cost by workstation
+%%-------------------------------------------------------------------
+\subsubsection{Cost by workstation}
+\label{subsub:cost_by_ws}
 	 
 	 
 
@@ -288,7 +308,7 @@ I/O storms
 \label{sub:file_systems}
 
 The traditional and perhaps most common way of storing files and, in turn, VMs is the use of file systems.
-This kind of system is used to manage the way information is stored and accessed on storage devices. A file system can be divided into three broad layers, from a top-down perspective we havew:
+This kind of system is used to manage the way information is stored and accessed on storage devices. A file system can be divided into three broad layers, from a top-down perspective we have:
 
 \begin{itemize}
 	\item The \textbf{Application Layer} is responsible for mediating the interaction with user's applications, providing an API for file operations. This layer gives file and directory access matching external names adopted by the user to the internal identifiers of the files. Also, manages the metadata necessary to identify each file in the appropriate organisational format.
@@ -303,14 +323,14 @@ There are many different types of file systems, each one boasting unique feature
 
 \begin{description}
 	\item [Local file systems:] A local filesystem can establish and destroy directories, files can be written and read, both can move from place to place in the hierarchy but everything contained within a single computing node. 
-Good performance can be improved in certain ways, incorporating caching techniques, read ahead, and carefully placing the blocks of the same file close to each other, although scalability will always be reduced. 
-There are too many file systems of this genre to be here listed. Nevertheless, some of the most renowned may be mentioned. As the industry-standard File Allocation Table (FAT), the New Technology File System (NTFS) from Microsoft, the Apple's Hierarchical File System Plus (HFS+) also called Mac OS Extended and the B-tree file system (BTRFS) initially designed by Oracle.
+		Good performance can be improved in certain ways, incorporating caching techniques, read ahead, and carefully placing the blocks of the same file close to each other, although scalability will always be reduced. 
+		There are too many file systems of this genre to be here listed. Nevertheless, some of the most renowned may be mentioned. As the industry-standard File Allocation Table (FAT), the New Technology File System (NTFS) from Microsoft, the Apple's Hierarchical File System Plus (HFS+) also called Mac OS Extended and the B-tree file system (BTRFS) initially designed by Oracle.
 	% 
 	\item [Distributed file system:] A distributed file system enables access to remote files using the same interfaces and semantics as local files, allowing users to access files from any computer on a network. 
-	Distributed file systems are being massively employed in today's model of computing. They offer state-of-the-art implementations that are highly scalable, provide great performance across all kinds of network topologies and recover from failures. 
-	Because these file systems carry a level of complexity considerably higher than a local file system, there is a need to define various requirements such being transparent in many forms (access, location, mobility, performance, scaling). As well as, handle file replication, offer consistency and provide some sort of access-control mechanisms. 
-	All of these requirements are declared and discussed in more detail in the book \enquote{Distributed Systems: Concepts and Design} by George Coulouris et al.~\cite{Coulouris2011}
-	We can give as example of file systems the well-known Network File System (NFS)~\cite{rfc5661} originally developed by Sun Microsystems, and the notable Andrew File System (AFS)~\cite{Satyanarayanan1990} developed at Carnegie Mellon University.
+		Distributed file systems are being massively employed in today's model of computing. They offer state-of-the-art implementations that are highly scalable, provide great performance across all kinds of network topologies and recover from failures. 
+		Because these file systems carry a level of complexity considerably higher than a local file system, there is a need to define various requirements such being transparent in many forms (access, location, mobility, performance, scaling). As well as, handle file replication, offer consistency and provide some sort of access-control mechanisms. 
+		All of these requirements are declared and discussed in more detail in the book \enquote{Distributed Systems: Concepts and Design} by George Coulouris et al.~\cite{Coulouris2011}
+		We can give as example of file systems the well-known Network File System (NFS)~\cite{rfc5661} originally developed by Sun Microsystems, and the notable Andrew File System (AFS)~\cite{Satyanarayanan1990} developed at Carnegie Mellon University.
 \end{description}
 
 
@@ -375,16 +395,11 @@ There are several arguments for which replication techniques are widely adopted;
 	\item [Performance improvement:] Performance improvement: Replication of immutable data is a trivial subject, is nothing more than a copy of data from one place to another. This increases performance, sharing the workload with more machines with little cost within the infrastructure.
 	%
 	\item [Increased availability:] Replication presents itself as a technique for automatically keeping the availability of data despite server failures. If data is replicated in additional servers, then clients may be able to access that data from the servers that didn't experience a failure.
-Another factors that must be taken into account are network partitions and disconnected operation.
+		Another factors that must be taken into account are network partitions and disconnected operation.
 	%
 	\item [Fault tolerance:] There is the need o maintain the correctness guarantees of the data in the appearance of failures, which may occur at any time.
 \end{description}
-
-%CAP theorem states that it is impossible for a distributed computer system to simultaneously provide all three of the following: Consistency , Availability and Partition tolerance .
-
-%Consistency (all nodes see the same data at the same time)
-%Availability (every request receives a response about whether it succeeded or not)
-%Partition tolerance (the system continues to operate despite arbitrary message loss or partial failure of the system or unavailability due to network partitions)
+x
 
 % section replication_consistency (end)
 
