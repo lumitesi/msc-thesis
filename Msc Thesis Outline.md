@@ -60,11 +60,11 @@ V1 – 06 Mar 2018
 
 1. Implementation of a Replication Module
    1. Requirements of the Module
-   2. Preliminary testing on the BTRFS Incremental Backup features
-   3. Architecture
-   4. Image Repository
+      1. Preliminary testing on the BTRFS Incremental Backup features
+   2. Architecture
+   3. Image Repository
       1. iCBD Snapshot Structure
-   5. Communications between Image Repositories
+   4. Communications between Image Repositories
 2. Building a iCBD Cache Server
    1. Replication of the iCBD platform in a new cluster
 3. …

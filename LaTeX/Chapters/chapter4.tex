@@ -8,6 +8,9 @@
 \chapter{Implementation of iCBD-Replication and Cache Server}
 \label{cha:replication}
 
+This chapter addresses the implementation of the central topics of this thesis, divided into two major fields.
+The first section talks about the creation of a middleware system that provides replication features in an integrated way to the iCBD platform. A detailed description of the concept and architectural model, as well as the implementation decisions, can be found in this section.
+Then, we show how the performance of the platform clients can be heightened by setting up a client-side caching system that stores images adjacent to the consumers. Concluding in exploring the challenges of recreating the complete platform in a new environment and implementing a real-world scenario at Nova University Computer Science department laboratories.
 
 %%-------------------------------------------------------------------
 %%	4 - Implementation of a Replication Module
@@ -26,8 +29,8 @@
 %%-------------------------------------------------------------------
 %%	4. - Preliminary tests on the BTRFS Incremental Backup features
 %%-------------------------------------------------------------------
-\subsection{Preliminary tests on the BTRFS Incremental Backup features}
-\label{sub:pre_test_btrfs}
+\subsubsection{Preliminary tests on the BTRFS Incremental Backup features}
+\label{subsub:pre_test_btrfs}
 
 %https://btrfs.wiki.kernel.org/index.php/Incremental_Backup
 %https://www.samba.org/ftp/rsync/rsync.html
