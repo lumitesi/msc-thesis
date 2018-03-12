@@ -17,10 +17,23 @@
 
 
 %%-------------------------------------------------------------------
+%%	4. - Requirements of the Module
+%%-------------------------------------------------------------------
+\subsection{Requirements of the Module}
+\label{sub:requirements_icbdrep}
+
+
+%%-------------------------------------------------------------------
 %%	4. - Preliminary tests on the BTRFS Incremental Backup features
 %%-------------------------------------------------------------------
 \subsection{Preliminary tests on the BTRFS Incremental Backup features}
 \label{sub:pre_test_btrfs}
+
+%https://btrfs.wiki.kernel.org/index.php/Incremental_Backup
+%https://www.samba.org/ftp/rsync/rsync.html
+
+Before the start of any implementation, there was the need to validate the capabilities of the BTRFS file system regarding sending snapshots across different systems.
+As one of the requirements was the efficiency of the transference of data. So a small comparison was in order. 
 
 
 %%-------------------------------------------------------------------
@@ -29,11 +42,16 @@
 \subsection{Image Repository}
 \label{sub:rep_image_repo}
 
+\subsubsection{iCBD Snapshot Structure}
+\label{subsub:icbd_snapshot}
+
+In the replication module we treat a snapshot not only as raw data, but a collection of data and metadata that is essencial to unequivocally distinguish the multiple images present in the system. 
+
 
 %%-------------------------------------------------------------------
-%%	4. - Remote procedure call
+%%	4. - Communications between image repositories
 %%-------------------------------------------------------------------
-\subsection{Remote procedure call}
+\subsection{Communications between image repositories}
 \label{sub:rep_rpcs}
 
 
@@ -42,6 +60,8 @@
 %%-------------------------------------------------------------------
 \subsubsection{Pyro4 Library}
 \label{subsub:rep_pyro4}
+
+%https://pythonhosted.org/Pyro4/
 
 
 %%-------------------------------------------------------------------

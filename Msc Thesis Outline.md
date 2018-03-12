@@ -38,6 +38,7 @@ V1 – 06 Mar 2018
 
 
 
+
 ### 3 – iCBD - Infrastucture for Client-Based Desktop
 
 1. The Concept
@@ -50,14 +51,42 @@ V1 – 06 Mar 2018
    1. Motivation and Goals
    2. System Overview
    3. Requirements 
-4. d
+4. …
+
 
 
 
 ### 4 - Implementation of iCBD-Replication and Cache Server
 
 1. Implementation of a Replication Module
+   1. Requirements of the Module
+   2. Preliminary testing on the BTRFS Incremental Backup features
+   3. Architecture
+   4. Image Repository
+      1. iCBD Snapshot Structure
+   5. Communications between Image Repositories
+2. Building a iCBD Cache Server
+   1. Replication of the iCBD platform in a new cluster
+3. …
 
 
 
-Bibliography
+
+### 5 - Evaluation
+
+1. Motivation
+2. Functional Testing
+   1. Unittest
+3. Integration Testing
+4. …
+
+
+
+### 6 - Conclusions & Future Work
+
+1. Conclusions
+2. Future Work
+
+
+
+### Bibliography
