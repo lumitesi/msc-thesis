@@ -19,7 +19,9 @@ Then, we show how the performance of the platform clients can be heightened by s
 \section{Implementation of a Replication Module}
 \label{sec:replication_impl}
 
-One of the main objectives of iCBD is to provide a platform that can be cloud centric, or can be fully hosted on the client premisses. Never the the less its important to a system administrator to provide an up to date image for its clients. And to dissiminate that image in a efortless way replication thecnics can come as an interesting solution to achive an automated process.
+One of the central objectives of iCBD is to provide a platform that can be both cloud-centric, with the administration and a portion of the storage burden gathered in a public cloud, or fully hosted on client premises. Either way, it becomes evident that data locality is an important subject, which means that there is the need to study how this data will flow between the multiple components of the iCBD platform.
+As can be imagined this is a data-intensive platform, bosting multiple storage devices in many networks and an array of consumers demanding that data at any given time.
+All these factors allied to the platform architecture result in the need to create a new component, whose chief mission is to ensure that the data is correctly replicated in the appropriate places, maintaining the consistency of the various versions of VM images stored.
 
 %%-------------------------------------------------------------------
 %%	4. - Requirements of the Module
@@ -36,6 +38,9 @@ One of the main objectives of iCBD is to provide a platform that can be cloud ce
 
 %https://btrfs.wiki.kernel.org/index.php/Incremental_Backup
 %https://www.samba.org/ftp/rsync/rsync.html
+
+The first step is to try to understand the most efficient way to transfer this peculiar kind of data. Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network. In this sense, we next present some preliminary tests in multiple ways of transferring snapshots between BTRFS file systems both in the same machine and in different ones.
+The results obtained here conjugated with the defined requirements are essential for defining the architecture of the replication module steering the implementation at its best path.
 
 Before the start of any implementation, there was the need to validate the capabilities of the BTRFS file system regarding sending snapshots across different systems.
 As one of the requirements was the efficiency of the transference of data. So a small comparison was in order. 
