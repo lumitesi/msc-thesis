@@ -29,6 +29,13 @@ All these factors allied to the platform architecture result in the need to crea
 \subsection{Requirements of the Module}
 \label{sub:requirements_icbdrep}
 
+Requirements
+
+The file system is set BTRFS will be used.
+Many reasons for that:
+The most important is the support for snapshots
+Compression
+
 
 %%-------------------------------------------------------------------
 %%	4. - Preliminary tests on the BTRFS Incremental Backup features
@@ -80,6 +87,7 @@ In the replication module we treat a snapshot not only as raw data, but a collec
 \subsection{Master Node}
 \label{sub:rep_master_node}
 
+REST API
 
 %%-------------------------------------------------------------------
 %%	4. - Replica Node
