@@ -56,12 +56,12 @@ Virtualization is the pillar technology that allowed for the widespread of the I
 The sheer magnitude of those numbers leads to an obvious problem. How to store efficiently all this data? 
 Not only there is the need to store client generated data but also manage all the demands of the infrastructure and the many services offered. 
 One approach taken by these companies was the development of their own storage solutions. For instance, Google uses BigTable distributed storage system \cite{Chang2006}, to store product specific data, and then serve it to users. This system relies on the Google File System underneath to provide a robust solution to store logs and data files, designed to be reliable, scalable and fault tolerance.
-\\
+%\\
 %
 
 One characteristic in particular that stands out and is present in many of today's systems is the use of snapshots with copy-on-write techniques. The adoption of such methods allows for quick copy operations of large data sets but saving resources. At the same time it provides high-availability with read-only copies of the data always ready to use and allowing applications to continue execution of write operations simultaneously.
 All the above-mentioned properties joined with others such as replication and data distribution, to comprise the fundamentals to what is needed to run a highly distributed and scalable file system. For instance, the duplication of records across multiple machines, not only serves as a security net in case of a misfortune event avoiding having a single point of failure but can also be used to maximise availability and take advantage of network bandwidth. 
-\\
+%\\
 %
 
 %Existing file systems address some of these properties by default, however, in most cases, they were designed to be compatible with an increasing diversity of devices that run UNIX-based Operating Systems and need to offer a POSIX API, being more concerned with a local environment. 
@@ -100,9 +100,9 @@ The primary objective is to improve in a known model, the client-based Virtual D
 \label{sub:icbd_project}
 
 
-There are some leading-edge aspects of the \gls{iCBD} project which sets it apart from other solutions that already exist. Such the adoption of a diskless paradigm with a remote boot, the way virtual machine images are stored in the platform and the support for a virtualized or native execution on any workstation, depending on the user's choice.~\cite{P2020}
+There are some leading-edge aspects of the \acrfull{iCBD} project which sets it apart from other solutions that already exist. Such the adoption of a diskless paradigm with a remote boot, the way virtual machine images are stored in the platform and the support for a virtualized or native execution on any workstation, depending on the user's choice.~\cite{P2020}
 
-The Remote boot support is offered by HTTP, TFTP, and DHCP servers, and in turn, the image repository servers manage the storage of the VMs templates and the production of instances based on them.
+The Remote boot support is offered by \acrshort{HTTP}, \acrshort{TFTP}, and \acrshort{DHCP} servers, and in turn, the image repository servers manage the storage of the VMs templates and the production of instances based on them.
 To address the process of communication between workstations and the platform it is used the HTTP protocol, providing flexibility and efficiency in the communication of the messages.~\cite{P2020,Nuno2016,Eduardo2016}
 
 %\begin{figure}[htbp]
@@ -112,7 +112,7 @@ To address the process of communication between workstations and the platform it
 %	\label{fig:icbd}
 %\end{figure}
 
-\newpage
+%\newpage
 
 It is also interesting to briefly discuss some of the primary objectives of the project, being:
 \begin{itemize}
@@ -156,7 +156,7 @@ As is happening now, the two theses have followed two different paths in an atte
 
 This work, as a part of a bigger project and building on previous contributions, has as premise a couple of existing technologies in the file systems field to create a replicated and distributed environment capable of storing large files consisting mainly of \textit{VMs} templates and golden images. This work not only focuses on storage management aspects, as also attends the need of being integrated into a larger infrastructure and coexist with a wide variety of other systems.
 \\
-\newpage
+%\newpage
 
 % section project_contributions (end)
 %%-------------------------------------------------------------------

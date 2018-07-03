@@ -65,8 +65,7 @@ To summarise the platform should be able to:
 %Draw a diagram 
 %Layers are a kind of role, not a single a defined service but a collection 
 
-The iCBD platform is comprised of multiple layers, each comprised of multiple services that take responsibility for a given task. 
-We can group this layers in to four major labels as can be seen in the figure~\ref{fig:icbd_layers}
+The iCBD platform comprehends the use of multiple services that take responsibility for an essential set of tasks. To achieve a better understatement of the inner workings of the system we can group these services in four major architectural labels as seen in the figure~\ref{fig:icbd_layers}.
 
 
 \begin{figure}[htbp]
@@ -78,11 +77,13 @@ We can group this layers in to four major labels as can be seen in the figure~\r
 
 
 \begin{description}
-	\item [Boot Services Layer] Dnsmasq, HTTP, DHCP, TFTP, PXE
+	\item [\acrfull{iMI}] a nomenclature borrowed and adapted from Amazon Web Services AMI~\cite{aws_ami} embodies the required files to run a iCBD platform client. Including a VM template (with an operating system, configurations and applications) the iCBD boot package ( a collection of files needed for a network boot and custom-made to the operating system) and an assortment of configurations for services like PXE and iSCSI.
 	%
-	\item [Administration Layer] Virtualisation of Adm machines, creation of icbd boot packages
+	\item [Boot Services Layer] is responsible for providing the initial process from which the client machines will boot from the network and the posterior transference of a bespoke boot package. Employing services such as \acrshort{PXE}, \acrshort{DHCP}, \acrshort{TFTP} and \acrshort{HTTP}.
 	%
-	\item [Client Support Layer] R/W space, clients home dir, active directory
+	\item [Administration Layer] (in regards to software) takes advantage of a virtualisation stack (can be based in either \acrshort{KVM} or VMWare products) to engage in maintaining all the needed aspects for the successful creation and update processes of an \acrshort{iMI} lifecycle.  Employing a custom set of scripts, the creation of an iCBD Boot Package is also a duty of this layer. 
+	%
+	\item [Client Support Layer] deals with the demands of a deployed and running iCBD image, such as, providing read/write space (since iMIs run on diskless workstations) and storing users home directories. As well as, hosting domain controllers, centralised authentication amongst other services that can be already in place in the midst of a clients infrastructure. Granting the ability to deploy a customised iMI in any scenario.
 	%
 	\item [Storage Layer] BTRFS, CEPH, NFS, iSCSI 
 \end{description}
