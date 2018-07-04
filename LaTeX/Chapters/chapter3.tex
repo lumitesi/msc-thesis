@@ -85,7 +85,7 @@ The iCBD platform comprehends the use of multiple services that take responsibil
 	%
 	\item [Client Support Layer] deals with the demands of a deployed and running iCBD image, such as, providing read/write space (since iMIs run on diskless workstations) and storing users home directories. As well as, hosting domain controllers, centralised authentication amongst other services that can be already in place in the midst of a clients infrastructure. Granting the ability to deploy a customised iMI in any scenario.
 	%
-	\item [Storage Layer] BTRFS, CEPH, NFS, iSCSI 
+	\item [Storage Layer] is accountable for maintaining the repository of iMIs and facilitate essential operations like version controlling the VM images files. Is also in this layer that we seize the potential of replication features provided by the file systems employed. In this project, the storage relies on two mainstream file systems: BTRFS and CEPH. Together with services like \acrshort{NFS} and \acrshort{iSCSI} enables a way to export data to clients.
 \end{description}
  
  
@@ -94,10 +94,12 @@ Let's view in more detail each one of them.
 %%-------------------------------------------------------------------
 %%	3.2. - Boot Layer 
 %%-------------------------------------------------------------------
-\subsection{Boot Layer}
+\subsection{Boot Services Layer}
 \label{sub:icbd_architecture_boot}
 
-From a end-user perspective the only layer that is visible and interactive is the boot layers.
+From an end-user perspective, the only layer that is visible and interactive is the boot layer.
+However, there is more than the eye can not see, the is the need to resort to multiple services to successfully boot a client's workstation with an iCBD Machine Image.
+First, the process starts with a network boot where the Dnsmasq server provides the DHCP and TFTP services needed to start a traditional PXE environment boot. The DHCP provides an IP address and the instructions to contact a TFTP server that host the PXE boot menu files. After this initial communication, a friendly looking graphical menu displays to the user an assortment of choices.
 
 
 %%-------------------------------------------------------------------
@@ -130,7 +132,10 @@ From a end-user perspective the only layer that is visible and interactive is th
 \subsection{Motivation and Goals}
 \label{sub:motivation_goals}
 
-Cache servers
+\subsubsection{Replication}
+
+\subsubsection{Cache Servers}
+
 Para solucionar os problemas antes mencionados que afectam as soluções DaaS, decorrentes da limitada Largura de Banda, latência e jitter apreciáveis das limitações no acesso através da internet aos repositorios de VMs templates.
 Para se resolver o problema da limitada largura de banda que aflige as soluções habituais DaaS e para proporcionar a escalabilidade da solução iremos utilizar "servidores de proximidade" ou "Cache Servers", que irão conservar réplicas das VMs templates mantidas nas cloud, no sistema de administração. Será a partir dos cache servers presentes nos segmentos locais das LAN que os PCs clientes irão arrancar. Para isso os cache servers terão de dispor de discos locais (embora fosse possivel ter-se cache servers diskless, ficariam bloqueados caso houvesse uma interrupção no acesso à internet, e é para evitar isso que os disco locais são na pratica necessários.)
 
