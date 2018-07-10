@@ -97,9 +97,16 @@ Let's view in more detail each one of them.
 \subsection{Boot Services Layer}
 \label{sub:icbd_architecture_boot}
 
-From an end-user perspective, the only layer that is visible and interactive is the boot layer.
-However, there is more than the eye can not see, the is the need to resort to multiple services to successfully boot a client's workstation with an iCBD Machine Image.
-First, the process starts with a network boot where the Dnsmasq server provides the DHCP and TFTP services needed to start a traditional PXE environment boot. The DHCP provides an IP address and the instructions to contact a TFTP server that host the PXE boot menu files. After this initial communication, a friendly looking graphical menu displays to the user an assortment of choices.
+From an end-user perspective, the only layer that is visible and interactive is the boot layer. The interface is lean and provides a way to select the image to boot in the workstation, however not every single aspect is noticeable. In the background, there is a need to resort to multiple services for the start of a client's workstation with an iCBD Machine Image.
+
+The platform provides two processes to remote boot an iMI. One sets up the boot natively on the bare metal workstation in the fashion of a standard network boot. The other uses the above mechanism to start a minimal iMI that was a hypervisor installed and virtualises any other iMI available in the storage layer. Both approaches are entirely transparent to the final user that does not grasp the differences and doesn't know if the working OS is virtualised or running natively.
+
+The first part of the boot process starts like any other network boot where the Dnsmasq server provides the DHCP and TFTP services needed to start a traditional PXE environment boot. The DHCP provides an IP address and the instructions to contact a TFTP server that host the PXE boot menu files. After this initial communication, a friendly looking graphical menu displays to the user an assortment of choices.
+
+% https://opensource.com/article/18/1/analyzing-linux-boot-process
+% https://www.ibm.com/developerworks/library/l-linuxboot/index.html
+% https://utcc.utoronto.ca/~cks/space/blog/linux/LinuxBootOverview?
+Is in the second part of the boot that some changes start. After the selection of an iMI in the PXE boot menu~\cite{ibm_linux_boot}, a customised boot package for that chosen image loads trough TFTP including a compressed Linux Kernal (vmlinuz) and an initial ramdisk (initrd).Is also in this step that some parameters needed during the boot are set with the correct values according to the image picked. After everything is loaded into memory ...
 
 
 %%-------------------------------------------------------------------
@@ -136,8 +143,8 @@ First, the process starts with a network boot where the Dnsmasq server provides 
 
 \subsubsection{Cache Servers}
 
-Para solucionar os problemas antes mencionados que afectam as soluções DaaS, decorrentes da limitada Largura de Banda, latência e jitter apreciáveis das limitações no acesso através da internet aos repositorios de VMs templates.
-Para se resolver o problema da limitada largura de banda que aflige as soluções habituais DaaS e para proporcionar a escalabilidade da solução iremos utilizar "servidores de proximidade" ou "Cache Servers", que irão conservar réplicas das VMs templates mantidas nas cloud, no sistema de administração. Será a partir dos cache servers presentes nos segmentos locais das LAN que os PCs clientes irão arrancar. Para isso os cache servers terão de dispor de discos locais (embora fosse possivel ter-se cache servers diskless, ficariam bloqueados caso houvesse uma interrupção no acesso à internet, e é para evitar isso que os disco locais são na pratica necessários.)
+To solve some of the enunciated problems with a DaaS solution that derive from limited bandwidth, latency and jitter from the limitation of accessing the image repositories from an internet connection and provide some scalability feature with the implementation of proximity cache servers are key. These cache servers can store replicas of the iMIs created and maintained in an administration server. Moreover, since they are located in the same LAN segment as the clients is from here that they will boot.
+For accomplishing this work, the cache servers need to have hard drives. (Although it would be possible to have diskless cache servers, they would be blocked if there was an interruption in the internet access, and it is to avoid that the local drives are necessary. )
 
 %A instalação, configuração e administração dos cache-servers far-se-á também pela instanciação a partir da imagem de uma VM especialmente preparada para o efeito e residente na cloud, no sistema de administração. Os cache-servers arrancam inicialmente pela rede a partir do servidor na cloud e carregam um Linux que vai formatar os discos, neles instalando o conteúdo da própria imagem de VM, terminando com a instalação de um boot loader que irá arrancar o sistema do cache-server após a máquina fazer reboot. Daí em diante o sistema de administração na cloud irá disponibilizar as actualizações que forem necessárias, podendo mesmo forçar a re-instalação total dos cache-servers.
 
