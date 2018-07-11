@@ -92,6 +92,18 @@ The iCBD platform comprehends the use of multiple services that take responsibil
 Let's view in more detail each one of them.
 
 %%-------------------------------------------------------------------
+%%	3.2. - iCBD Machine Image 
+%%-------------------------------------------------------------------
+\subsection{iCBD Machine Image}
+\label{sub:icbd_architecture_imi}
+
+In its essence, an iCBD Machine Image is the compilation of everything that is needed to run an Operating System within the iCBD platform. The main component is the virtual machine template in the form of a read-only image. As described in section~\ref{sub:vm_storage} the anatomy of a template follows the standard from VMware and KVM VMs either with multiple files (i.e., Virtual Disk Files like .vmdk or .qcow) or a RAW storage format.
+
+The components of a iMI are:
+
+
+
+%%-------------------------------------------------------------------
 %%	3.2. - Boot Layer 
 %%-------------------------------------------------------------------
 \subsection{Boot Services Layer}
@@ -119,7 +131,7 @@ Is in the second part of the boot that some changes start. After the selection o
 %%-------------------------------------------------------------------
 %%	3.2. - Client Layer 
 %%-------------------------------------------------------------------
-\subsection{Client Layer}
+\subsection{Client Support Layer}
 \label{sub:icbd_architecture_client}
 
 %%-------------------------------------------------------------------
