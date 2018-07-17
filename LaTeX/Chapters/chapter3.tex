@@ -110,7 +110,7 @@ In its essence, an iCBD Machine Image is the compilation of everything that is n
 	%
 	\item [iCBD Boot Package files] In a network boot environment as the one used there is a need to keep a set of files that manage the boot of a workstation; these can be included in the initial ramdisk or later transferred over HTTP when needed. Included are an init and at least two Run Control Script files (rc0 and rc1) that are responsible for starting network services, mounts all file systems and ultimately bring the system up in single-user level. With BusyBox (a single executable file with a stripped down set of tools) a basic shell is available during the boot process to execute all the required configurations.
 	%
-	\item [Services Configuration files]
+	\item [Services Configuration files] Among the services employed there is the need for changes in some of the configurations files of these services. The NFS exports configuration file should reflect a structure of which file systems are exported, the networks that a remote host can use, as well as, a myriad of options that the NFS allows to be set. The same happens to iSCSI where an iSCSI targets need to refer to a backing store of the storage resource where the image resides. 
 \end{description}
 
 
