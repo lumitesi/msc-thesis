@@ -120,17 +120,20 @@ In its essence, an iCBD Machine Image is the compilation of everything that is n
 %%-------------------------------------------------------------------
 \subsection{Boot Services Layer}
 \label{sub:icbd_architecture_boot}
-
-From an end-user perspective, the only layer that is visible and interactive is the boot layer. The interface is lean and provides a way to select the image to boot in the workstation, however not every single aspect is noticeable. In the background, there is a need to resort to multiple services for the start of a client's workstation with an iCBD Machine Image.
-
-The platform provides two processes to remote boot an iMI. One sets up the boot natively on the bare metal workstation in the fashion of a standard network boot. The other uses the above mechanism to start a minimal iMI that was a hypervisor installed and virtualises any other iMI available in the storage layer. Both approaches are entirely transparent to the final user that does not grasp the differences and doesn't know if the working OS is virtualised or running natively.
-
-The first part of the boot process starts like any other network boot where the Dnsmasq server provides the DHCP and TFTP services needed to start a traditional PXE environment boot. The DHCP provides an IP address and the instructions to contact a TFTP server that host the PXE boot menu files. After this initial communication, a friendly looking graphical menu displays to the user an assortment of choices.
-
 % https://opensource.com/article/18/1/analyzing-linux-boot-process
 % https://www.ibm.com/developerworks/library/l-linuxboot/index.html
 % https://utcc.utoronto.ca/~cks/space/blog/linux/LinuxBootOverview?
-Is in the second part of the boot that some changes start. After the selection of an iMI in the PXE boot menu~\cite{ibm_linux_boot}, a customised boot package for that chosen image loads trough TFTP including a compressed Linux Kernal (vmlinuz) and an initial ramdisk (initrd).Is also in this step that some parameters needed during the boot are set with the correct values according to the image picked. After everything is loaded into memory ...
+
+
+From an end-user perspective, the only layer that is visible and interactive is the boot layer. The interface is lean and provides a way to select the image to boot in the workstation, however not every single aspect is noticeable. In the background, there is a need to resort to multiple services for starting a client's workstation with an iCBD Machine Image.
+
+The platform provides two processes to remote boot an iMI. One instanciates, from an iMI, the Operating System natively on the bare metal workstation in the fashion of a standard diskless network boot. The other uses the above mechanism for provisioning a minimal iMI that was a hypervisor installed and virtualises any other iMI available in the storage layer. Both approaches are entirely transparent to the final user that does not grasp the differences and doesn't know if the working OS is virtualised or running natively.
+
+The first part of the boot process starts like any other network boot, where a series of DHCP requests are used to provide the suitable client network parameters and particularly the location (IP address) of the TFTP server. Then begins the transference of a small network boot manager program. In this traditional PXE boot environment, a friendly looking tailored made graphical menu displays to the user an assortment of choices that announce the different iMIs ready to boot.
+
+After the selection of an iMI in the PXE boot menu~\cite{ibm_linux_boot} the second-stage boot kicks in. Using PXELINUX as a bootloader there is the capability of transferring a compressed Linux Kernal (vmlinuz) and an initial ramdisk (initrd) through either TFTP or HTTP, is also in this step that some parameters needed during the boot are set with the correct values according to the image picked. After everything is loaded into memory, the stage 2 boot loader invokes the kernel image, and after booted and initialised, the kernel starts the first user-space application. 
+
+Commonly the first application is called init, and in the particular case of this platform, the init file starts the chain execution of other custom files (rc0 and rc1). Those Run Control scripts configure every single aspect in the Operating System according to the characteristics of physical machine booting. The first step is to reconfigure the network card and obtain connectivity; then is determined if there is the need for getting more files indispensable for the remaining boot process; the next script, rc0, deals with data volumes and their mounting method...
 
 
 %%-------------------------------------------------------------------
