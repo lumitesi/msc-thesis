@@ -70,7 +70,7 @@ The iCBD platform comprehends the use of multiple services that take responsibil
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[height=4in]{placeholder}
+	\includegraphics[height=4in]{cap3_iCBD_Layers}
 	\caption{iCBD Layers View}
 	\label{fig:icbd_layers}
 \end{figure}
@@ -113,6 +113,33 @@ In its essence, an iCBD Machine Image is the compilation of everything that is n
 	\item [Services Configuration files] Among the services employed there is the need for changes in some of the configurations files of these services. The NFS exports configuration file should reflect a structure of which file systems are exported, the networks that a remote host can use, as well as, a myriad of options that the NFS allows to be set. The same happens to iSCSI where an iSCSI targets need to refer to a backing store of the storage resource where the image resides. 
 \end{description}
 
+\subsubsection{iMI Life Cycle}
+\label{subsub:imi_lifecycle}
+The life cycle of an iMI encompasses all the stages that an iMI takes throughout its course within the platform. From creation, passing through live deployment in use by multiple clients and finally its decommission and temporary or cold storage.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap3_iMI_Lifecycle}
+	\caption{iMI Life Cycle inside the iCBD Platform}
+	\label{fig:icbd_iMI_lifecycle}
+\end{figure}
+
+Each lap in the cycle is considered a new version. So every new update made to an iMI will spawn a new version. Through the snapshotting features of the storage layer, the creation of a new version is a rather straightforward and computationally light operation.
+
+During its stay on the platform, an iMI can present four states:
+
+\begin{description}
+	\item [Created] After the being inserted in the platform, an image is not instantaneously camera ready (i.e. able to be served to clients and booted in a workstation), it needs to pass through the administration layer for the generation of a boot package. 
+	%
+	\item [In Administration] An iMI goes through this phase in two moments. The first is the case described above, where an image has just been injected into the platform, and it is necessary to create the conditions for it to work in this system. Continuing to the most frequent case, which happens when an image needs an update or any set of changes. It is here in this state that in interaction with the administration layer provides with a way to administer and update an iMI. The iMI will stay in this state as long as being managed (which can take from a few minutes to hours) and the duration of the process for creating the boot package.
+	%
+	\item [Not Published] This status symbolises that the image is ready to be used but has not yet been published and visible to platform users, which is particularly interesting for testing the iMI. This methodology allows for the possibility to ensure that the changes made have been applied successfully and that the image can be made available for general use.
+	%
+	\item [Deployed]
+\end{description}
+
+
+
 
 
 %%-------------------------------------------------------------------
@@ -150,6 +177,7 @@ At last, the residual configuration entails the update of the correct time with 
 
 The adm script
 The esxi use to avoid nested virtualisation
+The mki - crating the boot package
 
 
 %%-------------------------------------------------------------------
