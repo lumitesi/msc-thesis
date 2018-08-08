@@ -115,7 +115,7 @@ In its essence, an iCBD Machine Image is the compilation of everything that is n
 
 \subsubsection{iMI Life Cycle}
 \label{subsub:imi_lifecycle}
-The life cycle of an iMI encompasses all the stages that an iMI takes throughout its course within the platform. From creation, passing through live deployment in use by multiple clients and finally its decommission and temporary or cold storage.
+The life cycle of an iMI encompasses all the stages that an iMI takes throughout its course within the platform, as seen in Figure~\ref{fig:icbd_iMI_lifecycle}. From creation, passing through live deployment in use by multiple clients and finally its decommission and temporary or cold storage.
 
 \begin{figure}[htbp]
 	\centering
@@ -126,17 +126,20 @@ The life cycle of an iMI encompasses all the stages that an iMI takes throughout
 
 Each lap in the cycle is considered a new version. So every new update made to an iMI will spawn a new version. Through the snapshotting features of the storage layer, the creation of a new version is a rather straightforward and computationally light operation.
 
-During its stay on the platform, an iMI can present four states:
+During its stay on the platform, an iMI can present four main states:
 
 \begin{description}
 	\item [Created] After the being inserted in the platform, an image is not instantaneously camera ready (i.e. able to be served to clients and booted in a workstation), it needs to pass through the administration layer for the generation of a boot package. 
 	%
 	\item [In Administration] An iMI goes through this phase in two moments. The first is the case described above, where an image has just been injected into the platform, and it is necessary to create the conditions for it to work in this system. Continuing to the most frequent case, which happens when an image needs an update or any set of changes. It is here in this state that in interaction with the administration layer provides with a way to administer and update an iMI. The iMI will stay in this state as long as being managed (which can take from a few minutes to hours) and the duration of the process for creating the boot package.
 	%
-	\item [Not Published] This status symbolises that the image is ready to be used but has not yet been published and visible to platform users, which is particularly interesting for testing the iMI. This methodology allows for the possibility to ensure that the changes made have been applied successfully and that the image can be made available for general use.
+	\item [Not Published] This status symbolises that the image is ready to work but isn't yet published and so not visible to platform users. This phase holds a particular interest in the testing the iMI for the correctness in the boot process and to ensure that the modifications were applied. Only after the testing procedures should an iMI made available for general use.
 	%
-	\item [Deployed]
+	\item [Deployed] The stage where the iMI is expected to spend most of its time. One can think of this state as the proceeding into production of an iMI. After all the previous steps it is anticipated that the image is entirely ready to be delivered to the clients. At this stage, the platform in its Boot Services Layer announces to clients the possibility of choosing this image and provides the necessary support to its execution. Clients can instantiate the iMI as they please, taking advantage of the fact that can access their data and applications from nearly any device.
 \end{description}
+
+When an iMI completes a cycle and undergoes an update process, the old version is retired and goes to a fifth state, denominated \textbf{Marked for Decommission}, which is comparable to a stay in limbo. First, because when the administration process has initiated the probability of having clients using the image is significant, therefore the iMI needs to continue available for those clients. Even when the administration process ends, some client may still be using the image's old version. Thus only after all the clients cease utilising the iMI, can the image be transferred to its final state - \textbf{Decommission}. At this point, the version can be removed entirely from the platform or more wisely stored as a backup for some eventual failure in the future, or even if the administrator wants to recover an older state of the image.
+
 
 
 
