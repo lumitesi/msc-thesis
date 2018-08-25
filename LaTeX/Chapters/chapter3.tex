@@ -161,7 +161,7 @@ The platform provides two processes to remote boot an iMI. One instantiates, fro
 
 The first part of the boot process starts like any other network boot, where a series of DHCP requests are used to provide the suitable client network parameters and particularly the location (IP address) of the TFTP server. Then begins the transference of a small network boot manager program. In this traditional PXE boot environment, a friendly looking tailored made graphical menu displays to the user an assortment of choices that announce the different iMIs ready to boot.
 
-\subsubsection{Booting an iMI}
+\subsubsection{Booting an iMI in a Workstation }
 \label{susub:booting_imi}
 %(REF https://www.ibm.com/developerworks/library/l-initrd/index.html)
 After the selection of an iMI in the PXE boot menu~\cite{ibm_linux_boot} the second-stage boot kicks in. Using \textit{PXELINUX} as a bootloader there is the capability of transferring a compressed Linux Kernal (vmlinuz) and an initial ramdisk (initrd) (REF in comment)through either TFTP or HTTP, is also in this step that some parameters needed during the boot are set with the correct values according to the image picked. After everything loaded into memory, the stage 2 boot loader invokes the kernel image, and after booted and initialised, the kernel starts the first user-space application. 
