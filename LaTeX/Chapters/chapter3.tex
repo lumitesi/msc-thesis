@@ -183,11 +183,20 @@ One of the most important features provided by the platform, and personified in 
 
 \subsubsection{The Administration Process}
 \label{subsub:admin_imi}
-The administration tool consists of a series of scripts triggered by the main one called adm. Calling this script with the name of one iMI sets off the startup of a VM in a VMware ESXi server with an image that will serve as the base for the administration process. Commonly the OS used will be some kind of Linux (Fedora 27, CentOS 7 or even Ubuntu 16.04 LTS)
 
+The administration tool consists of a series of scripts triggered by the main one called \texttt{adm}. Calling this script with the name of one iMI sets off the startup of a VM in a VMware ESXi server with a base image that will support the administration process. Commonly the OS used will be some flavour of Linux (Fedora 27, CentOS 7 or even Ubuntu 16.04 LTS).
+
+The whole process makes extensive use of the snapshotting capabilities of the Storage Layer (whether using BTRFS or CEPH), with no prejudice to the complete system performance. For each iMI, there is a snapshot with an index number that relates to its version and age (i.e. the higher the number the most recent the version is). Multiple versions of an iMI persist stored in directories named by the index of the version. So, is simple to create a new linked clone from the most recent version.
+
+The administration VM, after its boot process, will start a hypervisor (VMware Workstation or KVM) that in turn will get a new linked clone of the most recent version of the iMI to administrate. In this sense, this process makes use of nested virtualisation to achieve its goal, which can result in some slowness (even considering the use of a Type 1 hypervisor), but in theory, all the operations to the new snapshot could be performed on a physical machine using only one level of virtualisation. 
+%(ref: https://www.linux-kvm.org/images/3/33/02x03-NestedVirtualization.pdf)
+In this step, the snapshot that is in the management process is in a working directory, a temporary storage area with a limited lifetime to the duration of the procedure. This serves two proposes. First, all the clients that are using the latest version of the iMI can remain using it with an administrative process running in parallel. The second is the ability to quickly discard all the changes made in the working directory in case of unwanted changes. 
+
+\subsubsection{Creating the boot package}
+\label{subsub:createboot_imi}
+
+Points:
 The adm script
-
-
 The esxi use to avoid nested virtualisation
 The mki - crating the boot package
 
@@ -207,6 +216,9 @@ Possibility to integrate Samba shares, LDAP, Active directory, more services emb
 %%-------------------------------------------------------------------
 \subsection{Storage Layer}
 \label{sub:icbd_architecture_storage}
+
+For each iMI, there is a snapshot with an index number that relates to its version and age (the higher the number the most recent the version is).
+Multiple versions of an iMI are stored in directories named by the index of the version. So, is simple to create a new linked clone from the most recent version 
 
 Why btrfs?
 The way the files are stored.
