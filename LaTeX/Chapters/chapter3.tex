@@ -190,10 +190,22 @@ The whole process makes extensive use of the snapshotting capabilities of the St
 
 The administration VM, after its boot process, will start a hypervisor (VMware Workstation or KVM) that in turn will get a new linked clone of the most recent version of the iMI to administrate. In this sense, this process makes use of nested virtualisation to achieve its goal, which can result in some slowness (even considering the use of a Type 1 hypervisor), but in theory, all the operations to the new snapshot could be performed on a physical machine using only one level of virtualisation. 
 %(ref: https://www.linux-kvm.org/images/3/33/02x03-NestedVirtualization.pdf)
-In this step, the snapshot that is in the management process is in a working directory, a temporary storage area with a limited lifetime to the duration of the procedure. This serves two proposes. First, all the clients that are using the latest version of the iMI can remain using it with an administrative process running in parallel. The second is the ability to quickly discard all the changes made in the working directory in case of unwanted changes. 
+In this step, the snapshot that is in the management process is in a working directory, a temporary storage area with a limited lifetime to the duration of the procedure. This method serves two proposes. First, all the clients that are using the latest version of the iMI can remain using it with an administrative process running in parallel. The second is the ability to quickly discard all the changes made in the working directory in case of unwanted changes.
+
+Finishing the process, with all the desired actions performed in the iMI, the administrator gets to chose between saving the changes done or discarding them. When choosing to proceed with saving the new version of the image, a process starts by changing the working directory to a permanent one, through a new linked clone of the working snapshot but this time following the naming system so that the version number will name the directory.
+
 
 \subsubsection{Creating the boot package}
 \label{subsub:createboot_imi}
+
+Even after all the process described above, the iMI is not ready to boot, being the next step the creation of the boot package.
+The procedure is different for each type of iMI (Windows or Linux), but there are a set of steps in common, with the Linux iMIs needing a particular number of customisations. The peculiarity of these requirement comes from the fact that Linux iMI can run natively on a client workstation and serve as host for other images, which entails the creation of custom initramfs e vmlinuz files and the addition of Kernel drivers and firmware(...)
+
+Adicionado suporte para 'iscsi' (actualiza /etc/tgt/conf.d...)
+Possibilidade de preparar a iMI para servir de base para admin
+Run Control Scriptfiles (rc0 and rc1) that are responsible for starting network services, mounts all file systems
+Script para correr VM iMI em cima de uma iMI
+
 
 Points:
 The adm script
