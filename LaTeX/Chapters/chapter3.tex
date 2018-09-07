@@ -198,13 +198,9 @@ Finishing the process, with all the desired actions performed in the iMI, the ad
 \subsubsection{Creating the boot package}
 \label{subsub:createboot_imi}
 
-Even after all the process described above, the iMI is not ready to boot, being the next step the creation of the boot package.
-The procedure is different for each type of iMI (Windows or Linux), but there are a set of steps in common, with the Linux iMIs needing a particular number of customisations. The peculiarity of these requirement comes from the fact that Linux iMI can run natively on a client workstation and serve as host for other images, which entails the creation of custom initramfs e vmlinuz files and the addition of Kernel drivers and firmware(...)
-
-Adicionado suporte para 'iscsi' (actualiza /etc/tgt/conf.d...)
-Possibilidade de preparar a iMI para servir de base para admin
-Run Control Scriptfiles (rc0 and rc1) that are responsible for starting network services, mounts all file systems
-Script para correr VM iMI em cima de uma iMI
+Even after all the process described above, the iMI is not ready to boot, being the next step the creation of the boot package. This phase is the responsibility of the \texttt{mki} script which can be called immediately at the end of the administration process by the texttt{adm} tool depending on the type of the iMI.
+The procedure is different for each type of iMI (Windows or Linux), but with a set of steps in common, being that the Linux iMIs requires a particular number of customisations. The peculiarity of these requirement comes from the fact that Linux iMIs can run natively on a client workstation serving as host for other images. Which in turn entails the creation of custom \texttt{initramfs} and \texttt{vmlinuz} files, the addition of Kernel drivers and firmware, the tailor-making of Run Control Scriptfiles (rc0 and rc1) that start the network services with a configuration compatible with the platform and mount the correct remote file systems. 
+However, there is more to the \texttt{mki} script. For both flavours of the iMIs, the configurations of the \textit{iSCSI targets} need an update to reflect the new version of the iMI, with the same happening to the \textit{pxelinux} configuration that requires the new paths to the files served to the clients.
 
 
 Points:
