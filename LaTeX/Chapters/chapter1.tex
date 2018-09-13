@@ -69,57 +69,51 @@ The combination of this file system with replication and partitioning techniques
 \section{Project Presentation} % (fold)
 \label{sec:project_presentation}
 
-This dissertation work is performed in the context of a more comprehensive project with the name \gls{iCBD}~\cite{Lopes2017}, under development at Reditus S.A. in collaboration with DI - FCT/NOVA.
+This dissertation work is performed in the context of a more comprehensive project with the name \gls{iCBD}~\cite{Lopes2017}, under development at \textit{SolidNetworks – Business Consulting, LDA} part of the \textit{Reditus S.A.} group in collaboration with \textit{NOVA LINCS} hosted at \textit{DI - FCT/NOVA}.
+
 The primary objective is to improve in a known model, the client-based Virtual Desktop Infrastructure, developing an infrastructure to support the execution, in a non-intrusive way, of virtualised desktops in conventional workstations.
 
 %This dissertation work in enveloped in a larger project by the name iCBD, Infrastructure for Client-Based (Virtual) Desktop (Computing), were the objectives pass by the development of a computational infrastructure capable of supporting the execution of virtual desktops in an assortment of devices having as its main characteristic a non-intrusive approach. 
 
 %Taking this into account, there is a clear separation from other solutions previously and currently available, where there is a concern for the target device, without any writing being done to the local disks, preserving all the stored data, and giving the possibility to have other operating systems available for a local boot. To achieve this objective, all the needed components are loaded on-demand at the system startup and as part of the boot.
 
-% section project_presentation (end)
 
 
 %%-------------------------------------------------------------------
-%%	1.3. - Previous Work
+%%	1.3. - iCBD Project
 %%-------------------------------------------------------------------
 \subsection{iCBD Project} % (fold)
 \label{sub:icbd_project}
 
+There are some leading-edge aspects of the \acrfull{iCBD} project which sets it apart from other existing solutions such as the adoption of a diskless paradigm with a remote boot, the way the platform stores virtual machine images, and the support for a virtualised or native execution on the target workstation, depending on the user's choice.~\cite{P2020}
 
-There are some leading-edge aspects of the \acrfull{iCBD} project which sets it apart from other existing solutions such as the adoption of a diskless paradigm with a remote boot, the way virtual machine images are stored in the platform, and the support for a virtualised or native execution on the target workstation, depending on the user's choice.~\cite{P2020}
-
-The Remote boot support is offered by \acrshort{HTTP}, \acrshort{TFTP}, and \acrshort{DHCP} servers, and in turn, the image repository servers manage the storage of the VMs templates and the production of instances based on them.
+The remote boot support comprised by \acrshort{HTTP}, \acrshort{TFTP}, and \acrshort{DHCP} servers, and in turn, the image repository servers manage the storage of the VMs templates and the production of instances based on them.
 To address the process of communication between workstations and the platform it is used the HTTP protocol, providing flexibility and efficiency in the communication of the messages.~\cite{P2020,Nuno2016,Eduardo2016}
 
 %\begin{figure}[htbp]
-%	\centering
-%	\includegraphics[height=3in]{cap1_icbd}
-%	\caption{iCBD architecture. Adapted from \enquote{Linked clones baseados em funcionalidades de snapshot do sistema de ficheiros} by Nuno Alves~\cite{Nuno2016}}
-%	\label{fig:icbd}
+%    \centering
+%    \includegraphics[height=3in]{cap1_icbd}
+%    \caption{iCBD architecture. Adapted from \enquote{Linked clones baseados em funcionalidades de snapshot do sistema de ficheiros} by Nuno Alves~\cite{Nuno2016}}
+%    \label{fig:icbd}
 %\end{figure}
 
 %\newpage
 
 It is also interesting to briefly discuss some of the primary objectives of the project, being:
 \begin{itemize}
-	%
-	\item Offer a work environment and experience of use so close to the traditional one, that there is no disruption for the users when they begin to use this platform.
-	%
-	\item Enable centralized management of the entire infrastructure including servers in their multiple roles, storage and network devices from a single point.
-	%
-	\item Complete decoupling between users and workstations in order to promote mobility.
-	%
-	\item Support the disconnected operation of mobile workstations.
-	%
+    %
+    \item Offer a work environment and experience of use so close to the traditional one that there is no disruption for the users when they begin to use this platform.
+    %
+    \item Enable centralised management of the entire infrastructure including servers in their multiple roles, storage and network devices from a single point.
+    %
+    \item Complete decoupling between users and workstations in order to promote mobility.
+    %
+    \item Support the disconnected operation of mobile workstations.
+    %
 \end{itemize}
 
 With all the above in account, there is a clear separation from other solutions previously and currently available. As far as we know, no other solution is so comprehensive in the use of the resources offered by workstations whether they are PCs, laptops or similar devices.
 
-%This dissertation work is part of a larger project designated iCBD, Infrastructure for Client-Based (virtual) Desktop (computing), under development at Reditus S.A. in collaboration with DI - FCT/NOVA.
-
-%The primary objective is to improve in a known model, the client-based Virtual Desktop Infrastructure, devising an infrastructure to support the execution, in a non-intrusive way, of virtualized desktops in conventional workstations.
-
-% subsection icbd_project (end)
 
 
 %%-------------------------------------------------------------------
@@ -128,20 +122,30 @@ With all the above in account, there is a clear separation from other solutions 
 \subsection{Previous Work} % (fold)
 \label{sub:previous_work}
 
-There have previously been two dissertations involved in this project. That work has centred in the creation of the instances of virtual machines, more specifically in the creation supported by native snapshot mechanisms of the file system where the templates are stored. This way instead of using the hypervisor itself as a method to provision full or thin clones the work is done by the file system snapshot system.
+There have previously been two dissertations involved in this project. The work of those students has centred in the creation of the instances of virtual machines, more specifically in a creation supported by native snapshot mechanisms of the file system where the templates reside. Testing several Files Systems that present the requirements mentioned above. As well as, conduct an analysis on the performance of those systems when working with a typical load for the platform. 
+In a few words, the work opens a path where the snapshots stop being tied to the hypervisor as a tool for the provisioning (thin or full) of clones and bestowing the job to the file system snapshot system, which is fundamental to deliver a centralised management solution.
+As is happening presently, the two theses have followed two different paths in an attempt to determine which type of file system best suits these objectives. 
+In that sense, one of the works was used a local file system, named BTRFS, as the other followed the object-based storage path, adopting the CephFS.
 
-As is happening now, the two theses have followed two different paths in an attempt to determine which file system best suits these objectives. Being that one used a local file system, the BTRFS, and the other followed the object-based storage path, adopting the CephFS.
 
-% subsection previous_work (end)
 
 %%-------------------------------------------------------------------
-%%	1.4 - Project Contributions
+%%	1.4 - Problem Stating and Main Contributions
 %%-------------------------------------------------------------------
-%\section{Project Framing and Contributions} % (fold)
-\section{Problem Stating and Project Contributions}
+%\section{Problem Stating and Main Contributions} % (fold)
+\section{Problem Stating and Main Contributions}
 \label{sec:project_contributions}
 
-This work, as a part of a bigger project and building on previous contributions, has as premise a couple of existing technologies in the file systems field to create a replicated and distributed environment capable of storing large files consisting mainly of \textit{VMs} templates and golden images. This work not only focuses on storage management aspects, as also attends the need of being integrated into a larger infrastructure and coexist with a wide variety of other systems.
+In this dissertation, the objective is to build upon previous contributions and tackle the next set of questions, mainly:
+
+\begin{itemize}
+	\item \textit{How to scale the platform in order to handle a large number of clients and maintain or even enhance the performance?}
+	%
+	\item \textit{Needing to distribute the data between nodes that can set apart geographically, how to achieve that and maintain the consistency of the data?
+}\end{itemize}
+
+
+
 
 %%-------------------------------------------------------------------
 %%	3.2. - Replication and Caching - The Problem 
@@ -226,8 +230,7 @@ The main expected contributions are:
 
 \end{itemize}
 
-A detailed view of the planning can be found in \textbf{Chapter~\ref{sec:work_plan}}.
-
+A detailed view of the work conducted is presented in \textbf{Chapter~\ref{cha:impl_replication_caching}}.
 % subsection main_expected_contributions (end)
 
 
