@@ -113,7 +113,8 @@ In its essence, an iCBD Machine Image is the compilation of everything that is n
 	\item [Services Configuration files] Among the services employed there is the need for changes in some of the configurations files of these services. The NFS exports configuration file should reflect a structure of which file systems are exported, the networks that a remote host can use, as well as, a myriad of options that the NFS allows to be set. The same happens to iSCSI where an iSCSI targets need to refer to a backing store of the storage resource where the image resides. 
 \end{description}
 
-\subsubsection{iMI Life Cycle}
+%\subsubsection{iMI Life Cycle}
+\paragraph{iMI Life Cycle}
 \label{subsub:imi_lifecycle}
 The life cycle of an iMI encompasses all the stages that an iMI takes throughout its course within the platform, as seen in Figure~\ref{fig:icbd_iMI_lifecycle}. From creation, passing through live deployment in use by multiple clients and finally its decommission and temporary or cold storage.
 
@@ -161,7 +162,8 @@ The platform provides two processes to remote boot an iMI. One instantiates, fro
 
 The first part of the boot process starts like any other network boot, where a series of DHCP requests are used to provide the suitable client network parameters and particularly the location (IP address) of the TFTP server. Then begins the transference of a small network boot manager program. In this traditional PXE boot environment, a friendly looking tailored made graphical menu displays to the user an assortment of choices that announce the different iMIs ready to boot.
 
-\subsubsection{Booting an iMI in a Workstation }
+%\subsubsection{Booting an iMI in a Workstation }
+\paragraph{Booting an iMI in a Workstation}
 \label{subsub:booting_imi}
 %(REF https://www.ibm.com/developerworks/library/l-initrd/index.html)
 After the selection of an iMI in the PXE boot menu~\cite{ibm_linux_boot} the second-stage boot kicks in. Using \textit{PXELINUX} as a bootloader there is the capability of transferring a compressed Linux Kernal (vmlinuz) and an initial ramdisk (initrd) (REF in comment)through either TFTP or HTTP, is also in this step that some parameters needed during the boot are set with the correct values according to the image picked. After everything loaded into memory, the stage 2 boot loader invokes the kernel image, and after booted and initialised, the kernel starts the first user-space application. 
@@ -180,10 +182,12 @@ At last, the residual configuration entails the update of the correct time with 
 
 One of the most important features provided by the platform, and personified in this next layer, is the ability to perform administration operations on an iMI. That task becomes simplified by the use of a provided image administration tool. Armed with such a mechanism any systems administrator in an organisation can make the changes that understand necessary (stuff like Operating System and software in general updates, add new software, modify configurations) and then publish the image in the platform for widespread use. 
 
+%\subsubsection{The Administration Process}
+%\label{subsub:admin_imi}
 
-\subsubsection{The Administration Process}
-\label{subsub:admin_imi}
-
+%\textbf{The Administration Process}
+\paragraph{The Administration Process}
+\label{par:admin_imi}
 The administration tool consists of a series of scripts triggered by the main one called \texttt{adm}. Calling this script with the name of one iMI sets off the startup of a VM in a VMware ESXi server with a base image that will support the administration process. Commonly the OS used will be some flavour of Linux (Fedora 27, CentOS 7 or even Ubuntu 16.04 LTS).
 
 The whole process makes extensive use of the snapshotting capabilities of the Storage Layer (whether using BTRFS or CEPH), with no prejudice to the complete system performance. For each iMI, there is a snapshot with an index number that relates to its version and age (i.e. the higher the number the most recent the version is). Multiple versions of an iMI persist stored in directories named by the index of the version. So, is simple to create a new linked clone from the most recent version.
@@ -195,18 +199,14 @@ In this step, the snapshot that is in the management process is in a working dir
 Finishing the process, with all the desired actions performed in the iMI, the administrator gets to chose between saving the changes done or discarding them. When choosing to proceed with saving the new version of the image, a process starts by changing the working directory to a permanent one, through a new linked clone of the working snapshot but this time following the naming system so that the version number will name the directory.
 
 
-\subsubsection{Creating the boot package}
-\label{subsub:createboot_imi}
+%\subsubsection{Creating the boot package}
+%\label{subsub:createboot_imi}
 
+\paragraph{Creating the boot package}
+\label{par:createboot_imi}
 Even after all the process described above, the iMI is not ready to boot, being the next step the creation of the boot package. This phase is the responsibility of the \texttt{mki} script which can be called immediately at the end of the administration process by the texttt{adm} tool depending on the type of the iMI.
-The procedure is different for each type of iMI (Windows or Linux), but with a set of steps in common, being that the Linux iMIs requires a particular number of customisations. The peculiarity of these requirement comes from the fact that Linux iMIs can run natively on a client workstation serving as host for other images. Which in turn entails the creation of custom \texttt{initramfs} and \texttt{vmlinuz} files, the addition of Kernel drivers and firmware, the tailor-making of Run Control Scriptfiles (rc0 and rc1) that start the network services with a configuration compatible with the platform and mount the correct remote file systems. 
+The procedure is different for each type of iMI (Windows or Linux), but with a set of steps in common, being that the Linux iMIs requires a particular number of customisations. The peculiarity of these requirement comes from the fact that Linux iMIs can run natively on a client workstation serving as host for other images. Which in turn entails the creation of custom \texttt{initramfs} and \texttt{vmlinuz} files, the addition of Kernel drivers and firmware, the tailor-making of Run Control Scriptfiles (rc0 and rc1) that start the network services with a configuration compatible with the platform and mount the correct remote file systems. In the end, is also added a script called \texttt{runvm}, that is instrumental in managing the launch of a virtualised iMI, as well as configure the hypervisor parameters to take the best advantage of the client hardware.
 However, there is more to the \texttt{mki} script. For both flavours of the iMIs, the configurations of the \textit{iSCSI targets} need an update to reflect the new version of the iMI, with the same happening to the \textit{pxelinux} configuration that requires the new paths to the files served to the clients.
-
-
-Points:
-The adm script
-The esxi use to avoid nested virtualisation
-The mki - crating the boot package
 
 
 %%-------------------------------------------------------------------
@@ -215,9 +215,17 @@ The mki - crating the boot package
 \subsection{Client Support Layer}
 \label{sub:icbd_architecture_client}
 
-NFS and iSCSI to provide the iMI
-Same services to provide r/w space (also btrfs) and user homes
-Possibility to integrate Samba shares, LDAP, Active directory, more services embedded in the platform.
+
+!!! \textbf{TODO} !!!
+
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Provide r/w space (for the duration of the session)
+	\item Stores users directories (Home directory)
+	\item Keep core services like DHCP, NTP, DNS, ...
+	\item Integrate with external services such as Samba shares, LDAP, Active directory, ..
+\end{itemize}
+
 
 %%-------------------------------------------------------------------
 %%	3.2. - Storage Layer 
@@ -225,15 +233,25 @@ Possibility to integrate Samba shares, LDAP, Active directory, more services emb
 \subsection{Storage Layer}
 \label{sub:icbd_architecture_storage}
 
-For each iMI, there is a snapshot with an index number that relates to its version and age (the higher the number the most recent the version is).
-Multiple versions of an iMI are stored in directories named by the index of the version. So, is simple to create a new linked clone from the most recent version 
+!!! \textbf{TODO} !!!
 
-Why btrfs?
-The way the files are stored.
-The use of BTRFS multiple volumes for different parts of the platform.
-The use of cloning to save multiple versions of an iMI, giving the possibility to roll back unwanted changes.
-The need to replicate data - multiple locations and cache server (one of the focus of the thesis)
-Should be transparent the the remaining layers. As being develop in Joao's thesis the use of CEPH it should be used with little to none modifications to other layers.
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Why btrfs? (Snapshots, seeding)
+	\item How are files stored?
+	\item The use of BTRFS multiple subvolumes for different parts of the platform.
+	\item The use of cloning to save multiple versions of an iMI, giving the possibility to roll back unwanted changes.
+	\item The need to replicate data - multiple locations and cache server (one of the focus of the thesis)
+	\item Should be transparent the the remaining layers. As being develop in Joao's thesis the use of CEPH  should be used with little to none modifications to other layers. (Interfacing through NFS or iSCSI just like BTRFS)
+\end{itemize}
+
+
+%For each iMI, there is a snapshot with an index number that relates to its version and age (the higher the number the most recent the version is).
+%Multiple versions of an iMI are stored in directories named by the index of the version. So, is simple to create a new linked clone from the most recent version 
+
+%\textbf{TODO - Talk about btrfs seed}
+%The importance of btrfs seeding relays on the fact that this feature alows for the multiple mounting operation of the same file system in read only mode. Thus allowing multiple clients to use the same image.. (Fulcral to the the platform)
+%http://www.oracle.com/technetwork/articles/servers-storage-admin/advanced-btrfs-1734952.html 
 
 
 %%-------------------------------------------------------------------
@@ -242,16 +260,60 @@ Should be transparent the the remaining layers. As being develop in Joao's thesi
 \section{Replication and Caching - The Problem}
 \label{sec:replication_cache}
 
+!!! \textbf{TODO} - Intro!!!
 
+%%-------------------------------------------------------------------
+%%	3.2. - Motivations and Goals
+%%-------------------------------------------------------------------
 \subsection{Motivation and Goals}
 \label{sub:motivation_goals}
 
+!!! \textbf{TODO} !!!
+
+\textbf{TOPICS :}
+\begin{itemize}
+	\item The iCBD platform needs to be available and maintain top notch performance in multiple locations while serving a considerable number of clients
+	\item Produce a mechanism that allows the replication of data not only for security reasons (backup) but also providing that data closer to the client
+	\item With the data near its consumer how to deliver that data to the client? (cache server)
+	\item What are the procedures that need to reside near the client (aka why the administration process can be centralised)
+\end{itemize}
+
+
+%%-------------------------------------------------------------------
+%%	3.2. - Replication
+%%-------------------------------------------------------------------
 \subsubsection{Replication}
 
+!!! \textbf{TODO} !!!
+
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Create a middleware that integrates with the core functionalities of the iCBD platform
+	\item Should try to be storage provider agnostic (in this thesis work with BTRFS but easy to integrate with others)
+	\item Work with compression algorithms to achieve a lower bandwidth consumption.
+	\item Be able to use encrypted and unencrypted communications
+	\item Capitalize the snapshotting features of the storage system in order to minimise the volume of data transferred
+	\item Provide a simple CLI and API
+\end{itemize}
+
+
+%%-------------------------------------------------------------------
+%%	3.2. - Cache Servers
+%%-------------------------------------------------------------------
 \subsubsection{Cache Servers}
 
-To solve some of the enunciated problems with a DaaS solution that derive from limited bandwidth, latency and jitter from the limitation of accessing the image repositories from an internet connection and provide some scalability feature with the implementation of proximity cache servers are key. These cache servers can store replicas of the iMIs created and maintained in an administration server. Moreover, since they are located in the same LAN segment as the clients is from here that they will boot.
-For accomplishing this work, the cache servers need to have hard drives. (Although it would be possible to have diskless cache servers, they would be blocked if there was an interruption in the internet access, and it is to avoid that the local drives are necessary. )
+!!! \textbf{TODO} !!!
+
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Dilute some cost of the infrastructure by having commodity hardware as proximity servers.
+	\item Bring the date closer to the final clients
+	\item Facilitate a user experience like the OS was installed in a local hard drive
+	\item Study the benefits of introducing cache servers in the platform 
+\end{itemize}
+
+%To solve some of the enunciated problems with a DaaS solution that derive from limited bandwidth, latency and jitter from the limitation of accessing the image repositories from an internet connection and provide some scalability feature with the implementation of proximity cache servers are key. These cache servers can store replicas of the iMIs created and maintained in an administration server. Moreover, since they are located in the same LAN segment as the clients is from here that they will boot.
+%For accomplishing this work, the cache servers need to have hard drives. (Although it would be possible to have diskless cache servers, they would be blocked if there was an interruption in the internet access, and it is to avoid that the local drives are necessary. )
 
 %A instalação, configuração e administração dos cache-servers far-se-á também pela instanciação a partir da imagem de uma VM especialmente preparada para o efeito e residente na cloud, no sistema de administração. Os cache-servers arrancam inicialmente pela rede a partir do servidor na cloud e carregam um Linux que vai formatar os discos, neles instalando o conteúdo da própria imagem de VM, terminando com a instalação de um boot loader que irá arrancar o sistema do cache-server após a máquina fazer reboot. Daí em diante o sistema de administração na cloud irá disponibilizar as actualizações que forem necessárias, podendo mesmo forçar a re-instalação total dos cache-servers.
 
@@ -259,9 +321,12 @@ For accomplishing this work, the cache servers need to have hard drives. (Althou
 
 %Assim como o Linux dos cache-servers é instalado nos discos locais dos servidores a partir de imagens na cloud, é possível fazer o mesmo com qualquer outra imagem de Linux que se queira. Assim, o administrador de sistema de um cliente poderá configurar outras VMs com o software e os serviços de que necessitar, designar uma máquina física como alvo, e fazer com que a VM seja vertida para os discos da sua máquina física, sendo configurado um boot loader para lhe permitir arrancar com essa configuração.
 
+%Como os clientes nestas categorias tipicamente necessitam de dezenas, centenas ou mais de postos de trabalho, na prática é impossível suportá-los directamente a partir de repositórios remotos de VMs templates. Em vez disso, iremos recorrer a “servidores de proximidade” ou “c​ache-servers”​, máquinas Linux reais ou virtuais devidamente dimensionadas e configuradas, instaladas na LAN dos clientes, idealmente uma (ou mais) por cada segmento de rede, as quais manterão réplicas das VMs templates a que cada cliente tem acesso nos repositórios remotos.
+%Com estes cache-servers localmente acessíveis aumentar-se-á drasticamente a velocidade de transferência de dados e a latência e o jitter nos acessos reduzir-se-ão a valores insignificantes, podendo cada cache-server suportar dezenas (ou mais) de PCs clientes (estimamos o número em 15 a 30 por cada interface gigabit nos cache-servers, estimativa que permanece válido para PCs clientes ligados a 100 Mbps através de switches com ligação gigabit aos cache-servers).
 
-\subsection{System Overview}
-\label{sub:system_overview}
 
-\subsection{Requirements}
-\label{sub:requirements}
+%\subsection{System Overview}
+%\label{sub:system_overview}
+
+%\subsection{Requirements}
+%\label{sub:requirements}
