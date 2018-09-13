@@ -259,6 +259,8 @@ The diverse snapshotting techniques are addressed in a more comprehensive sense 
 \section{Storage} % (fold)
 \label{sec:storage}
 
+!!! \textbf{TODO} - Refactor text !!!
+
 As stated in previous sections, the main problem to be addressed in this work is the storage concerning virtual machines. That could be either images, snapshots, files or data structures that are needed to support the execution of a VM. 
 
 When applied to the VDI concept some demands appear in the form of a specific care at planning the storage system architecture, as well as the supporting infrastructure: the hardware picked, network topology, protocols used, and software implemented.
@@ -272,12 +274,15 @@ At the end of the day, the idea is to present a solution that offers an appropri
 \subsection{Storage Challenges}
 \label{sub:storage_challenges}
 
+!!! \textbf{TODO} !!!
 
 %%-------------------------------------------------------------------
 %%	2.2. - I/O storms
 %%-------------------------------------------------------------------
 \subsubsection{I/O Storms}
 \label{subsub:ios_storms}
+
+!!! \textbf{TODO} !!!
 
 \begin{description}
 	\item [Boot Storm] bla..
@@ -297,6 +302,8 @@ At the end of the day, the idea is to present a solution that offers an appropri
 %%-------------------------------------------------------------------
 \subsubsection{Cost by workstation}
 \label{subsub:cost_by_ws}
+
+!!! \textbf{TODO} !!!
 	 
 	 
 
@@ -336,10 +343,6 @@ There are many different types of file systems, each one boasting unique feature
 
 In this work, the snapshot functionality of the file system itself is a valuable asset. This technique is present in some of the most recently designed file systems, such as the BTRFS. It has already been mentioned that previous work has been done to use the file system snapshot features as a base feature. This way the creation of linked-clones handled by the file system capabilities as an alternative to linked-clones created by virtualization software itself.
 
-\textbf{TODO - Talk about btrfs seed}
-The importance of btrfs seeding relays on the fact that this feature alows for the multiple mounting operation of the same file system in read only mode. Thus allowing multiple clients to use the same image.. (Fulcral to the the platform)
-http://www.oracle.com/technetwork/articles/servers-storage-admin/advanced-btrfs-1734952.html
-
 There are numerous types of additional file systems not mentioned since they are not in the domain of this work. Still, it is important to note the existence of an architecture that is not similar to the traditional file hierarchy adopted in file systems, which is the object-based storage. 
 
 This structure, as opposed to the ones presented above, manages data into evenly sized blocks within sectors of the physical disk. It is possible to verify that it has gained traction leading to the advent of the concept of cloud storage. There are numerous implementations of this architecture, whether in small local deployments or large-scale data centres supporting hundreds of petabytes of data.
@@ -354,7 +357,7 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 \subsection{Snapshots} % (fold)
 \label{sub:snapshots}
 
-\textbf{TO DO - Expand}
+!!! \textbf{TODO} !!!
 
 %In this work, we propose to use the snapshot functionality of the file system itself, present in some of the most recently designed file systems, such as the BTRFS. This way the creation of linked-clones handled by the file system capabilities as an alternative to linked-clones created by virtualization software itself.
 
@@ -365,6 +368,8 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 %%-------------------------------------------------------------------
 \section{Caching} % (fold)
 \label{sec:caching}
+
+!!! \textbf{TODO} - Needs More Info!!!
 
 A cache can be defined as a store of recently used data objects that is nearby one client or a particular set of clients than the objects themselves. The inner works of one of these systems are rather simple. When a new object is obtained from a server, it is added to the local cache, replacing some existing objects if needed. That way when an object is requested by a client, the caching service first checks the cache and supplies the object from there if an up-to-date copy is available. If not, an up-to-date copy is fetched, then served to the client and stored in the cache. 
 
@@ -386,6 +391,8 @@ Caches may be found beside each client or they may be located on a server that c
 %%-------------------------------------------------------------------
 \section{Replication}
 \label{sec:replication}
+
+!!! \textbf{TODO} - Needs More Info!!!
 
 At the storage level, replication is focused on a block of binary data. Replication may be done either on block devices or at the file-system level. In both cases, replication is dealing with unstructured binary data. The variety of technologies for storage-level replication is very extensive, from commodity RAID arrays to network file system.
 File-based replication works at a logical level of the storage system rather than replicating at the storage block level. There are multiple different methods of performing this. And, unlike with storage-level replication, these solutions almost exclusively rely on software.
