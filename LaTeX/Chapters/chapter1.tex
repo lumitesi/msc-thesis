@@ -101,7 +101,6 @@ To address the process of communication between workstations and the platform it
 
 It is also interesting to briefly discuss some of the primary objectives of the project, being:
 \begin{itemize}
-    %
     \item Offer a work environment and experience of use so close to the traditional one that there is no disruption for the users when they begin to use this platform.
     %
     \item Enable centralised management of the entire infrastructure including servers in their multiple roles, storage and network devices from a single point.
@@ -109,7 +108,6 @@ It is also interesting to briefly discuss some of the primary objectives of the 
     \item Complete decoupling between users and workstations in order to promote mobility.
     %
     \item Support the disconnected operation of mobile workstations.
-    %
 \end{itemize}
 
 With all the above in account, there is a clear separation from other solutions previously and currently available. As far as we know, no other solution is so comprehensive in the use of the resources offered by workstations whether they are PCs, laptops or similar devices.
@@ -139,9 +137,9 @@ In that sense, one of the works was used a local file system, named BTRFS, as th
 This dissertation aims to build upon the previous contributions, deeply study the core of the iCBD platform and tackle the next set of questions, mainly:
 
 \begin{itemize}
-	\item \textit{How to scale the platform in order to handle a large number of clients and maintain or even enhance the performance?}
-	%
 	\item \textit{Needing a distribute data model between nodes, which can be set apart geographically, how to achieve that and maintain the consistency and availability of the data?
+	%
+	\item \textit{How to scale the platform in order to handle a large number of clients and maintain or even enhance the performance?}
 }\end{itemize}
 
 
@@ -161,14 +159,19 @@ In general, the work will be divided into two major subjects, were the second is
 \paragraph{Motivation and Goals}
 \label{par:motivation_goals}
 
-!!! \textbf{TODO} !!!
+To answer these questions, we can formulate smaller topics that guide the work in a more focused way, creating a list of general requirements to be addressed by this thesis.
+In general, the work will be divided into two major subjects, were the second is a direct consequence and requires the first. Providing a mechanism that ensures the correct replication of data between nodes of the platform is paramount. This process also needs to confer other properties such as achieving the best performance on the data transferences, being in a factor of speed or the used bandwidth. Another point of interest is the fact that the replication process should easily integrate with any File System used in the Storage Layer (taking into account that is fundamental that the file system provides some variety of snapshotting mechanism) trying not to add a sizeable computational load.
+Following this idea, we may start thinking on how to deliver to the clients the benefits of replicating data. The replication procedure is not only a useful tool to propagate efficiently data changes throwout the nodes of the platform and act as insurance from a data loss disaster, but also capitalise on getting closer to the clients the resources that they need. Following this line of thought, an answer to the second question starts to appear. It is not only necessary to think about the location of the data, but also to study which services are used by the platform that are fundamental for running images on the client's workstations and how to integrate all so as to deliver the best experience to the highest number of clients.
+To summarise, the following list poses the key requirements had in mind during the planning and execution of this effort.
 
-\textbf{TOPICS :}
 \begin{itemize}
-	\item The iCBD platform needs to be available and maintain top notch performance in multiple locations while serving a considerable number of clients
-	\item Produce a mechanism that allows the replication of data not only for security reasons (backup) but also providing that data closer to the client
-	\item With the data near its consumer how to deliver that data to the client? (cache server)
-	\item What are the procedures that need to reside near the client (aka why the administration process can be centralised)
+    \item The iCBD platform needs to be always available and maintain top-notch performance in multiple locations while serving a considerable number of clients.
+    %
+    \item Produce a mechanism that allows the replication of data not only for security reasons (backup) but also providing that data closer to the client.
+    %
+    \item With the data near its consumer study what is required to deliver that data to the client in the most efficient way.
+	%
+	\item Boot a client with the minimal number of the platform functionalities possible, simplifying the processes near the consumer.
 \end{itemize}
 
 
@@ -245,10 +248,15 @@ The remnant document is structured as follows:
 
 \begin{itemize}
 
-  \item \textit{Chapter~\ref{cha:related_work}}  \textbf{Related Work} - This section presents existing technologies and theoretical approaches which were the target of study, such as, storage systems and several of its features, as well as several intrinsic characteristics of virtualization techniques.
-
-  \item \textit{Chapter 3} \textbf{Proposed Work} - In this chapter, there is a presentation of the work plan for the elaboration of this dissertation. Giving also an overview of the solution to develop on the duration of this thesis.
-
+  \item \textit{Chapter~\ref{cha:research_context}}  \textbf{Research Context} - This section presents existing technologies and theoretical approaches which were the target of study, such as, storage systems and several of its features, as well as several intrinsic characteristics of virtualisation techniques.
+	%
+  \item \textit{Chapter~\ref{cha:icbd}} \textbf{iCBD - Infrastructure for Client-Based Desktop} - In this chapter, there is a presentation of the iCBD platform as a whole. Giving also an overview of the solution with its multiple layers and trying to explain the conceptual and architectural decisions made, being essential to understanding the bigger picture and where the remaining work fits in.
+  %
+  \item \textit{Chapter~\ref{cha:impl_replication_caching}} \textbf{Implementation of the \textit{iCBD-Replication and Cache Server}} -
+  %
+  \item \textit{Chapter~\ref{cha:evaluation}} \textbf{Evaluation} - 
+  %
+  \item \textit{Chapter~\ref{cha:conclusion}} \textbf{Conclusions \& Future Work} - 
 \end{itemize}
 
 % section document_structure (end)
