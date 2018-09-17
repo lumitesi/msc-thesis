@@ -17,16 +17,15 @@ The acronym \gls{iCBD} stands for Infrastructure for Client-Based (Virtual) Desk
 
 Where the primary goal is to achieve a particular kind of \gls{VDI} infrastructure, a client based VDI, where client's computations are performed directly on the client hardware as opposed to on big and expensive servers. With the distinctive characteristic of not having the necessity of investing in hard disks for the client devices, as well as hoping to solve prominent predicaments in the administration and management of large-scale computer infrastructure.
 
-This chapter will address the central concepts and associated technologies encompassed in this project, particularly:\\
+This chapter will address the central concepts and associated technologies encompassed in this project, particularly:
 
 \begin{description}
 	%
 	\item [Section~\ref{sec:icbd_concept}] overviews the core concepts of the project and particularly note the limitations and peculiarities of current implementations in contrast with the chosen approach.
 	%
 	\item [Section~\ref{sec:icbd_architecture}] studies the principal architectural components of the platform, with emphasis on the different layers and how  they act together to serve the end-user.
-	%
-	\item [Section~\ref{sec:replication_cache}] will at last state the problem and motivation for introduction replication techniques in the storage components of the platform. Moreover, the section prefaces the importance of the implementation of cache servers that hold part of the distribution burden and crucial for the support of an increased number of clients.
 \end{description}
+\newpage
 
 
 %%-------------------------------------------------------------------
@@ -244,6 +243,11 @@ However, there is more to the \texttt{mki} script. For both flavours of the iMIs
 	\item The need to replicate data - multiple locations and cache server (one of the focus of the thesis)
 	\item Should be transparent the the remaining layers. As being develop in Joao's thesis the use of CEPH  should be used with little to none modifications to other layers. (Interfacing through NFS or iSCSI just like BTRFS)
 \end{itemize}
+
+%https://blogs.oracle.com/developers/save-disk-space-on-linux-by-cloning-files-on-btrfs-and-ocfs2-v2
+%In this case the file system does not create a new link pointing to an existing inode, it rather creates a new inode that shares the same disk blocks as the original file. This means that this operation only works within the boundaries of the same file system or subvolume. The outcome looks very much like a copy of the source file, but the actual data blocks have not been duplicated. Due to the copy-on-write nature, a modification of any one of the files will not be visible in the other file. Note that this should not be confused with hard links – this web page provides a good explanation of the differences.
+
+%For Btrfs, you can invoke this feature by using the cp(1) utility with the --reflink option, which was added to the GNU coreutils in version 7.5 (released in Aug. 2009):
 
 
 %For each iMI, there is a snapshot with an index number that relates to its version and age (the higher the number the most recent the version is).

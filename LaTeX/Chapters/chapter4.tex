@@ -9,19 +9,33 @@
 \label{cha:impl_replication_caching}
 
 This chapter addresses the implementation of the central topics of this thesis, divided into two major fields.
-The first section talks about the creation of a middleware system that provides replication features in an integrated way to the iCBD platform. A detailed description of the concept and architectural model, as well as the implementation decisions, can be found in this section.
-Then, we show how the performance of the platform clients can be heightened by setting up a client-side caching system that stores images adjacent to the consumers. Concluding in exploring the challenges of recreating the complete platform in a new environment and implementing a real-world scenario at Nova University Computer Science department laboratories.
+We first start with a section talking about the creation of a middleware system that provides replication features in an integrated way to the iCBD platform. While providing a detailed description of the concept and architectural model, as well as the implementation decisions, made along the accomplishment of this contribution.
+Next, we show the work done on improving the performance of the platform clients. Displaying how setting up a client-side caching system that stores images adjacent to the consumers obtain that sought enhancements. Concluding in exploring the challenges of recreating the complete platform in a new environment and implementing a real-world scenario at Nova University Computer Science department laboratories.
+
+%will at last state the problem and motivation for introduction replication techniques in the storage components of the platform. Moreover, the section prefaces the importance of the implementation of cache servers that hold part of the distribution burden and crucial for the support of an increased number of clients.
+
+This chapter is partitioned as follows :
+
+\begin{description}
+    %
+    \item [Section~\ref{sec:impl_replication}] overviews the implementation of the middleware dubbed iCBD-Replication. Beginning the journey through the initial architectural process and then showing the implemented components and their interaction with the several layers of the platform.
+    %
+    \item [Section~\ref{sec:impl_cache_server}] shows how the complete iCBD platform was installed in the NOVA University cluster. Then, a description of the work performed to include a client-side caching server directly connected to the final clients.
+    %
+\end{description}
+\newpage
 
 
 %%-------------------------------------------------------------------
 %%	4 - Implementation of a Replication Module
 %%-------------------------------------------------------------------
 \section{Implementation of a Replication Module}
-\label{sec:replication_impl}
+\label{sec:impl_replication}
 
-One of the central objectives of iCBD is to provide a platform that can be both cloud-centric, with the administration and a portion of the storage burden gathered in a public cloud, or fully hosted on client premises. Either way, it becomes evident that data locality is an important subject, which means that there is the need to study how this data will flow between the multiple components of the iCBD platform.
-As can be imagined this is a data-intensive platform, bosting multiple storage devices in many networks and an array of consumers demanding that data at any given time.
-All these factors allied to the platform architecture result in the need to create a new component, whose chief mission is to ensure that the data is correctly replicated in the appropriate places, maintaining the consistency of the various versions of VM images stored.
+One of the central objectives of iCBD is to provide a platform that can be both cloud-centric, with the administration and a portion of the storage burden gathered in a public cloud, or fully hosted on client premises. Either way, it becomes evident that data locality is an important subject, which means that there is the necessity to study how this data will flow between the multiple components of the iCBD platform.
+As can be imagined, this is a data-intensive platform, boasting multiple storage devices in many networks and an array of consumers demanding that data at any given time.
+
+All these factors allied to the platform architecture result in the need to create a new component, whose chief mission is to ensure that the data is correctly replicated in the appropriate places, maintaining the consistency of the various versions of the iCBD Machine Images stored.
 
 %%-------------------------------------------------------------------
 %%	4. - Requirements of the Module
@@ -29,38 +43,70 @@ All these factors allied to the platform architecture result in the need to crea
 \subsection{Requirements of the Module}
 \label{sub:requirements_icbdrep}
 
-Since the beginning of this work the file system to be used as storage was set. Not because is belived to be the best for this type of work, but because is belived that is one of the best. And since the grandure of the project there is an analogous thesis doing work with other type of file systems, a distributed object storage oriented one named Ceph~\cite{Weil2006}.
+Since the beginning of this work, the file system selected for use in the storage layer was selected, this is due to the fact that, there was already a functioning prototype of the core iCBD platform making use of BTRFS for all data storage matters. The most critical feature for the operation of the platform is that the file system supports snapshots. BTRFS is a modern file system based on the copy-on-write (COW) principle \textbf{(CITATION NEEDED)} capable of creating lightweight copies of a file. We detailed the importance of this trait in Section~\ref{sub:icbd_architecture_storage}.
+ 
+The condition described above applies only in the choice of the File System, in theory, any File System that supports snapshots can be employed in the platform. That is, in fact, the case with the work developed in a dissertation carried out in parallel to this one, where the focus is the use of an object-oriented file system, in particular, the CEPH File System.
+Due to this imposition, it is key that this work makes the best use of the BTRFS features, exploring the incremental backup capabilities. More, the replication process should fully integrate with the core platform that already distributes iMIs to clients. Preservation of consistency of the iMIs is also a concern, assuring the distribution of new versions when they are created.
+
+Moreover, it should be taken in account the locality of the data, since the communications could originate and end in the same data centre and the same local network, or happening between different locations that can be in opposite sides of the world. Such aspects as the bandwidth used and the encryption of the data becomes essential to address, requiring the examination of several compression algorithms that can be accommodated to the way the data is processed and also ways of keeping this data secure by encrypting the communications.
+\newpage
+
+%Requirements
+%The file system is set BTRFS will be used.
+%Many reasons for that:
+%The most important is the support for snapshots
+%Compression
 
 
-The are some good reasons for using the BTRFS File System some that only will show up in the decour of this document, but we can enunciate two that are fundamental. The foremost is the support for snapshots
-
-Requirements
-
-The file system is set BTRFS will be used.
-Many reasons for that:
-The most important is the support for snapshots
-Compression
-
-
-%%-------------------------------------------------------------------
-%%	4. - Preliminary tests on the BTRFS Incremental Backup features
-%%-------------------------------------------------------------------
 %\subsubsection{Preliminary tests on the BTRFS Incremental Backup features}
-\paragraph{Preliminary tests on the BTRFS Incremental Backup features}
-\label{subsub:pre_test_btrfs}
+\paragraph{Experimentation with the BTRFS Incremental Backup features}
+\label{par:incremental_btrfs}
+
+A first step is trying to understand the most efficient way to transfer this unique kind of data (i.e. an iMI). Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network.
+
+The BTRFS developers provide a userspace set of utilities that can manage BTRFS filesystems, called \texttt{btrfs-progs}. Within that set of tools, there is a pair of commands, \texttt{btrfs send}~\cite{btrfs_send}, and \texttt{btrfs receive}~\cite{btrfs_receive}, that provides the capability to transport data via a stream and employ those differences in a remote filesystem. 
+
+The send command facilitates the process of generating a stream of instructions that describe changes between two subvolume snapshots. Also available in the command is the ability to use an incremental mode, where given a parent snapshot that is available in both send and receive sides, only the small delta between snapshots (e.x. \textit{V2} and \textit{V2-1} in fig~\ref{fig:imi_snap}) is going to integrate the stream. This feature is outstanding since considerably reduces the amount of information that needs to be transferred to reconstruct the snapshot in the receiving end. The send side operations occur in-kernel, beginning by determining differences within subvolumes and based on those differences the kernel generates a set of instructions in a custom formulated stream.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[height=4in]{cap4_iMI_deltas}
+    \caption{iCBD iMI Snapshots Structure}
+    \label{fig:imi_snap}
+\end{figure}
+\newpage
+
+On the remote end, the received command accepts the stream generated by the send command and uses that data to recreate one or more snapshots. Contrary to the send command, receive executes in user space, replaying the instructions that come in the stream one by one, these instructions include the most relevant calls found in a Virtual File System, with Unix system calls like \texttt{create()}, \texttt{mkdir()}, \texttt{link()}, \texttt{symlink()}, \texttt{rename()}, \texttt{unlink()}, \texttt{write()}, along with others.~\cite{btrfs_design}
+
 
 %https://btrfs.wiki.kernel.org/index.php/Incremental_Backup
 %https://www.samba.org/ftp/rsync/rsync.html
 
-The first step is to try to understand the most efficient way to transfer this peculiar kind of data. Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network. In this sense, we next present some preliminary tests in multiple ways of transferring snapshots between BTRFS file systems both in the same machine and in different ones.
-The results obtained here conjugated with the defined requirements are essential for defining the architecture of the replication module steering the implementation at its best path.
+%The first step is to try to understand the most efficient way to transfer this peculiar kind of data. Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network. In this sense, we next present some preliminary tests in multiple ways of transferring snapshots between BTRFS file systems both in the same machine and in different ones.
+%The results obtained here conjugated with the defined requirements are essential for defining the architecture of the replication module steering the implementation at its best path.
 
-Before the start of any implementation, there was the need to validate the capabilities of the BTRFS file system regarding sending snapshots across different systems.
-As one of the requirements was the efficiency of the transference of data. So a small comparison was in order. 
+%Before the start of any implementation, there was the need to validate the capabilities of the BTRFS file system regarding sending snapshots across different systems.
+%As one of the requirements was the efficiency of the transference of data. So a small comparison was in order. 
 
-
+%%-------------------------------------------------------------------
+%%	4. - System Overview
+%%-------------------------------------------------------------------
 \subsection{System Overview}
 \label{sub:system_overview}
+
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{placeholder}
+	\caption{iCBD Replication Architecture}
+	\label{fig:icbd_rep_architecture}
+\end{figure}
+
+Since the replication module needs to interact with several bash scripts, with the core iCBD platform, including command line tools and some operating systems low-level features, we betted that the most suitable approach was creating a python distributed middleware using a master-replica paradigm.
+
+Python as a programming language enjoys some valid idiosyncrasies, functioning as an object-oriented language, possessing an extensive standard library and enjoys a big community delivering packages with a wide range of functionality, all facts that contribute to make it the best programming language to bundle everything together.
+
+The several modules of the middleware comprise the main functionalities allowing a node to behave as a Master or Replica node, where each one maintains its individual Image Repository. Then there are also a number of libraries that were developed to interface with some tools, as the BTRFS tool talked about above~\ref{par:incremental_btrfs}, to interface with an ssh connection, build wrappers for compression algorithms and even provide a REST API.
 
 %%-------------------------------------------------------------------
 %%	4. - Image Repository
@@ -68,26 +114,47 @@ As one of the requirements was the efficiency of the transference of data. So a 
 \subsection{Image Repository}
 \label{sub:rep_image_repo}
 
-\subsubsection{iCBD Snapshot Structure}
-\label{subsub:icbd_snapshot}
+%\subsubsection{iCBD Snapshot Structure}
+\paragraph{iCBD Snapshot Structure}
+\label{par:icbd_snapshot}
 
 In the replication module we treat a snapshot not only as raw data, but a collection of data and metadata that is essencial to unequivocally distinguish the multiple images present in the system. 
 
 
 %%-------------------------------------------------------------------
-%%	4. - Communications between image repositories
+%%	4. - Communications between nodes
 %%-------------------------------------------------------------------
-\subsection{Communications between image repositories}
-\label{sub:rep_rpcs}
+\subsection{Communications between nodes}
+\label{sub:rep_comms}
+
+The remote procedure call (RPC) supports inter-process communication and allows a procedure on a system to invoke a procedure running in a different address space, possibly on a remote system. RPCs were introduced in the early 1970s by Bruce Nelson and used for the first time at Xerox.
 
 
-%%-------------------------------------------------------------------
-%%	4. - Pyro4 Library
-%%-------------------------------------------------------------------
-\subsubsection{Pyro4 Library}
-\label{subsub:rep_pyro4}
+%\subsubsection{Pyro4 Library}
+\paragraph{Pyro4 Library}
+\label{par:rep_pyro4}
 
 %https://pythonhosted.org/Pyro4/
+
+
+\paragraph{TCP Sockets}
+\label{par:rep_tcp_sockets}
+
+\paragraph{Secure Shell Protocol (SSH)}
+\label{par:rep_ssh}
+
+
+%%-------------------------------------------------------------------
+%%	4. - Stream Compression
+%%-------------------------------------------------------------------
+\subsection{Stream Compression}
+\label{sub:rep_stream_compression}
+
+\paragraph{Snappy}
+\label{par:rep_snappy}
+
+\paragraph{LZ4}
+\label{par:rep_lz4}
 
 
 %%-------------------------------------------------------------------
@@ -95,6 +162,9 @@ In the replication module we treat a snapshot not only as raw data, but a collec
 %%-------------------------------------------------------------------
 \subsection{Master Node}
 \label{sub:rep_master_node}
+
+\paragraph{Keep Alive}
+\label{par:rep_keep_alive}
 
 \subsubsection{CLI Interface}
 \label{subsub:rep_cli_interface}
@@ -117,7 +187,7 @@ In the replication module we treat a snapshot not only as raw data, but a collec
 %%	4. - Building a iCBD Cache Server
 %%-------------------------------------------------------------------
 \section{Building a iCBD Cache Server}
-\label{sec:cache_server}
+\label{sec:impl_cache_server}
 
 %To solve some of the enunciated problems with a DaaS solution that derive from limited bandwidth, latency and jitter from the limitation of accessing the image repositories from an internet connection and provide some scalability feature with the implementation of proximity cache servers are key. These cache servers can store replicas of the iMIs created and maintained in an administration server. Moreover, since they are located in the same LAN segment as the clients is from here that they will boot.
 %For accomplishing this work, the cache servers need to have hard drives. (Although it would be possible to have diskless cache servers, they would be blocked if there was an interruption in the internet access, and it is to avoid that the local drives are necessary. )
