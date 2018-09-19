@@ -95,3 +95,4 @@ sympy-plots-for-*.tex/
 .[a-zA-Z0-9]* # This will ignore .gitigore
 *.pages
 .synctex*
+LaTeX/_minted-template
