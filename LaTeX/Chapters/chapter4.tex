@@ -113,34 +113,124 @@ Python as a programming language enjoys some valid idiosyncrasies, functioning a
 
 The several modules of the middleware comprise the main functionalities allowing a node to behave as a Master or Replica node, where each one maintains its individual Image Repository. Then there are also a number of libraries that were developed to interface with some tools, as the BTRFS tool talked about above~\ref{par:incremental_btrfs}, to interface with an SSH connection, build wrappers for compression algorithms and even provide a REST API.
 
+An overview with a small description of the functionality of each component of the system follows:
+
+\begin{description}
+	\item [Master Node] 
+	%
+	\item [Replica Node]
+	%
+	\item [Name Server] 
+	%
+	\item [Keep Alive] - For check if client is still alive, pyro4 provides the contrary with the automatic reconnecting feature.
+	%
+	\item [Image Repository]
+\end{description}
+
+
+So that all the components presented above can function adequately, they require help from several libraries. A description of those implemented libraries ensue:
+
+\begin{description}
+	\item [BTRFS Lib]
+	%
+	\item [Compression Lib]
+	%
+	\item [Serialiser Lib]
+	%
+	\item [SSH Lib]
+	%
+	\item [REST API Lib]
+	%
+	\item [Benchmarking Lib]
+\end{description}
+
+
+
 %%-------------------------------------------------------------------
 %%	4. - Communications between nodes
 %%-------------------------------------------------------------------
 \subsection{Communications between nodes}
 \label{sub:rep_comms}
 
-The remote procedure call (RPC) supports inter-process communication and allows a procedure on a system to invoke a procedure running in a different address space, possibly on a remote system. RPCs were introduced in the early 1970s by Bruce Nelson and used for the first time at Xerox.
+Coordinate the multiple modules and its activities, demands from the middleware a need to share a communication channel connected through a network. 
+The remote procedure call (RPC) brings support for inter-process communication allowing a procedure on a system to invoke an operation running in a process in a different location, most likely on a remote system.
+
+As seen in figure~\ref{fig:icbd_rep_architecture}, multiple processes are running in different machines any given time, and those processes need to continually send and receive information: perhaps operations to execute, metadata updates, or just monitoring if a process is running according to the desired plan or is in a faulty state.
+Managing the nodes is a perfect case for the use of the Pyro 4 library, that gives a holistic view of the system and allows triggering a multitude of operations in each node.
 
 
 %\subsubsection{Pyro4 Library}
 \paragraph{Pyro4 Library}
 \label{par:rep_pyro4}
-Pyro is a library that enables you to build applications in which objects can talk to each other over the network
-designed to be very easy to use and get out of your way as much as possible, but still provide a lot of flexibility when you do need it.
-Pyro can be a communication glue library to easily integrate various pars of a heterogeneous system, consisting of many different parts and pieces.
-name server that keeps track of your object’s actual locations so you can move them around transparently.
-yellow-pages type lookups possible, based on metadata tags on registrations in the name server.
-support for automatic reconnection to servers in case of interruptions.
-possibility to use Pyro’s own event loop, or integrate it into your own (or third party) event loop.
-
 %https://pythonhosted.org/Pyro4/
+Pyro 4~\cite{pyro4} is a library that enables the development of python applications in which objects can talk to each other over the network through the use of RPCs. Its designed to be very easy to use and integrate into a project and at the same time provide considerable flexibility. This library can be imagined as an adhesive to integrate various components of a heterogeneous system easily.
+
+There are some core features employed in the iCBD replication module, but not limited to:
 
 
-\paragraph{TCP Sockets}
+\begin{description}
+	\item [Proxy] This object acts as a substitute for the real one, intercepting the calls to a given method of that object. Then through the Pyro library, the call is sent to the actual object that probably resides in a remote machine, also returning the resulting data of the call. Which is very useful considering that the function that performs a call to the object does not need to know if it is dealing with a normal or a remote object.
+	%
+	\item [Pyro object] A Pyro object is a regular python object that goes through a registration process with Pyro in order to facilitate remote access to it. Objects are written just as any other piece of code, but the fact that Pyro knows its existence allows calls to that object that may originate in other programs.
+	%
+	\item [Pyro daemon] This component is the one that listens for remote method calls done to a proxy, dispatches them to the real object and collects the result of the call returning it to the caller.
+	%
+	\item [Name Server] Is this tool that keeps track of the objects actual locations in the network so they can move around freely and transparently. Works similarly to a yellow-pages book, providing lookups based on metadata tags.
+	%
+	\item [Automatic reconnecting] If a client (in our case a Replica Node) becomes disconnected to the server (Master Node), because of a server crash or a communications error, there is an automatic retry mechanism to handle this fault.
+	%
+	\item [Secure communication] Pyro itself does not encrypt by default the data it sends over the network. Still, Pyro RPCs communications can travel over a secure network (VPN, SSL/SSH tunnel) where the encryption is taken care of externally to the library. Alternatively, it is also possible to enable SSL/TLS in the Pyro library itself, securing all communications with custom cert files, private keys, and passwords.
+	%
+	\item [Serialisation] Pyro supports the transformation of objects into streams of bytes that flow over the network to a receiver that deserialises them back into the original format. This process is essential to ensure the delivery of all data that remote method calls receive as arguments, as well as the corresponding responses.
+\end{description}
+
+
+\paragraph{TCP Sockets and Secure Shell Protocol (SSH)}
 \label{par:rep_tcp_sockets}
+However, system coordination is not all the burden on the communications side, the main task of this system is to replicate virtual machine images among the several nodes, so ..
 
-\paragraph{Secure Shell Protocol (SSH)}
-\label{par:rep_ssh}
+
+%%-------------------------------------------------------------------
+%%	4. - Name Server
+%%-------------------------------------------------------------------
+\subsection{Name Server}
+\label{sub:rep_name_server}
+
+
+\begin{listing}[h!]
+\begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{python}
+class NameServer(Thread):
+
+	def __init__(self, config):
+		# Thread configs
+        Thread.__init__(self, name="Thread-NameServer")
+        self.ns_ip = config["ip"]
+        self.ns_port = config["pyroPort"]
+
+        # Pyro name server
+        self.nameserver_uri, 
+        self.nameserver_daemon, 
+        self.broadcast_server = Pyro4.naming.startNS(host=self.ns_ip,
+                                                     port=self.ns_port,
+                                                     storage=DB_FILE)
+
+        self.nameserver_daemon.combine(self.broadcast_server)
+
+
+	def run(self):
+        # This is triggered in the thread.start() call
+        try:
+            self.nameserver_daemon.requestLoop()
+        finally:
+            # clean up
+            self.broadcast_server.close()
+            self.nameserver_daemon.close()
+\end{minted}
+\caption{Starting a Name Server procedure}
+\label{listing:icbd_nameserver}
+\end{listing}
+
+
 
 %%-------------------------------------------------------------------
 %%	4. - Image Repository
@@ -189,14 +279,6 @@ class icbdSnapshot(object):
 %\caption{Example of the i2222nformation stored in the \textit{icbdSnapshot} object.}
 %\label{listing:icbdSnaps222hot_example}
 %\end{listing}
-
-
-%%-------------------------------------------------------------------
-%%	4. - Name Server
-%%-------------------------------------------------------------------
-\subsection{Name Server}
-\label{sub:rep_name_server}
-
 
 
 
@@ -260,12 +342,6 @@ class icbdSnapshot(object):
 
 \subsection{The infrastructure}
 \label{sub:infrastructure}
-
-%Machines List:
-%TODO
-%Servers - 2x HP ProLiant DL380 Gen9
-%Switch - HPE flexfabric 5700 jg898a
-%Disk array - HPE MSA 2040 SAN Storage
 
 \begin{table}[htpb]
 \centering
