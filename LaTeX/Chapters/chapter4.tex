@@ -116,11 +116,11 @@ The several modules of the middleware comprise the main functionalities allowing
 An overview with a small description of the functionality of each component of the system follows:
 
 \begin{description}
-	\item [Master Node] 
+	\item [Master Node] This node acts both as a controller to the replication system and an interface to interact with a client whether through a CLI or REST API. Is required that this node reside on an iCBD Administration machine since this is the node that will send changes made to an iMI to all replicas. It is also responsible for providing a communication interface with the Name Server, in this sense when an administrator wants information about which nodes are present on the platform, or what is their status; these requests obtain a route through the master node.
 	%
-	\item [Replica Node]
+	\item [Replica Node] The main task of this node is to maintain the subscribed list of iMIs updated, receiving the last version of those machine images and store them in the file system as soon as the Master Node makes the available. At request, the Replica Node can deliver the list of iMIs that is storing (including and very important the version numbers of the iMIs present in the node). As well as at any time subscribe to a new iMI which from that point forward will include the roster.
 	%
-	\item [Name Server] 
+	\item [Name Server] The name server service will run parallel to the Master Node, holding a phone book style record listing all the nodes in the replication system. Nodes register themselves in the name server during the startup process, and at any moment can query the location of another node. All this information is deposited in a simple database.
 	%
 	\item [Keep Alive] - For check if client is still alive, pyro4 provides the contrary with the automatic reconnecting feature.
 	%
@@ -196,6 +196,9 @@ However, system coordination is not all the burden on the communications side, t
 \subsection{Name Server}
 \label{sub:rep_name_server}
 
+%The name server is backed by a sqlite persistent database.
+
+%It is just a single (name,uri) table for the names and another table for the metadata.
 
 \begin{listing}[h!]
 \begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{python}
@@ -226,7 +229,7 @@ class NameServer(Thread):
             self.broadcast_server.close()
             self.nameserver_daemon.close()
 \end{minted}
-\caption{Starting a Name Server procedure}
+\caption{Starting procedure of a Name Server}
 \label{listing:icbd_nameserver}
 \end{listing}
 
