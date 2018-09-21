@@ -122,18 +122,18 @@ An overview with a small description of the functionality of each component of t
 	%
 	\item [Name Server] The name server service will run parallel to the Master Node, holding a phone book style record listing all the nodes in the replication system. Nodes register themselves in the name server during the startup process, and at any moment can query the location of another node. All this information is deposited in a simple database.
 	%
-	\item [Keep Alive] - For check if client is still alive, pyro4 provides the contrary with the automatic reconnecting feature.
+	\item [Keep Alive] The keep-alive module consists of a thread, launched by the master node, tasked with periodically check if the replica nodes are still working correctly. When its identified that a replica node stopped responding, this service immediately sends a request to the Name Server for the removal of the dead node from the directory.
 	%
-	\item [Image Repository]
+	\item [Image Repository] This module is a custom-made data structure to hold a large set of iCBD Snapshot objects in a key:value store. In addition to storing these objects, provides an interface to quickly know which iMIs are store within the node that accommodates the repository. Every node in the platform (i.e. Master or Replica) must necessarily launch the one repository.
 \end{description}
 
 
 So that all the components presented above can function adequately, they require help from several libraries. A description of those implemented libraries ensue:
 
 \begin{description}
-	\item [BTRFS Lib]
+	\item [BTRFS Lib] The BTRFS library holds two classes. The first, called \texttt{BTRFS Tool} that is a python wrapper for the \texttt{btrfs-progs} tool, described in section~\ref{par:incremental_btrfs}. The second, designated \texttt{BtrfsFsCheck} implements functions to validate if a given path is part of a BTRFS filesystem, case its true is also possible to verify if that path comprises a subvolume. Additionally, this tool is provided with a method to discover all snapshots in a directory.
 	%
-	\item [Compression Lib]
+	\item [Compression Lib] Since multiple compression algorithms are used, makes all the sense to create a library that encapsulates multiple wrappers, one for each algorithm. These wrappers in reality only need to provide compression and decompression methods for a stream of data, with the remaining operations not present.
 	%
 	\item [Serialiser Lib]
 	%
@@ -189,6 +189,17 @@ There are some core features employed in the iCBD replication module, but not li
 \label{par:rep_tcp_sockets}
 However, system coordination is not all the burden on the communications side, the main task of this system is to replicate virtual machine images among the several nodes, so ..
 
+
+\paragraph{Stream Compression}
+\label{par:rep_stream_compression}
+
+\begin{description}
+	\item [LZ4]
+	%
+	\item [zlib]
+	%
+	\item [Snappy]
+\end{description}
 
 %%-------------------------------------------------------------------
 %%	4. - Name Server
@@ -283,19 +294,6 @@ class icbdSnapshot(object):
 %\label{listing:icbdSnaps222hot_example}
 %\end{listing}
 
-
-
-%%-------------------------------------------------------------------
-%%	4. - Stream Compression
-%%-------------------------------------------------------------------
-\subsection{Stream Compression}
-\label{sub:rep_stream_compression}
-
-\paragraph{Snappy}
-\label{par:rep_snappy}
-
-\paragraph{LZ4}
-\label{par:rep_lz4}
 
 
 %%-------------------------------------------------------------------
