@@ -12,6 +12,7 @@
 \chapter{Research Context}
 \label{cha:research_context}
 
+% TODO Cap2 - Rever frase AND OR 
 The focal point of this dissertation is the implementation of a scalable and coherent distributed data store on top of a set of local (and independent) file systems. The file systems, however, are not used for "general purpose" work: in our deployment, they store VMs - (1) their read-only base images (or templates) and / or (2) their running instances backstores and / or (3) their "support files" (VM specifications, NVRAM / BIOS images, etc).
 Furthermore, the target file systems are those which are able to natively provide snapshots and, for the purpose of this dissertation our choice was BTRFS.
 
@@ -270,6 +271,7 @@ The diverse snapshotting techniques are addressed in a more comprehensive sense 
 \label{sec:storage}
 
 !!! \textbf{TODO} - Refactor text !!!
+% TODO - Cap2 Storage
 
 As stated in previous sections, the main problem to be addressed in this work is the storage concerning virtual machines. That could be either images, snapshots, files or data structures that are needed to support the execution of a VM. 
 
@@ -368,6 +370,7 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 \label{sub:snapshots}
 
 !!! \textbf{TODO} !!!
+% TODO Cap2 - Snapshots
 
 %In this work, we propose to use the snapshot functionality of the file system itself, present in some of the most recently designed file systems, such as the BTRFS. This way the creation of linked-clones handled by the file system capabilities as an alternative to linked-clones created by virtualization software itself.
 
@@ -380,6 +383,7 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 \label{sec:caching}
 
 !!! \textbf{TODO} - Needs More Info!!!
+% TODO Cap2 - Caching
 
 A cache can be defined as a store of recently used data objects that is nearby one client or a particular set of clients than the objects themselves. The inner works of one of these systems are rather simple. When a new object is obtained from a server, it is added to the local cache, replacing some existing objects if needed. That way when an object is requested by a client, the caching service first checks the cache and supplies the object from there if an up-to-date copy is available. If not, an up-to-date copy is fetched, then served to the client and stored in the cache. 
 
@@ -402,6 +406,7 @@ Caches may be found beside each client or they may be located on a server that c
 \label{sec:replication}
 
 !!! \textbf{TODO} - Needs More Info!!!
+% TODO Replication
 
 At the storage level, replication is focused on a block of binary data. Replication may be done either on block devices or at the file-system level. In both cases, replication is dealing with unstructured binary data. The variety of technologies for storage-level replication is very extensive, from commodity RAID arrays to network file system.
 File-based replication works at a logical level of the storage system rather than replicating at the storage block level. There are multiple different methods of performing this. And, unlike with storage-level replication, these solutions almost exclusively rely on software.

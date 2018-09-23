@@ -163,10 +163,9 @@ In general, the work will be divided into two major subjects, were the second is
 \paragraph{Motivation and Goals}
 \label{par:motivation_goals}
 
-To answer these questions, we can formulate smaller topics that guide the work in a more focused way, creating a list of general requirements to be addressed by this thesis.
-In general, the work will be divided into two major subjects, were the second is a direct consequence and requires the first. Providing a mechanism that ensures the correct replication of data between nodes of the platform is paramount. This process also needs to confer other properties such as achieving the best performance on the data transferences, being in a factor of speed or the used bandwidth. Another point of interest is the fact that the replication process should easily integrate with any File System used in the Storage Layer (taking into account that is fundamental that the file system provides some variety of snapshotting mechanism) trying not to add a sizeable computational load.
+Providing a mechanism that ensures the correct replication of data between nodes of the platform is paramount. This process also needs to confer other properties such as achieving the best performance on data transferences, being in a factor of speed or the used bandwidth. Another point of interest is the fact that the replication process should easily integrate with any File System used in the Storage Layer (taking into account that is fundamental that the file system provides some variety of snapshotting mechanism) trying not to add a sizeable computational load.
 Following this idea, we may start thinking on how to deliver to the clients the benefits of replicating data. The replication procedure is not only a useful tool to propagate efficiently data changes throwout the nodes of the platform and act as insurance from a data loss disaster, but also capitalise on getting closer to the clients the resources that they need. Following this line of thought, an answer to the second question starts to appear. It is not only necessary to think about the location of the data, but also to study which services are used by the platform that are fundamental for running images on the client's workstations and how to integrate all so as to deliver the best experience to the highest number of clients.
-To summarise, the following list poses the key requirements had in mind during the planning and execution of this effort.
+To summarise, the following list poses the key requirements had in mind during the planning and execution of this effort:
 
 \begin{itemize}
     \item The iCBD platform needs to be always available and maintain top-notch performance in multiple locations while serving a considerable number of clients.
@@ -177,43 +176,6 @@ To summarise, the following list poses the key requirements had in mind during t
 	%
 	\item Boot a client with the minimal number of the platform functionalities possible, simplifying the processes near the consumer.
 \end{itemize}
-
-
-
-%\subsubsection{Replication}
-\paragraph{Replication}
-\label{par:replication_goals}
-
-!!! \textbf{TODO} !!!
-% TODO Cap2 - Replication
-
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Create a middleware that integrates with the core functionalities of the iCBD platform
-	\item Should try to be storage provider agnostic (in this thesis work with BTRFS but easy to integrate with others)
-	\item Work with compression algorithms to achieve a lower bandwidth consumption.
-	\item Be able to use encrypted and unencrypted communications
-	\item Capitalize the snapshotting features of the storage system in order to minimise the volume of data transferred
-	\item Provide a simple CLI and API
-\end{itemize}
-
-
-
-%\subsubsection{Cache Servers}
-\paragraph{Cache Servers}
-\label{par:caching_goals}
-
-!!! \textbf{TODO} !!!
-% TODO Cap2 - Cache Server
-
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Dilute some cost of the infrastructure by having commodity hardware as proximity servers.
-	\item Bring the date closer to the final clients
-	\item Facilitate a user experience like the OS was installed in a local hard drive
-	\item Study the benefits of introducing cache servers in the platform 
-\end{itemize}
-
 
 %\subsection{System Overview}
 %\label{sub:system_overview}
@@ -232,16 +194,59 @@ To summarise, the following list poses the key requirements had in mind during t
 The main expected contributions are: 
 
 \begin{itemize}
-
+  \item Perform a throughout analysis of the already implemented iCBD platform modules and the several layers where it expands in order to understand the inner works, providing an excellent platform to build upon and allowing for an efficient planning of the remaining work. 
+  %
   \item The study, develop, and evaluate an implementation of a distributed and replicated BTRFS file system for VM storage.
+  %
   \item Implement a client-side caching solution in order to increase availability, improve response time, and enable better management of resources.
+  %
   \item Integrate the solutions described above  with the work previously developed and the existing infrastructure
+  %
   \item And finally, carry out a series of tests that lead to a meaningful conclusion and that provide help in the design of the remaining platform.
+\end{itemize}
 
+
+In a more concrete approach, we present the work plan, for achieving the above objectives, distributed by the two main topics.
+
+
+%\subsubsection{Replication}
+\paragraph{Replication}
+\label{par:replication_goals}
+
+\begin{itemize}
+	\item Create a middleware that integrates with the core functionalities already developed within the iCBD platform.
+	%
+	\item Should aim to be storage provider agnostic (in this thesis work with BTRFS but remain easy to integrate with others).
+	%
+	\item Work with compression algorithms to achieve a lower bandwidth consumption.
+	%
+	\item Be able to use encrypted and unencrypted communications for all data flows. 
+	%
+	\item Capitalize the snapshotting features of the storage layer in order to minimise the volume of data transferred, only sending the differences between versions whenever possible.
+	%
+	\item Provide a simple CLI and a REST API for interacting with the replication module functions.
+\end{itemize}
+
+
+%\subsubsection{Cache Server}
+\paragraph{Caching}
+\label{par:caching_goals}
+
+\begin{itemize}
+	\item Dilute some cost of the infrastructure by having commodity hardware as proximity servers.
+	%
+	\item Bring the data closer to the final clients giving enough storage capacity to servers, storing the most used images.
+	%
+	\item Facilitate a user experience where the is no distinction on booting an OS from a local disk or the iCBD platform.
+	%
+	\item Build a completing working iCBD platform on the FCT NOVA campus.
+	%
+	\item Study the benefits of introducing cache servers and the platform performance as a whole, comparing the performance of the system to a traditional OS install base.  
 \end{itemize}
 
 A detailed view of the work conducted is presented in \textbf{Chapter~\ref{cha:impl_replication_caching}}.
 % subsection main_expected_contributions (end)
+
 
 
 %%-------------------------------------------------------------------

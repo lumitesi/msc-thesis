@@ -135,13 +135,12 @@ So that all the components presented above can function adequately, they require
 	%
 	\item [Compression Lib] Since multiple compression algorithms are used, makes all the sense to create a library that encapsulates multiple wrappers, one for each algorithm. These wrappers in reality only need to provide compression and decompression methods for a stream of data, with the remaining operations not present.
 	%
-	\item [Serialiser Lib]
+	\item [Serialiser Lib] Some of the communications between nodes require the transmission of objects, to that effect a library containing serialisation and deserialisation methods for those objects is a requirement.
 	%
-	\item [SSH Lib]
+	\item [SSH Lib] This library implements a wrapper for the SSH command, allowing the creation of a tunnel so that data can be funnelled through a secured connection between nodes in different networks.
 	%
-	\item [REST API Lib]
-	%
-	\item [Benchmarking Lib]
+	\item [REST API Lib] To comply with one of the objectives of the replication module, a REST API should be provided. That is precisely what this library does, providing the endpoints to interact with the system. Also enabling an easy way to expand that interaction to other modules of the platform.
+
 \end{description}
 
 
@@ -355,7 +354,7 @@ class icbdSnapshot(object):
 \textit{\textbf{WorkStations}} & 2 Labs (15 PCs each)       & 3 Test PCs                 \\
 \textit{\textbf{Networking}}   & 1 Gbps                     & 1 Gbps                     \\ \hline
 \end{tabular}
-\caption{Physical infrastructure in both sites}
+\caption{Physical infrastructure of the FCT NOVA and SolidNetworks sites}
 \end{table}
 
 \paragraph{Network}
@@ -372,12 +371,18 @@ class icbdSnapshot(object):
 \label{sub:cache_services}
 
 
-
-
-
+\paragraph{Installing iCBD Core Services}
+\label{par:install_icbd_core}
 %Found a Centos 7 kernel bug.
 %https://bugs.centos.org/view.php?id=14228
 %https://bugzilla.redhat.com/show_bug.cgi
+
+\paragraph{CoreUtils bug found in CentOS 7 Kernel}
+\label{par:centos_bug}
+
+As a curiosity during the process of building the \textit{iCBDimgs} VM, we found in a bug in a core component of the \textit{coreutils} tool introduced in the kernel version \texttt{3.10.0-693.5.2} of CentOS 7. The \texttt{cp} command when used with option \texttt{--reflink=always} fails with the indication "failed to clone 'someFile': Operation not supported". This behaviour was reported to both CentOS and Red Hat and was eventually resolved. A more in-depth description of this process can be found in Annex~\ref{ann:bug}.
+
+
 
 
 
