@@ -270,12 +270,9 @@ The diverse snapshotting techniques are addressed in a more comprehensive sense 
 \section{Storage} % (fold)
 \label{sec:storage}
 
-!!! \textbf{TODO} - Refactor text !!!
-% TODO - Cap2 Storage
-
 As stated in previous sections, the main problem to be addressed in this work is the storage concerning virtual machines. That could be either images, snapshots, files or data structures that are needed to support the execution of a VM. 
 
-When applied to the VDI concept some demands appear in the form of a specific care at planning the storage system architecture, as well as the supporting infrastructure: the hardware picked, network topology, protocols used, and software implemented.
+When applied to the VDI concept some demands appear in the form of specific care needed at planning the storage system architecture, as well as the supporting infrastructure: the hardware picked, network topology, protocols used, and software implemented.
 
 At the end of the day, the idea is to present a solution that offers an appropriate cost to performance ratio, and that with little effort can scale when the need emerges.
 
@@ -286,36 +283,26 @@ At the end of the day, the idea is to present a solution that offers an appropri
 \subsection{Storage Challenges}
 \label{sub:storage_challenges}
 
-!!! \textbf{TODO} !!!
+In a typical data centre application, with a well-designed infrastructure and in normal conditions, the storage system is steadily used but isn't being stressed continuously with requests I/O requests that directly affect the system performance. However, that postulate is no longer valid when talking about the storing of VM files for use in a VDI environment. In this type of context, some events can cascade in I/O storms that eventually introduce degradations in storage response time, which diminishes the performance of the overall system and in turn leads to a lower satisfaction level for the users of said system.
 
-%%-------------------------------------------------------------------
-%%	2.2. - I/O storms
-%%-------------------------------------------------------------------
-\subsubsection{I/O Storms}
-\label{subsub:ios_storms}
+\paragraph{I/O Storms}
+\label{par:ios_storms}
 
-!!! \textbf{TODO} !!!
+In a typical data centre application, with a well-designed infrastructure and in normal conditions, the storage system is steadily used but isn't being stressed continuously with I/O requests that directly affect the system performance. However, that postulate is no longer valid when talking about the storing of VM files for use in a VDI environment. In this type of context, some events can cascade in I/O storms that eventually introduce degradations in storage response time, which diminishes the performance of the overall system and in turn leads to a lower satisfaction level for the users of said system.
+From several events that influence a storage system we can point out some that have more expression in a VDI setting:
 
 \begin{description}
-	\item [Boot Storm] bla..
+	\item [Boot Storm] It may happen, on the occasion of the starting a work shift; with several users simultaneously arriving at their desk and booting their workstations. In this circumstance, all VMs are simultaneously performing multiple read and write operations on the storage system, which translates into poor response times and a long wait for the end of the boot process.
 	%
-	\item [Login Storm] bla..
+	\item [Login Storm] Right after the booting an OS, the workstations are not entirely operational users have to log in to access a desktop, including applications and files. This procedure, results in a considerable number of concurrent I/O requests from multiple VMs in a short time, as the system attempts to load quite a few files related to the user's profile.
 	%
-	\item [Malware and Anti-Virus Software Scanning] bla..
+	\item [Malware and Anti-Virus Software Scanning] Usually scans for unwanted files and untrusted applications, are scheduled to execute at a time when they cause the least possible impact taking into consideration the load of the machine. However, it is not uncommon to observe a behaviour where this kind of software starts a scan right after boot. Alternatively, the unfortunate case where different machines decide to start that examination at the same time, causing a negative impact on every machine.
 	%
-	\item [Big Applications Needs] bla..
+	\item [Big Applications Needs] Some applications can be very I/O intensive, like loading a project in an IDE with numerous libraries and dependencies that need to be reviewed at startup. Also, we can envision a scenario where multiple users simultaneously open the same very resource intensive application, for instance, in a classroom, the teacher asks the students to start a particular application, the I/O requests to the storage system will most likely be simultaneous.
 	%
-	\item [Operating System Updates] bla .
+	\item [Operating System Updates] Similarly to Malware and Anti-Virus Software Scanning, the update process of an Operating System will most likely be tied to a schedule that is based on the current load of a machine. Yet, multiple systems may decide to perform an update in the same space of time thus leading to the bottleneck problem of concurrent access to the storage system.
 \end{description}
 
-
-%%-------------------------------------------------------------------
-%%	2.2. - Cost by workstation
-%%-------------------------------------------------------------------
-\subsubsection{Cost by workstation}
-\label{subsub:cost_by_ws}
-
-!!! \textbf{TODO} !!!
 	 
 	 
 
@@ -352,9 +339,6 @@ There are many different types of file systems, each one boasting unique feature
 		We can give as example of file systems the well-known Network File System (NFS)~\cite{rfc5661} originally developed by Sun Microsystems, and the notable Andrew File System (AFS)~\cite{Satyanarayanan1990} developed at Carnegie Mellon University.
 \end{description}
 
-
-In this work, the snapshot functionality of the file system itself is a valuable asset. This technique is present in some of the most recently designed file systems, such as the BTRFS. It has already been mentioned that previous work has been done to use the file system snapshot features as a base feature. This way the creation of linked-clones handled by the file system capabilities as an alternative to linked-clones created by virtualization software itself.
-
 There are numerous types of additional file systems not mentioned since they are not in the domain of this work. Still, it is important to note the existence of an architecture that is not similar to the traditional file hierarchy adopted in file systems, which is the object-based storage. 
 
 This structure, as opposed to the ones presented above, manages data into evenly sized blocks within sectors of the physical disk. It is possible to verify that it has gained traction leading to the advent of the concept of cloud storage. There are numerous implementations of this architecture, whether in small local deployments or large-scale data centres supporting hundreds of petabytes of data.
@@ -369,10 +353,14 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 \subsection{Snapshots} % (fold)
 \label{sub:snapshots}
 
-!!! \textbf{TODO} !!!
-% TODO Cap2 - Snapshots
+In this work, the snapshot functionality of the file system itself is a valuable asset. This technique is present in some of the most recently designed file systems, such as the BTRFS. 
+As the name implies, a snapshot is an image at a given instant of the state of a resource,  we are particularly interested in snapshots of volumes (logical disks), and of files (individually or grouped, for example, in a directory).
 
-%In this work, we propose to use the snapshot functionality of the file system itself, present in some of the most recently designed file systems, such as the BTRFS. This way the creation of linked-clones handled by the file system capabilities as an alternative to linked-clones created by virtualization software itself.
+The implementation of a snapshot can be described as follows: a) the state of a resource is saved in the form of a persistent and immutable "object"; b) changes to the state of the resource forces the creation and storage of another object. Consequently, it is possible to return to any previous state, as long as, the object corresponding to that state is available. Snapshots are especially interesting in virtualised environments because the hypervisor can take snapshots of the most critical features of a VM: CPU, memory, and disk(s). 
+
+In this work, we propose to use the snapshot functionality of the file system itself, present in some of the most recently designed file systems, such as the BTRFS. This way the creation of linked-clones is handled by the file system capabilities as an alternative to linked-clones created by virtualisation software itself
+
+In order for multiple snapshots, do not take up space unnecessarily, data compression techniques are applied when implementing snapshots. So, the new object created to register the sequence of new changes of a resource only registers the modifications made, keeping unchanged the state in the initial (parent) object. This phenomenon (i.e. the changes between the current snapshot and the previous one) is called a "delta" connecting snapshots.
 
 
 
@@ -382,7 +370,7 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 \section{Caching} % (fold)
 \label{sec:caching}
 
-!!! \textbf{TODO} - Needs More Info!!!
+%!!! \textbf{TODO} - Needs More Info!!!
 % TODO Cap2 - Caching
 
 A cache can be defined as a store of recently used data objects that is nearby one client or a particular set of clients than the objects themselves. The inner works of one of these systems are rather simple. When a new object is obtained from a server, it is added to the local cache, replacing some existing objects if needed. That way when an object is requested by a client, the caching service first checks the cache and supplies the object from there if an up-to-date copy is available. If not, an up-to-date copy is fetched, then served to the client and stored in the cache. 
@@ -405,8 +393,8 @@ Caches may be found beside each client or they may be located on a server that c
 \section{Replication}
 \label{sec:replication}
 
-!!! \textbf{TODO} - Needs More Info!!!
-% TODO Replication
+%!!! \textbf{TODO} - Needs More Info!!!
+% TODO Cap2 - Replication 
 
 At the storage level, replication is focused on a block of binary data. Replication may be done either on block devices or at the file-system level. In both cases, replication is dealing with unstructured binary data. The variety of technologies for storage-level replication is very extensive, from commodity RAID arrays to network file system.
 File-based replication works at a logical level of the storage system rather than replicating at the storage block level. There are multiple different methods of performing this. And, unlike with storage-level replication, these solutions almost exclusively rely on software.
