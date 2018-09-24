@@ -188,18 +188,19 @@ There are some core features employed in the iCBD replication module, but not li
 
 \paragraph{TCP Sockets and Secure Shell Protocol (SSH)}
 \label{par:rep_tcp_sockets}
-However, system coordination is not all the burden on the communications side, the main task of this system is to replicate virtual machine images among the several nodes, so ..
+Despite the facts presented above, system coordination is not all the burden on the communications side, the main task of this system is to replicate virtual machine images among the several nodes, so the network is tasked with carrying a lot of data.
+Every iMI transferred by the replication module have the possibility to be encrypted or to travel the network in plain text.
 
 
-\paragraph{Stream Compression}
-\label{par:rep_stream_compression}
+\paragraph{Data Compression}
+\label{par:rep_data_compression}
 
 \begin{description}
-	\item [LZ4]
+	\item [LZ4] is a lossless data compression algorithm focused on compression and decompression speed. It belongs to the LZ77 family of byte-oriented compression schemes. The reference implementation in C by Yann Collet, there are also ports and bindings in various languages like Java, C\#, Python, among others.
 	%
-	\item [zlib]
+	\item [zlib] is widely used, a kind of a de facto standard on the data compression subject. The algorithm provides good compression on a wide variety of data with minimal use of system resources. Written in C, as the algorithms presented above is a variation of LZ77.
 	%
-	\item [Snappy]
+	\item [Snappy] is a library written in C++ by Google, and as the LZ4 algorithm is built for fast data compression and decompression and based on ideas from LZ77.
 \end{description}
 
 %%-------------------------------------------------------------------
@@ -207,6 +208,14 @@ However, system coordination is not all the burden on the communications side, t
 %%-------------------------------------------------------------------
 \subsection{Name Server}
 \label{sub:rep_name_server}
+
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Starting Pyro4 Name Server from within iCBD-Replication code
+	\item Configurations applied (ip / port)
+	\item How the Name Server is controlled?
+\end{itemize}
+
 
 %The name server is backed by a sqlite persistent database.
 
@@ -303,14 +312,35 @@ class icbdSnapshot(object):
 \subsection{Master Node}
 \label{sub:rep_master_node}
 
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Startup routine, including the launch of other services
+	\item Main controller for all nodes of iCBD-Replication
+	\item The send operation 
+\end{itemize}
+
 \paragraph{Keep Alive}
 \label{par:rep_keep_alive}
+
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Launched by the master node
+	\item Periodically check if the replica nodes are still working
+	\item Case any change talks to the Name Server to change things according
+\end{itemize}
 
 \subsubsection{CLI Interface}
 \label{subsub:rep_cli_interface}
 
+
 \subsubsection{REST API}
 \label{subsub:rep_restapi}
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Flask lib
+	\item Endpoints
+\end{itemize}
+
 
 %%-------------------------------------------------------------------
 %%	4. - Replica Node
@@ -318,7 +348,11 @@ class icbdSnapshot(object):
 \subsection{Replica Node}
 \label{sub:rep_replica_node}
 
-
+\textbf{TOPICS :}
+\begin{itemize}
+	\item Operations on the local repository
+	\item The receive operation
+\end{itemize}
 
 
 
@@ -372,6 +406,16 @@ class icbdSnapshot(object):
 \subsection{Services}
 \label{sub:cache_services}
 
+\paragraph{VM Roles in the Platform}
+\label{par:vm_roles}
+
+\begin{description}
+	\item [\textit{iCBD-imgs}]
+	\item [\textit{iCBD-rw}]
+	\item [\textit{iCBD-home}]
+	\item [\textit{iCBD-cache}]
+\end{description}
+
 
 \paragraph{Installing iCBD Core Services}
 \label{par:install_icbd_core}
@@ -379,7 +423,7 @@ class icbdSnapshot(object):
 %https://bugs.centos.org/view.php?id=14228
 %https://bugzilla.redhat.com/show_bug.cgi
 
-\paragraph{CoreUtils bug found in CentOS 7 Kernel}
+\paragraph{BTRFS bug found in CentOS 7 Kernel}
 \label{par:centos_bug}
 
 As a curiosity during the process of building the \textit{iCBDimgs} VM, we found in a bug in a core component of the \textit{coreutils} tool introduced in the kernel version \texttt{3.10.0-693.5.2} of CentOS 7. The \texttt{cp} command when used with option \texttt{--reflink=always} fails with the indication "failed to clone 'someFile': Operation not supported". This behaviour was reported to both CentOS and Red Hat and was eventually resolved. A more in-depth description of this process can be found in Annex~\ref{ann:bug}.

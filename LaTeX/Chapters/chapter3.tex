@@ -13,9 +13,9 @@
 \chapter{iCBD - Infrastructure for Client-Based Desktop}
 \label{cha:icbd}
 
-The acronym \gls{iCBD} stands for Infrastructure for Client-Based (Virtual) Desktop (Computing). Is a platform being developed by an R\&D partnership between \textit{NOVA LINCS}, the Computer Science research unit hosted at the \textit{Departamento de Informática of Faculdade de Ciências e Tecnologia of Universidade NOVA de Lisboa} (DI-FCT NOVA) and \textit{SolidNetworks – Business Consulting, LDA} part of the \textit{Reditus S.A.} group. 
+The acronym \gls{iCBD} stands for Infrastructure for Client-Based (Virtual) Desktop (Computing). Is a platform being developed by an R\&D partnership between \textit{NOVA LINCS}, the Computer Science research unit hosted at the \textit{Departamento de Informática of Faculdade de Ciências e Tecnologia of Universidade NOVA de Lisboa} (DI-FCT NOVA) and \textit{SolidNetworks – Business Consulting, Lda} part of the \textit{Reditus S.A.} group. 
 
-Where the primary goal is to achieve a particular kind of \gls{VDI} infrastructure, a client based VDI, where client's computations are performed directly on the client hardware as opposed to on big and expensive servers. With the distinctive characteristic of not having the necessity of investing in hard disks for the client devices, as well as hoping to solve prominent predicaments in the administration and management of large-scale computer infrastructure.
+The primary goal is to implement a client based VDI, a specialised form of \gls{VDI} infrastructure, where client's computations are performed directly on the client hardware as opposed to performed on big and expensive servers. With the distinctive characteristic of not having the necessity of investing in hard disks for the client devices, as well as hoping to solve prominent predicaments in the administration and management of large-scale computer infrastructure.
 
 This chapter will address the central concepts and associated technologies encompassed in this project, particularly:
 
@@ -23,7 +23,7 @@ This chapter will address the central concepts and associated technologies encom
 	%
 	\item [Section~\ref{sec:icbd_concept}] overviews the core concepts of the project and particularly note the limitations and peculiarities of current implementations in contrast with the chosen approach.
 	%
-	\item [Section~\ref{sec:icbd_architecture}] studies the principal architectural components of the platform, with emphasis on the different layers and how  they act together to serve the end-user.
+	\item [Section~\ref{sec:icbd_architecture}] studies the main architectural components of the platform, with emphasis on the different layers and how  they act together to serve the end-user.
 \end{description}
 \newpage
 
@@ -34,22 +34,22 @@ This chapter will address the central concepts and associated technologies encom
 \section{The Concept} % (fold)
 \label{sec:icbd_concept}
 
-The iCBD as a project pretends to investigate and develop an architecture that leads to the birth of a platform that can operate desktop virtualisation (\gls{VDI}). In a sense, the goal is similar to a client-based VDI, but with the distinction of maintaining all the benefits of both client-based and server-based VDI. Additionally, it should present the power of working as a Cloud \gls{DaaS} without any of the bad traits of the approaches as mentioned earlier.
+The iCBD as a project aims to investigate an architecture that leads to the development of a platform that is similar to a client-based VDI, while maintaining all the benefits of both client-based and server-based VDI. Additionally, it should present the power of working as a Cloud \gls{DaaS} without any of the bad traits of the approaches as mentioned earlier.
 
-The aim is to preserve the convenience and simplicity of a fully centralised management platform for Linux and Windows desktops, instantiating those in each physical workstation from virtual machine templates (VMs) kept in repositories. We will talk more about this subject in section \ref{sec:icbd_architecture}\\
+The aim is to preserve the convenience and simplicity of a fully centralised management platform for Linux and Windows desktops, instantiating those in the users physical workstation from virtual machine templates (VMs) kept in repositories. We will further address this subject in section \ref{sec:icbd_architecture}\\
 
 To summarise the platform should be able to:
 
 \begin{itemize}
-	\item Tuning to a wide range of server configurations, without prejudice to the defined architecture.
+	\item Adapting to a wide range of server configurations, without prejudice to the defined architecture.
 	%
-	\item Minimize disruption in the use of workstations for end-users. Offering a work environment and experience of use so close to the traditional one that they should not be able to tell from a standard local installation of an \gls{OS} to the use of this platform.
+	\item Minimize disruption in the use of workstations for end-users, offering a work environment and experience of use so close to the traditional one, that they should not be able to tell it from a standard local install.
 	%
-	\item Simplify installation, maintenance and platform management tasks for the entire infrastructure, including servers in their multiple roles, storage and network devices from a single point.
+	\item Simplify installation, maintenance and platform management tasks for the entire infrastructure, including servers in their multiple roles, storage and network devices, all from a single point of administration.
 	%
 	\item Allow for a highly competitive per workstation cost.
 	%
-	\item Maintain an inter-site solution; such a geographically disperse multi-office structure.
+	\item Maintain an inter-site solution to efficiently support, e.g., a geographically disperse multi-site organisation.
 \end{itemize}
 
 
@@ -64,7 +64,7 @@ To summarise the platform should be able to:
 %Draw a diagram 
 %Layers are a kind of role, not a single a defined service but a collection 
 
-The iCBD platform comprehends the use of multiple services that take responsibility for an essential set of tasks. To achieve a better understatement of the inner workings of the system we can group these services in four major architectural labels as seen in the figure~\ref{fig:icbd_layers}.
+The iCBD platform encompasses the use of multiple services. To achieve a better understanding of its inner workings, we can group these services in four major architectural blocks as seen in  figure~\ref{fig:icbd_layers}.
 
 
 \begin{figure}[htbp]
@@ -73,21 +73,26 @@ The iCBD platform comprehends the use of multiple services that take responsibil
 	\caption{iCBD Layers View}
 	\label{fig:icbd_layers}
 \end{figure}
+% TODO - Adicionar em Client support layer - OBS
 
 
 \begin{description}
-	\item [\acrfull{iMI}] a nomenclature borrowed and adapted from Amazon Web Services AMI~\cite{aws_ami} embodies the required files to run a iCBD platform client. Including a VM template (with an operating system, configurations and applications) the iCBD boot package ( a collection of files needed for a network boot and custom-made to the operating system) and an assortment of configurations for services like PXE and iSCSI.
+	\item [\acrfull{iMI}] embodies the required files to run a iCBD platform client; this nomenclature was borrowed and adapted from Amazon Web Services AMI~\cite{aws_ami}. An iMI includes a VM template (with an operating system, configurations and applications), the iCBD boot package ( a collection of files needed for a network boot and custom-made to the operating system) and an assortment of configurations for services like PXE and iSCSI.
 	%
-	\item [Boot Services Layer] is responsible for providing the initial process from which the client machines will boot from the network and the posterior transference of a bespoke boot package. Employing services such as \acrshort{PXE}, \acrshort{DHCP}, \acrshort{TFTP} and \acrshort{HTTP}.
+	\item [Boot Services Layer] is responsible for providing the initial process from which the client machines will boot from the network, and later on transfer a bespoke boot package, using services such as \acrshort{PXE}, \acrshort{DHCP}, \acrshort{TFTP} and \acrshort{HTTP}.
 	%
-	\item [Administration Layer] (in regards to software) takes advantage of a virtualisation stack (can be based in either \acrshort{KVM} or VMWare products) to engage in maintaining all the needed aspects for the successful creation and update processes of an \acrshort{iMI} lifecycle.  Employing a custom set of scripts, the creation of an iCBD Boot Package is also a duty of this layer. 
+	\item [Administration Layer] to maintain all the iMI life cycle, from its creation to its retirement, currently this is done with a custom set of scripts.
+	% takes advantage of a virtualisation stack (can be based in either \acrshort{KVM} or VMWare products) to engage in maintaining all the needed aspects for the successful creation and update processes of an \acrshort{iMI} lifecycle.  Employing a custom set of scripts, the creation of an iCBD Boot Package is also a duty of this layer. 
 	%
-	\item [Client Support Layer] deals with the demands of a deployed and running iCBD image, such as, providing read/write space (since iMIs run on diskless workstations) and storing users home directories. As well as, hosting domain controllers, centralised authentication amongst other services that can be already in place in the midst of a clients infrastructure. Granting the ability to deploy a customised iMI in any scenario.
+	\item [Client Support Layer] provides support for client side operations including, e.g., authentication, read/write storage space for the client (since iMIs run on "diskless" workstations) and its home directories. 
+	%deals with the demands of a deployed and running iCBD image, such as, providing read/write space (since iMIs run on diskless workstations) and storing users home directories. As well as, hosting domain controllers, centralised authentication amongst other services that can be already in place in the midst of a clients infrastructure. Granting the ability to deploy a customised iMI in any scenario.
 	%
-	\item [Storage Layer] is accountable for maintaining the repository of iMIs and facilitate essential operations like version controlling the VM images files. Is also in this layer that we seize the potential of replication features provided by the file systems employed. In this project, the storage relies on two mainstream file systems: BTRFS and CEPH. Together with services like \acrshort{NFS} and \acrshort{iSCSI} enables a way to export data to clients.
+	\item [Storage Layer] maintains the repository of iMIs and provides essential operations such as version control of the VM images files. Our work is fundamentally focused on this layer, extending it in such a way that a single repository abstraction is built on top of the local / individual repositories through replication and caching. These local repositories are implemented on BTRFS or CEPH and may be exported to clients using \acrshort{NFS} or \acrshort{iSCSI}.
+	
+	%Is also in this layer that we seize the potential of replication features provided by the file systems employed. In this project, the storage relies on two mainstream file systems: BTRFS and CEPH. Together with services like \acrshort{NFS} and \acrshort{iSCSI} enables a way to export data to clients.
 \end{description}
  
-Let's view in more detail each one of them.
+In the next subsections we will provide a more detailed description of each of the above-mentioned layers.
 
 %%-------------------------------------------------------------------
 %%	3.2. - iCBD Machine Image 
@@ -102,20 +107,20 @@ Let's view in more detail each one of them.
 	\label{fig:icbd_iMI_files}
 \end{figure}
 
-In its essence, an iCBD Machine Image is the compilation of everything that is needed to run an Operating System within the iCBD platform, that is data and configuration files. For the sake of simplicity, we may categorise the files in three main groups.
+In its essence, an iCBD Machine Image is the aggregation of everything that is needed to run an Operating System within the iCBD platform - data and configuration files. For the sake of simplicity, we categorise the files in three main groups.
 
 \begin{description}
-	\item [VM Template files] The main component is the virtual machine template in the form of a read-only image. As described in section~\ref{sub:vm_storage} the anatomy of a template follows the standard from VMware and KVM VMs either with multiple files (i.e., Virtual Disk Files like \texttt{.vmdk} or \texttt{.qcow}) or a \textit{RAW} storage format.
+	\item [VM Template files] The main component is the virtual machine template in the form of a read-only image. As described in section~\ref{sub:vm_storage} the anatomy of a template follows the standard VMware and KVM formats either with multiple files (i.e., Virtual Disk Files like \texttt{.vmdk} or \texttt{.qcow}) or a \textit{raw} storage format.
 	%
-	\item [iCBD Boot Package files] In a network boot environment, as the one used, there is a need to keep a set of files that manage the boot of a workstation; these can be included in the initial \textit{ramdisk} or later transferred over HTTP when needed. Included are an init file and at least two Run Control Script files (\texttt{rc0} and \texttt{rc1}) that are responsible for starting network services, mounts all file systems and ultimately bring the system up in single-user level. With a tool such as \textit{BusyBox} (a single executable file with a stripped-down set of tools), a basic \textit{shell} is available during the boot process to fulfil all the required configurations.
+	\item [iCBD Boot Package files] In a network boot environment, such as the one used, there is a need to keep a set of files that manage the boot process of a workstation; these files can be included in the initial \textit{ramdisk} or later transferred over HTTP when needed. Included are an init file and at least two Run Control Script files (\texttt{rc0} and \texttt{rc1}) that are responsible for starting network services, mount all file systems and ultimately bring the system up in to the single-user level. With a tool such as \textit{BusyBox} (a single executable file with a stripped-down set of tools), a basic \textit{shell} is available during the boot process to fulfil all the required steps.
 	%
-	\item [Services Configuration files] Among the services employed there is the need for changes in some of the configurations files of these services. The NFS exports configuration file should reflect a structure of which file systems are exported, the networks that a remote host can use, as well as, a myriad of options that the NFS allows to be set. The same happens to iSCSI where an iSCSI targets need to refer to a backing store of the storage resource where the image resides. 
+	\item [Service Configuration files] Among the services that support iCBD, some do need changes in the configuration files. As an example, the "NFS exports" configuration file should reflect which file systems are exported, which networks a remote host can use, as well as a myriad of options that NFS allows to be set. The same happens to iSCSI, where an iSCSI target needs to refer to a backing store for the storage resource where the image resides. 
 \end{description}
 
 %\subsubsection{iMI Life Cycle}
 \paragraph{iMI Life Cycle}
 \label{subsub:imi_lifecycle}
-The life cycle of an iMI encompasses all the stages that an iMI takes throughout its course within the platform, as seen in Figure~\ref{fig:icbd_iMI_lifecycle}. From creation, passing through live deployment in use by multiple clients and finally its decommission and temporary or cold storage.
+The life cycle of an iMI encompasses all stages that take it throughout its course within the platform, Figure~\ref{fig:icbd_iMI_lifecycle} shows the major ones. From creation, through live deployment in use by multiple clients, and finally its decommission and placement in to temporary or cold storage.
 
 \begin{figure}[htbp]
 	\centering
@@ -123,16 +128,23 @@ The life cycle of an iMI encompasses all the stages that an iMI takes throughout
 	\caption{iMI Life Cycle inside the iCBD Platform}
 	\label{fig:icbd_iMI_lifecycle}
 \end{figure}
+% TODO - Mudar Img
+% Fazer loop no Administraçao e colocar lá a fraze boot em creat
+% not pub passa a Staging 
+% Deployed passa published
 
-Each lap in the cycle is considered a new version. So every new update made to an iMI will spawn a new version. Through the snapshotting features of the storage layer, the creation of a new version is a rather straightforward and computationally light operation.
 
-During its stay on the platform, an iMI can present four main states:
+Each lap in the cycle is considered a new version. So every new update made to an iMI will spawn a new version. Through the snapshotting features of the storage layer, the creation of a new version is a rather straightforward and a computationally light operation.
+
+During its life in the platform, an iMI can present it self into four main states:
 
 \begin{description}
-	\item [Created] After the being inserted in the platform, an image is not instantaneously camera ready (i.e. able to be served to clients and booted in a workstation), it needs to pass through the administration layer for the generation of a boot package. 
+	\item [Created] After being inserted into the platform, an image is not instantaneously  ready to be served to clients and booted in a workstation; it must pass through a number of administration steps for the generation of a boot package.
 	%
-	\item [In Administration] An iMI goes through this phase in two moments. The first is the case described above, where an image has just been injected into the platform, and it is necessary to create the conditions for it to work in this system. Continuing to the most frequent case, which happens when an image needs an update or any set of changes. It is here in this state that in interaction with the administration layer provides with a way to administer and update an iMI. The iMI will stay in this state as long as being managed (which can take from a few minutes to hours) and the duration of the process for creating the boot package.
-	%
+	\item [In Administration] An iMI goes through this phase in two moments: the first one, described above, where an image has just been injected into the platform. And the second and most frequent case, where an image needs to be updated or any way modified. 
+	%It is here in this state that in interaction with the administration layer provides with a way to administer and update an iMI. 
+	The iMI will stay in this state as long as it is being managed (which can take from a few minutes to hours). At the end this process the boot package is automatically created.
+	% TODO Cap3 - FICAMOS AQUI NA REVISAO
 	\item [Not Published] This status symbolises that the image is ready to work but isn't yet published and so not visible to platform users. This phase holds a particular interest in the testing the iMI for the correctness in the boot process and to ensure that the modifications were applied. Only after the testing procedures should an iMI made available for general use.
 	%
 	\item [Deployed] The stage where the iMI is expected to spend most of its time. One can think o   f this state as the proceeding into production of an iMI. After all the previous steps it is anticipated that the image is entirely ready to be delivered to the clients. At this stage, the platform in its Boot Services Layer announces to clients the possibility of choosing this image and provides the necessary support to its execution. Clients can instantiate the iMI as they please, taking advantage of the fact that can access their data and applications from nearly any device.
