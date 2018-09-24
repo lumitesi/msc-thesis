@@ -48,7 +48,7 @@
   otherlistsat=front,   % front(*), back
   aftercover=false,     % false=don't true=include the aftercover file (even if exists)
   linkscolor=darkblue,  % darkblue, black (Set to 'black' for PRINTING)
-  printcommittee=true,  % set to 'false' from submitted versins who should not have 
+  printcommittee=false,  % set to 'false' from submitted versins who should not have 
                         % the list of committee memebers
   spine=false,          % (Set to 'true' for PRINTING the book spine)
   cdcover=false,         % (Set to 'true' for PRINTING the CD cover)
@@ -225,7 +225,8 @@
 
 % Dedicatory text. Will only be considered for final documents,
 % i.e., "bsc", "msc" and "phd", otherwise, it will be silently ignored
-\dedicatoryfile{dedicatory}
+%\dedicatoryfile{dedicatory}
+% TODO Write dedicatory
 
 % Acknowledgments text. Will only be considered for final documents,
 % i.e., "bsc", "msc" and "phd", otherwise, it will be silently ignored
