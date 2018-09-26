@@ -188,8 +188,15 @@ There are some core features employed in the iCBD replication module, but not li
 
 \paragraph{TCP Sockets and Secure Shell Protocol (SSH)}
 \label{par:rep_tcp_sockets}
-Despite the facts presented above, system coordination is not all the burden on the communications side, the main task of this system is to replicate virtual machine images among the several nodes, so the network is tasked with carrying a lot of data.
-Every iMI transferred by the replication module have the possibility to be encrypted or to travel the network in plain text.
+Despite the facts presented above, system coordination is not all the burden on the network side, the main task of this system is to replicate virtual machine images among the several nodes, so the network has responsibility on carrying large volumes of data. The Pyro4 library gives the possibility to secure its communications, but that only covers method calls within nodes. 
+
+The delivery process of iMIs throughout nodes follow one of two principles: in the first scenario, we consider the case where the iMI does not leave the same trusted local network (i.e. communications within the walls of one organisation). The second implies the transport of data between third-party networks, even the internet. 
+
+When talking about an organisational network, its safe to assume that there are some security measures already in place (e.g. VLANs), so in this regard, we pass the concerns about data security for this layer allowing the use of a simple Stream Socket which provides a connection-oriented flow of data with error detection, in our case implemented on top of TCP. The use of this type of socket, and the non-use of cyphers, allows the best performance in the transfer of an iMI without the addition of computationally heavy tasks such as encrypting a large amount of data.
+
+In the second case, to solve the question of the data travelling through uncontrolled networks, an extension of the previous solution is presented, using the same type of socket but redirecting the flow through an SSH tunnel deployed between nodes. 
+
+This solution in addition to solving the issue of ensuring data security in the transferal process is a modular solution that allows future changes in the way data is encrypted without needing significant modifications to the code base. Even so, we do not believe that this is a perfect security model, there is room for improvement, but, not being the focal point of this work, we still wanted to provide some security features for conducting functional tests linking geographically separated data centres.
 
 
 \paragraph{Data Compression}
