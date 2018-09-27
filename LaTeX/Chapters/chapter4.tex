@@ -188,19 +188,25 @@ There are some core features employed in the iCBD replication module, but not li
 
 \paragraph{TCP Sockets and Secure Shell Protocol (SSH)}
 \label{par:rep_tcp_sockets}
-Despite the facts presented above, system coordination is not all the burden on the network side, the main task of this system is to replicate virtual machine images among the several nodes, so the network has responsibility on carrying large volumes of data. The Pyro4 library gives the possibility to secure its communications, but that only covers method calls within nodes. 
+Despite the facts presented above, system coordination is not all the burden laid on the network, the main task of this system is to replicate virtual machine images among the several nodes, so the network also has responsibility on carrying large volumes of data (result of transferring iMIs). The Pyro4 library gives the possibility to secure its communications, but that only covers method calls within replication nodes. 
 
-The delivery process of iMIs throughout nodes follow one of two principles: in the first scenario, we consider the case where the iMI does not leave the same trusted local network (i.e. communications within the walls of one organisation). The second implies the transport of data between third-party networks, even the internet. 
+The delivery process of iMIs throughout nodes follow one of two principles: in the first scenario, we consider the case where the iMI does not leave the same trusted local network (i.e. communications within the walls of one organisation); the second implies the transport of data between third-party networks, even the internet. 
 
-When talking about an organisational network, its safe to assume that there are some security measures already in place (e.g. VLANs), so in this regard, we pass the concerns about data security for this layer allowing the use of a simple Stream Socket which provides a connection-oriented flow of data with error detection, in our case implemented on top of TCP. The use of this type of socket, and the non-use of cyphers, allows the best performance in the transfer of an iMI without the addition of computationally heavy tasks such as encrypting a large amount of data.
+When talking about an organisational network, it's safe to assume that there are some security measures already in place (e.g. VLANs), so in this regard, we transfer the concerns about data security for that layer. That fact allows the use of a simple Stream Socket~\cite{py_socks} which provides a connection-oriented flow of data with error detection, in our case implemented on top of TCP. The application of this type of socket and the non-use of cyphers allows the best performance in the transfer of an iMI without the addition of computationally heavy tasks such as encrypting a large amount of data.
 
-In the second case, to solve the question of the data travelling through uncontrolled networks, an extension of the previous solution is presented, using the same type of socket but redirecting the flow through an SSH tunnel deployed between nodes. 
+In the second case, to solve the question of the data travelling through open networks, an extension of the previous solution is presented, using the same type of socket but redirecting the flow through an SSH tunnel deployed between nodes. 
 
 This solution in addition to solving the issue of ensuring data security in the transferal process is a modular solution that allows future changes in the way data is encrypted without needing significant modifications to the code base. Even so, we do not believe that this is a perfect security model, there is room for improvement, but, not being the focal point of this work, we still wanted to provide some security features for conducting functional tests linking geographically separated data centres.
 
 
+
 \paragraph{Data Compression}
 \label{par:rep_data_compression}
+
+Following one of the requirements stated above, our work should aim for reducing the bandwidth consumed by the operations of the iCBD platform, and that includes the replication of iMIs. Part of this subject is already addressed in the Storage Layer since the images, by default, are transparently stored in BTRFS compressed with zlib~\cite{btrfs_compression}. However, the replication process using the BTRFS send and receive features, as explained in section~\ref{par:incremental_btrfs}, does not send the iMIs as is, send an instruction stream, and those instructions present as an excellent candidate to be compressed. 
+
+Given the design of the send \/ receive feature, is unthinkable to hold in memory all the instructions waiting to be compressed, or store that information in a file, compress it an then send without creating a huge bottleneck and introducing a delay on the replication process. To expedite the process of transmitting the stream compressed and without postponements, only compression algorithms that provide a framing format (i.e. allowing compressing streams that can then more easily be decompressed without having
+to hold the entire stream in memory) were chosen. In this work, we present three that demonstrated be the most popular, but the code base is modular to the point where is very easy to add a new algorithm.
 
 \begin{description}
 	\item [LZ4] is a lossless data compression algorithm focused on compression and decompression speed. It belongs to the LZ77 family of byte-oriented compression schemes. The reference implementation in C by Yann Collet, there are also ports and bindings in various languages like Java, C\#, Python, among others.
