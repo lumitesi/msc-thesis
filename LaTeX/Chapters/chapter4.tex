@@ -206,7 +206,9 @@ This solution in addition to solving the issue of ensuring data security in the 
 Following one of the requirements stated above, our work should aim for reducing the bandwidth consumed by the operations of the iCBD platform, and that includes the replication of iMIs. Part of this subject is already addressed in the Storage Layer since the images, by default, are transparently stored in BTRFS compressed with zlib~\cite{btrfs_compression}. However, the replication process using the BTRFS send and receive features, as explained in section~\ref{par:incremental_btrfs}, does not send the iMIs as is, send an instruction stream, and those instructions present as an excellent candidate to be compressed. 
 
 Given the design of the send \/ receive feature, is unthinkable to hold in memory all the instructions waiting to be compressed, or store that information in a file, compress it an then send without creating a huge bottleneck and introducing a delay on the replication process. To expedite the process of transmitting the stream compressed and without postponements, only compression algorithms that provide a framing format (i.e. allowing compressing streams that can then more easily be decompressed without having
-to hold the entire stream in memory) were chosen. In this work, we present three that demonstrated be the most popular, but the code base is modular to the point where is very easy to add a new algorithm.
+to hold the entire stream in memory) were chosen.
+
+In this work, we included three algorithms that presented the framing format characteristic, and that demonstrated to be popular in use, but maintained a code base modular where is very easy to add a new algorithm.
 
 \begin{description}
 	\item [LZ4] is a lossless data compression algorithm focused on compression and decompression speed. It belongs to the LZ77 family of byte-oriented compression schemes. The reference implementation in C by Yann Collet, there are also ports and bindings in various languages like Java, C\#, Python, among others.
