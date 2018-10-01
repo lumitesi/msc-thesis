@@ -211,11 +211,11 @@ to hold the entire stream in memory) were chosen.
 In this work, we included three algorithms that presented the framing format characteristic, and that demonstrated to be popular in use, but maintained a code base modular where is very easy to add a new algorithm.
 
 \begin{description}
-	\item [LZ4] is a lossless data compression algorithm focused on compression and decompression speed. It belongs to the LZ77 family of byte-oriented compression schemes. The reference implementation in C by Yann Collet, there are also ports and bindings in various languages like Java, C\#, Python, among others.
+	\item [LZ4] is a lossless data compression algorithm centred on compression and decompression speeds, that belongs to the LZ77 family~\cite{lz77} of byte-oriented compression schemes. The reference implementation is in C and initially implemented by Yann Collet. There are also ports and bindings, from the original C implementation, in various languages like Java, C\#, Python, Go, among others. In this work, we use a multi-threadable python biding by Iotic Labs called \textit{py-lz4framed}~\cite{lz4framed}.
 	%
-	\item [zlib] is widely used, a kind of a de facto standard on the data compression subject. The algorithm provides good compression on a wide variety of data with minimal use of system resources. Written in C, as the algorithms presented above is a variation of LZ77.
+	\item [zlib] is a widely used, kind of a \textit{de facto} standard, library of lossless data compression that uses an abstraction of the DEFLATE compression algorithm (also a variation of LZ77). The algorithm written by Jean-loup Gailly and Mark Adler provides good compression on a wide variety of data sets and environments with the minimal use of system resources.~\cite{zlib} Written in C, can be found in the most diverse platforms: used by the Linux Kernel in multiple instances, multimedia libraries, databases, version control systems, and others. In the replication module, we employ the included zlib library~\cite{py_zlib} in python which provides an interface to the zlib C library.
 	%
-	\item [Snappy] is a library written in C++ by Google, and as the LZ4 algorithm is built for fast data compression and decompression and based on ideas from LZ77.
+	\item [Snappy] is a compression \/ decompression library, created by Google~\cite{snappy}, that contrary to other algorithms, strives for very high speeds at reasonable compression rates, not maximum compression. The library is written in C++ but counts with several bindings for the most popular languages. In order to interface with python, we used the python binding~\cite{py_snappy} for the snappy C++ compression library, provided by Andrés Moreira.
 \end{description}
 
 %%-------------------------------------------------------------------
