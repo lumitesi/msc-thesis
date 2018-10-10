@@ -236,15 +236,22 @@ In a distributed systems environment the various nodes need to know how to commu
 
 The iCBD Replication module implements this feature, attributing to each node an identity tuple with three elements: \texttt{(Node Name, Node URI, Tag)} that is registered in a name server allowing for subsequent locate a node by its name, or retrieve a set of nodes that are marked by the same tag.
 
-The name server is a module that consists of a constant running thread and a local SQLite database. It makes use of the aforementioned Pyro4 Name Server, but instead of being launched from a console, it leverages the "launch on your code" feature provided by the library to seamlessly integrate this feature with the remaining modules and starts up together with other modules of the Master Node.
+The name server is a module that consists of a constant running thread and a local \textit{SQLite} database. It makes use of the aforementioned Pyro4 Name Server, but instead of being launched from a console, it leverages the "launch on your code" feature provided by the library to seamlessly integrate this feature with the remaining modules and starts up together with other modules of the Master Node.
 
 Given the scenario where a node wants to make contact to another node and does not have its location. A request with the name of the node is made to the name server expecting in return a URI to call. If the requesting node already knows the location (IP and Port) of the name server, it makes the request directly. However, in the case where it also does not know how to contact the name server, resorts to a simple UDP network broadcast to locate the name server.
 
+\paragraph{Methods in the Name Server API}
 
+The Pyro Name Server presents an extensive API, but for the purposes of our work, only the subset presented below is utilised. 
 
-%The name server is backed by a sqlite persistent database.
+\begin{description}
+	\item \texttt{locateNS()} Get a proxy for a name server somewhere in the network.
+	\item \texttt{register()} Enrol an object on the name server associating the URI with a logical name.
+	\item \texttt{list()} List all objects registered in the name server. The results will be filtered if a prefix is provided.
+	\item \texttt{lookup()} Looks for a single name registration and returns the corresponding URI.
+	\item \texttt{remove()} Removes an entry, created by registering an object, with the exact given name from the name server.
+\end{description}
 
-%It is just a single (name,uri) table for the names and another table for the metadata.
 
 \begin{listing}[h!]
 \begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{python}
@@ -254,14 +261,15 @@ class NameServer(Thread):
 		# Thread configs
         Thread.__init__(self, name="Thread-NameServer")
         self.ns_ip = config["ip"]
-        self.ns_port = config["pyroPort"]
+        self.ns_port = config["port"]
+        self.ns_db = config["dbFile"]
 
         # Pyro name server
         self.nameserver_uri, 
         self.nameserver_daemon, 
         self.broadcast_server = Pyro4.naming.startNS(host=self.ns_ip,
                                                      port=self.ns_port,
-                                                     storage=DB_FILE)
+                                                     storage=self.ns_db)
 
         self.nameserver_daemon.combine(self.broadcast_server)
 
@@ -287,16 +295,22 @@ class NameServer(Thread):
 \subsection{Image Repository}
 \label{sub:rep_image_repo}
 
-This module presents itself with a central role in the replication process, being responsible for knowing at any given time which iMIs are present in the platform and register the changes as they happen.
-As explained before, the iCBD platform stores the multiple versions of one iMI as snapshots that materialise as directories in the filesystem. The Image Repository bridges the gap by maintaining a structure that is backed by an \textit{SQLite} persistent database. The interface is elementary, offering a hand full of mutator methods (get and set functions) to populate one data structure. This Dictionary as an unordered set of key: value pairs allows to establish as key the name of the iMI and the value a List with several \textit{icbdSnapshot} objects. 
+Each Replica Node in the platform can subscribe to an independent set of iMIs that will be replicated to its local storage, with the Master Node holding the entire collection. 
+To represent this relation between nodes and to facilitate the process of knowing which image is present in each node we implemented an Image Repository.
+
+This sub-module is present in every node (Master and Replicas) and presents itself with a central role in the replication process, not only, by the fact of acting as the backbone for the subscription of images, but also by tracking all versions of iMIs present in the platform working similarly to a versioning system. As described before, the iCBD platform stores the multiple versions of one iMI as snapshots, that materialise as directories in the local filesystem. Like to what happens in the Name Server, the information stored by the Image Repository is backed in persistent storage in the form of an \textit{SQLite} database. 
+
+The interface that the Image Repository offers is elementary, giving a hand full of mutator methods (get and set functions) to populate one main data structure. The structure used is the Python builtin Dictionary, allowing to establish an unordered set of \texttt{key:value} pairs, where the \texttt{key} is the name of the iMI and the \texttt{value} is a \texttt{List} of several \textit{icbdSnapshot} objects, one for each version.
 
 %\subsubsection{iCBD Snapshot Object Structure (iMI)}
 \paragraph{iCBD Snapshot Object Structure (iMI)}
 \label{par:icbd_snapshot}
 
-Inside the replication module, the iMI is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to unequivocally distinguish the multiple images present in the system, not the actual raw data.
+Inside the replication module, the iMI, as presented in Section~\ref{sub:icbd_architecture_imi},  is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to distinguish the multiple images present in the system unequivocally, but do not hold actual data.
 
-In that sense, from this object, we can obtain of curse the name of the iMI and its version number, the full path to the VM files in the filesystem, the location of the boot package regarding the version in question, and the configuration file for the iSCSI target. Since the data stored within this object is immutable since its creation, the object only provides \textit{get} functions to retrieve its values. 
+In that sense, from this lightweight object, we can obtain: the name of the iMI, its version number, the full path to the VM files in the filesystem, the location of the boot package regarding the version in question, and the configuration file for the iSCSI target. Since the data stored within this object is appended on its creation and is immutable, the object only provides \texttt{get} functions to retrieve its values.
+
+Given that all the relevant data is stored locally in a node (this is the actual VM file; the boot package; the iSCSI configuration files) the \textit{icbdSnapshot} object only needs to maintain the paths to that data in relation to the local filesystem, leading to a clean and straightforward interface that can be seen in Listing~\ref{listing:icbdSnapshot_example}.
 
 \begin{listing}[h!]
 \begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{python}
@@ -322,12 +336,6 @@ class icbdSnapshot(object):
 \caption{Example of the information stored in the \textit{icbdSnapshot} object.}
 \label{listing:icbdSnapshot_example}
 \end{listing}
-
-%\begin{listing}[h!]
-%\includegraphics[height=4in, width=7in]{carbon}
-%\caption{Example of the i2222nformation stored in the \textit{icbdSnapshot} object.}
-%\label{listing:icbdSnaps222hot_example}
-%\end{listing}
 
 
 
