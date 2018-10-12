@@ -126,7 +126,7 @@ An overview with a small description of the functionality of each component of t
 	%
 	\item [Keep Alive] The keep-alive module consists of a thread, launched by the master node, tasked with periodically check if the replica nodes are still working correctly. When its identified that a replica node stopped responding, this service immediately sends a request to the Name Server for the removal of the dead node from the directory.
 	%
-	\item [Image Repository] This module is a custom-made data structure to hold a large set of iCBD Snapshot objects in a key:value store. In addition to storing these objects, provides an interface to quickly know which iMIs are store within the node that accommodates the repository. Every node in the platform (i.e. Master or Replica) must necessarily launch the one repository.
+	\item [Image Repository] This module is a custom-made data structure to hold a large set of iCBD Snapshot objects in a \texttt{key:value} store. In addition to storing these objects, provides an interface to quickly know which iMIs are store within the node that accommodates the repository. Every node in the platform (i.e. Master or Replica) must necessarily launch one repository.
 \end{description}
 
 
@@ -306,11 +306,11 @@ The interface that the Image Repository offers is elementary, giving a hand full
 \paragraph{iCBD Snapshot Object Structure (iMI)}
 \label{par:icbd_snapshot}
 
-Inside the replication module, the iMI, as presented in Section~\ref{sub:icbd_architecture_imi},  is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to distinguish the multiple images present in the system unequivocally, but do not hold actual data.
+Inside the replication module, the iMI as presented in Section~\ref{sub:icbd_architecture_imi},  is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to distinguish the multiple images present in the system unequivocally, but do not hold actual data.
 
 In that sense, from this lightweight object, we can obtain: the name of the iMI, its version number, the full path to the VM files in the filesystem, the location of the boot package regarding the version in question, and the configuration file for the iSCSI target. Since the data stored within this object is appended on its creation and is immutable, the object only provides \texttt{get} functions to retrieve its values.
 
-Given that all the relevant data is stored locally in a node (this is the actual VM file; the boot package; the iSCSI configuration files) the \textit{icbdSnapshot} object only needs to maintain the paths to that data in relation to the local filesystem, leading to a clean and straightforward interface that can be seen in Listing~\ref{listing:icbdSnapshot_example}.
+Given that all the relevant data is stored locally in a node (i.e. the actual VM file; the boot package; the iSCSI configuration files) the \textit{icbdSnapshot} object only needs to maintain the paths to that data in relation to the local filesystem, leading to a clean and straightforward interface that can be seen in Listing~\ref{listing:icbdSnapshot_example}.
 
 \begin{listing}[h!]
 \begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{python}
@@ -345,12 +345,17 @@ class icbdSnapshot(object):
 \subsection{Master Node}
 \label{sub:rep_master_node}
 
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Startup routine, including the launch of other services
-	\item Main controller for all nodes of iCBD-Replication
-	\item The send operation 
-\end{itemize}
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item Startup routine, including the launch of other services
+%	\item Main controller for all nodes of iCBD-Replication
+%	\item The send operation 
+%\end{itemize}
+
+Following the architecture of the replication process, one of the fundamental roles is to manage the subscription of iMIs, disseminate new versions and provide an interface to interact with it all. A Master Node given its requirements resides in an iCBD Administration Machine (contrary to a Replica Node that will be present in an iCBD Cache Server) allowing to hold a particular view of all the system, i.e. know: all the nodes present in the platform, all iMIs in catalogue, each one are subscribed in each node, in summary, this node keeps a holistic view of the state of the platform. In a way, this node also acts as a gateway, delivering two methods of interfacing with the platform. - a Command Line Interface (CLI) and an HTTP REST API.
+
+More than being having a central role in managing the several aspects of the architecture of the replication platform, this node holds the responsibility of sending the new versions of an iMI as they are created. Is where that the BTRFS Incremental Backup feature comes to play, making use of the send operation.
+The general idea is: when the administration process of an iMI comes to an end, the Master Node is notified that a new version of that iMI is available. So, a new entry for that version is created and stored in the local Image Repository and then the replication procedure starts. First, the subscriptions to that image are checked ...
 
 \paragraph{Keep Alive}
 \label{par:rep_keep_alive}
