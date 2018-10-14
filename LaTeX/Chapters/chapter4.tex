@@ -371,12 +371,18 @@ Only after all this process begins the data transfer, being aided by the librari
 \paragraph{Keep Alive}
 \label{par:rep_keep_alive}
 
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Launched by the master node
-	\item Periodically check if the replica nodes are still working
-	\item Case any change talks to the Name Server to change things according
-\end{itemize}
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item Launched by the master node
+%	\item Periodically check if the replica nodes are still working
+%	\item Case any change talks to the Name Server to change things according
+%\end{itemize}
+
+There is a point mentioned when presenting the Pyro4 platform mentioned that this library allows the automatic reconnection of clients to the Master Node, however, the opposite is not provided. In case of failure of a Replica Node, the Name Server is not automatically informed of this failure, in fact, this event would only be noticed when a connection with that node failed.
+
+Since we want the Master Node view always to be consistent with the status of the platform, it is essential that the Name Server always hold its information up-to-date. It is to satisfy this accountability that this submodule enters in the picture. Similarly to the Name Server, the Keep Alive feature is also launched in conjunction with the Master Node and also runs on its own thread, making the execution flow independent of any other sub-module.
+
+The principal task implies verifying the activity status of all Replica Nodes, indexed by the Name Server, in a quite simple manner. Taking the list of all Replica Nodes and with a periodicity of about ten seconds, each node is reached with a style of a ping expecting a response to the challenge. If there is no acknowledgement, two further contact attempts are performed, if those too fail, it is assumed that something wrong happened to that node and is therefore declared inactive. At this point, the Name Server is reached notifying that a node entered a failed state and should be excluded from the record. 
 
 \subsubsection{CLI Interface}
 \label{subsub:rep_cli_interface}
