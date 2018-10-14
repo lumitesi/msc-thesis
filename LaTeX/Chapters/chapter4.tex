@@ -352,10 +352,21 @@ class icbdSnapshot(object):
 %	\item The send operation 
 %\end{itemize}
 
-Following the architecture of the replication process, one of the fundamental roles is to manage the subscription of iMIs, disseminate new versions and provide an interface to interact with it all. A Master Node given its requirements resides in an iCBD Administration Machine (contrary to a Replica Node that will be present in an iCBD Cache Server) allowing to hold a particular view of all the system, i.e. know: all the nodes present in the platform, all iMIs in catalogue, each one are subscribed in each node, in summary, this node keeps a holistic view of the state of the platform. In a way, this node also acts as a gateway, delivering two methods of interfacing with the platform. - a Command Line Interface (CLI) and an HTTP REST API.
+Following the architecture of the replication process, one of the fundamental roles is to manage the subscription of iMIs, disseminate new versions and provide an interface to interact with it all. Given those requirements, the Master Node resides in an iCBD Administration Machine allowing to hold a particular view of all components of the system and a holistic view of the state of the platform ( i.e. identify all the nodes present in the platform, recalls all iMIs in catalogue, maintains a list with all relations between iMIs and nodes - the subscriptions). 
 
-More than being having a central role in managing the several aspects of the architecture of the replication platform, this node holds the responsibility of sending the new versions of an iMI as they are created. Is where that the BTRFS Incremental Backup feature comes to play, making use of the send operation.
-The general idea is: when the administration process of an iMI comes to an end, the Master Node is notified that a new version of that iMI is available. So, a new entry for that version is created and stored in the local Image Repository and then the replication procedure starts. First, the subscriptions to that image are checked ...
+Moreover, adding to the above, this node also acts in a way as a gateway, delivering two methods of interfacing with the platform. - a Command Line Interface (CLI) and an HTTP REST API.
+
+More than being having a central role in managing and overseeing the several aspects of the replication platform architecture, this node holds the responsibility of sending the new versions of an iMI as they are created. This is the highlight feature that makes use of the BTRFS Incremental Backup functionality, in this case, the send operation.
+
+\paragraph{Sending a Snapshot to a Replica Node (Cache Server)}
+
+The general idea is: when the administration process of an iMI comes to an end, the Master Node is notified that a new version of that iMI is available. So, a new entry for that version is created and stored in the local Image Repository. Then, the main replication procedure starts. 
+
+First, it is checked which nodes have subscribed to iMI. For those who have subscribed we need to check the latest version available in the Replica's Image Repository, this process will determine if the new version can be sent immediately, or if it is necessary to transfer some intermediate versions. 
+
+Any of the cases, we are transmitting only the differences between versions, not the whole iMI. Assuming that only the last delta (the most recent changes) will be shipped, it is determined whether the transfer will occur using an encrypted communication channel and/or whether some compression algorithm will be applied in the data before being sent. This information is also conveyed to the receiving side so that it is ready to accept the data. 
+
+Only after all this process begins the data transfer, being aided by the libraries mentioned above, btrfsLib; compressionLib and sshLib. The process of receiving an IMI can be found in the Section~\ref{par:receive_snap}.
 
 \paragraph{Keep Alive}
 \label{par:rep_keep_alive}
@@ -385,6 +396,9 @@ The general idea is: when the administration process of an iMI comes to an end, 
 %%-------------------------------------------------------------------
 \subsection{Replica Node}
 \label{sub:rep_replica_node}
+
+\paragraph{Receiving a Snapshot}
+\label{par:receive_snap}
 
 \textbf{TOPICS :}
 \begin{itemize}
