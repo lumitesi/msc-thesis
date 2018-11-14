@@ -219,17 +219,23 @@ However, there is more to the \texttt{mki} script. For both flavours of the iMIs
 \subsection{Client Support Layer}
 \label{sub:icbd_client_support_layer}
 
+The Client Support Layer is the most fluid of all layers, containing an aggregation of services (were most can origin from the outside of the platform) working together to provide the environment to a client function correctly.
+Other essential feature of this layer is its connection to the storage layer, which, using protocols such as NFS and iSCSI, allows the client to provide the necessary data not only to the boot process but also provides read/write space for the temporary storage of changes to an iMI. Moreover, it is through these protocols that the connection to user homes is carried out.
+
+%Services outside the platform
+%But there is also the need to resort to services that aren't directly connected to the iCBD platform but are need to support a client, we can think in services like Active Directory for supporting ..
+
 
 %!!! \textbf{TODO} !!!
 % TODO Cap3 - Client Support Layer
 
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Provide r/w space (for the duration of the session)
-	\item Stores users directories (Home directory)
-	\item Keep core services like DHCP, NTP, DNS, ...
-	\item Integrate with external services such as Samba shares, LDAP, Active directory, ..
-\end{itemize}
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item Provide r/w space (for the duration of the session)
+%	\item Stores users directories (Home directory)
+%	\item Keep core services like DHCP, NTP, DNS, ...
+%	\item Integrate with external services such as Samba shares, LDAP, Active directory, ..
+%\end{itemize}
 
 
 %%-------------------------------------------------------------------
