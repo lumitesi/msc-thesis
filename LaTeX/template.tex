@@ -47,8 +47,8 @@
                         % hansen ist jenor lyhne madsen pedersen veelo vz14 vz34 vz43
   otherlistsat=front,   % front(*), back
   aftercover=false,     % false=don't true=include the aftercover file (even if exists)
-  linkscolor=darkblue,  % darkblue, black (Set to 'black' for PRINTING)
-  printcommittee=false,  % set to 'false' from submitted versins who should not have 
+  linkscolor=black,  % darkblue, black (Set to 'black' for PRINTING)
+  printcommittee=true,  % set to 'false' from submitted versins who should not have 
                         % the list of committee memebers
   spine=false,          % (Set to 'true' for PRINTING the book spine)
   cdcover=false,         % (Set to 'true' for PRINTING the CD cover)
@@ -177,7 +177,7 @@
 % \makeatother
 
 \title[Replication and Caching Systems for the support of VMs stored in File Systems with Snapshots]{Replication and Caching Systems for the support of VMs stored in File Systems with Snapshots}
-\subtitle{Science is beautiful}
+\subtitle{}
 
 % Autor
 % use [f] for female and [m] for male
@@ -185,7 +185,7 @@
 \authordegree{Bachelor of Science}
 
 % Date
-\datemonth{September}
+\datemonth{November}
 \dateyear{2018}
 
 
@@ -207,16 +207,16 @@
 % committee (maximum of 9 elements)
 % Use [c] for chair, [r] for raporteurs, [a] for advisers, [m] or nothing for remaining members
 % Chair of the committee
-\committee[c,m]{Name of the committee chairperson}
+\committee[c,f]{Prof. Carmen Pires Morgado}
 % Main raporteurs
-\committee[r,f]{Name of a raporteur}
-\committee[r,f]{Name of another raporteur}
+\committee[r,m]{Prof. Carlos Jorge de Sousa Gonçalves}
+%\committee[r,f]{Name of another raporteur}
 % Advisers
-\committee[a,f]{Name of an adviser}
-\committee[a,f]{Name of another adviser}
+\committee[m,m]{Prof. Paulo Orlando Reis Afonso Lopes}
+%\committee[a,f]{Name of another adviser}
 % Other members of the committee - include the Adviser in this list
-\committee[m,m]{Another member of the committee}
-\committee[m,f]{Yet another member of the committee}
+%\committee[m,m]{Another member of the committee}
+%\committee[m,f]{Yet another member of the committee}
 
 %%------------------------------------------------------------
 %% All the names inside braces below sould correspond to a file
@@ -238,7 +238,8 @@
 \abstractfile[en]{abstract-en}  % Abstract in English
 %\abstractfile[fr]{abstract-fr}  % Abstract in French
 \glossaryfile{glossary}
-\setglossarystyle{super}
+%\setglossarystyle{super}
+\setglossarystyle{list}
 \acronymsfile{acronyms}
 
 % definition of the second cover, to be printed before the copyright (to serve FCSH-NOVA)
@@ -270,6 +271,7 @@
 % Comment if not needed
 % \appendixfile{appendix1}
 % \appendixfile{appendix2}
+
 \annexfile{annex1}
 \annexfile{annex2}
 \annexfile{annex3}

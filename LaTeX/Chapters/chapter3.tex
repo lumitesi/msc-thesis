@@ -97,7 +97,7 @@ In the next subsections we will provide a more detailed description of each of t
 %%	3.2. - iCBD Machine Image 
 %%-------------------------------------------------------------------
 \subsection{iCBD Machine Image}
-\label{sub:icbd_architecture_imi}
+\label{sub:icbd_imi}
 
 \begin{figure}[htbp]
 	\centering
@@ -109,7 +109,7 @@ In the next subsections we will provide a more detailed description of each of t
 In its essence, an iCBD Machine Image is the aggregation of everything that is needed to run an Operating System within the iCBD platform - data and configuration files. For the sake of simplicity, we categorise the files in three main groups.
 
 \begin{description}
-	\item [VM Template files] The main component is the virtual machine template in the form of a read-only image. As described in section~\ref{sub:vm_storage} the anatomy of a template follows the standard VMware and KVM formats either with multiple files (i.e., Virtual Disk Files like \texttt{.vmdk} or \texttt{.qcow}) or a \textit{raw} storage format.
+	\item [VM Template files] The main component is the virtual machine template in the form of a read-only image. As described in section~\ref{sub:res_vm_storage} the anatomy of a template follows the standard VMware and KVM formats either with multiple files (i.e., Virtual Disk Files like \texttt{.vmdk} or \texttt{.qcow}) or a \textit{raw} storage format.
 	%
 	\item [iCBD Boot Package files] In a network boot environment, such as the one used, there is a need to keep a set of files that manage the boot process of a workstation; these files can be included in the initial \textit{ramdisk} or later transferred over HTTP when needed. Included are an init file and at least two Run Control Script files (\texttt{rc0} and \texttt{rc1}) that are responsible for starting network services, mount all file systems and ultimately bring the system up in to the single-user level. With a tool such as \textit{BusyBox} (a single executable file with a stripped-down set of tools), a basic \textit{shell} is available during the boot process to fulfil all the required steps.
 	%
@@ -118,7 +118,7 @@ In its essence, an iCBD Machine Image is the aggregation of everything that is n
 
 %\subsubsection{iMI Life Cycle}
 \paragraph{iMI Life Cycle}
-\label{subsub:imi_lifecycle}
+\label{subsub:icbd_imi_lifecycle}
 The life cycle of an iMI encompasses all stages that take it throughout its course within the platform, Figure~\ref{fig:icbd_iMI_lifecycle} shows the major ones. From creation, through live deployment in use by multiple clients, and finally its decommission and placement in to temporary or cold storage.
 
 \begin{figure}[htbp]
@@ -155,11 +155,10 @@ When an iMI completes a cycle and undergoes an update process, the old version i
 %%	3.2. - Boot Layer 
 %%-------------------------------------------------------------------
 \subsection{Boot Services Layer}
-\label{sub:icbd_architecture_boot}
+\label{sub:icbd_boot_layer}
 % https://opensource.com/article/18/1/analyzing-linux-boot-process
 % https://www.ibm.com/developerworks/library/l-linuxboot/index.html
 % https://utcc.utoronto.ca/~cks/space/blog/linux/LinuxBootOverview?
-
 
 From an end-user perspective, the only layer that is visible and interactive is the boot layer. The interface is lean and provides a way to select the image to boot in the workstation, however not every single aspect is noticeable. In the background, there is a need to resort to multiple services for starting a client's workstation with an iCBD Machine Image.
 
@@ -169,7 +168,7 @@ The first part of the boot process starts like any other network boot, where a s
 
 %\subsubsection{Booting an iMI in a Workstation }
 \paragraph{Booting an iMI in a Workstation}
-\label{subsub:booting_imi}
+\label{subsub:icbd_booting_imi}
 %(REF https://www.ibm.com/developerworks/library/l-initrd/index.html)
 After the selection of an iMI in the PXE boot menu~\cite{ibm_linux_boot} the second-stage boot kicks in. Using \textit{PXELINUX} as a bootloader there is the capability of transferring a compressed Linux Kernal (vmlinuz) and an initial ramdisk (initrd) (REF in comment)through either TFTP or HTTP, is also in this step that some parameters needed during the boot are set with the correct values according to the image picked. After everything loaded into memory, the stage 2 boot loader invokes the kernel image, and after booted and initialised, the kernel starts the first user-space application. 
 
@@ -183,7 +182,7 @@ At last, the residual configuration entails the update of the correct time with 
 %%	3.2. - Administration Layer 
 %%-------------------------------------------------------------------
 \subsection{Administration Layer}
-\label{sub:icbd_architecture_adm}
+\label{sub:icbd_adm_layer}
 
 One of the most important features provided by the platform, and personified in this next layer, is the ability to perform administration operations on an iMI. That task becomes simplified by the use of a provided image administration tool. Armed with such a mechanism any systems administrator in an organisation can make the changes that understand necessary (stuff like Operating System and software in general updates, add new software, modify configurations) and then publish the image in the platform for widespread use. 
 
@@ -208,7 +207,7 @@ Finishing the process, with all the desired actions performed in the iMI, the ad
 %\label{subsub:createboot_imi}
 
 \paragraph{Creating the boot package}
-\label{par:createboot_imi}
+\label{par:icbd_create_bootpack}
 Even after all the process described above, the iMI is not ready to boot, being the next step the creation of the boot package. This phase is the responsibility of the \texttt{mki} script which can be called immediately at the end of the administration process by the texttt{adm} tool depending on the type of the iMI.
 The procedure is different for each type of iMI (Windows or Linux), but with a set of steps in common, being that the Linux iMIs requires a particular number of customisations. The peculiarity of these requirement comes from the fact that Linux iMIs can run natively on a client workstation serving as host for other images. Which in turn entails the creation of custom \texttt{initramfs} and \texttt{vmlinuz} files, the addition of Kernel drivers and firmware, the tailor-making of Run Control Scriptfiles (rc0 and rc1) that start the network services with a configuration compatible with the platform and mount the correct remote file systems. In the end, is also added a script called \texttt{runvm}, that is instrumental in managing the launch of a virtualised iMI, as well as configure the hypervisor parameters to take the best advantage of the client hardware.
 However, there is more to the \texttt{mki} script. For both flavours of the iMIs, the configurations of the \textit{iSCSI targets} need an update to reflect the new version of the iMI, with the same happening to the \textit{pxelinux} configuration that requires the new paths to the files served to the clients.
@@ -218,7 +217,7 @@ However, there is more to the \texttt{mki} script. For both flavours of the iMIs
 %%	3.2. - Client Layer 
 %%-------------------------------------------------------------------
 \subsection{Client Support Layer}
-\label{sub:icbd_architecture_client}
+\label{sub:icbd_client_support_layer}
 
 
 %!!! \textbf{TODO} !!!
@@ -237,7 +236,7 @@ However, there is more to the \texttt{mki} script. For both flavours of the iMIs
 %%	3.2. - Storage Layer 
 %%-------------------------------------------------------------------
 \subsection{Storage Layer}
-\label{sub:icbd_architecture_storage}
+\label{sub:icbd_storage_layer}
 
 %!!! \textbf{TODO} !!!
 % TODO Cap3 - Storage Layer

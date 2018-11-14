@@ -25,20 +25,20 @@ In this chapter, we start with a survey of core concepts directly associated wit
 The organisation of this chapter is as follows:
 
 \begin{description}
-	\item [Section~\ref{sec:virtualisation}] overviews virtualisation as a core concept, describing significant properties and the inner works of hypervisors and finishes with a comprehensive discussion about the multiple VDI models.
+	\item [Section~\ref{sec:res_virtualisation}] overviews virtualisation as a core concept, describing significant properties and the inner works of hypervisors and finishes with a comprehensive discussion about the multiple VDI models.
 	%
-	\item [Section~\ref{sec:storage}] studies the principal challenges for a storage system in a VDI context and makes a survey of the multiple types of file systems which are currently prevalent in a data centre environment. 
+	\item [Section~\ref{sec:res_storage}] studies the principal challenges for a storage system in a VDI context and makes a survey of the multiple types of file systems which are currently prevalent in a data centre environment. 
 	%
-	\item [Section~\ref{sec:caching}] talks about the problem of the locality of the data, and how that fact can influence the performance and scalability of a system.
+	\item [Section~\ref{sec:res_caching}] talks about the problem of the locality of the data, and how that fact can influence the performance and scalability of a system.
 	%
-	\item [Section~\ref{sec:replication}] expands on the fact the storing data in a single location is not enough for compliance with current requirements, such as high availability, fault tolerance and performance standards in critical systems.
+	\item [Section~\ref{sec:res_replication}] expands on the fact the storing data in a single location is not enough for compliance with current requirements, such as high availability, fault tolerance and performance standards in critical systems.
 \end{description}
 
 %%-------------------------------------------------------------------
 %%	2.1 - Virtualisation
 %%-------------------------------------------------------------------
 \section{Virtualisation}
-\label{sec:virtualisation}
+\label{sec:res_virtualisation}
 
 Most of today's machines have such a level of performance that allows the simultaneous execution of multiple applications and the sharing of these resources by several users. In this sense, it is natural to have a line of thought in which all available resources are taken advantage of efficiently.
 
@@ -55,7 +55,7 @@ In today's architectures, a modern term was been coined, the \textit{Hypervisor}
 %%	2.1.X - Hypervisors
 %%-------------------------------------------------------------------
 \subsection{Hypervisors} % (fold)
-\label{sub:hypervisors}
+\label{sub:res_hypervisors}
 
 The most important aspect of running a VM is that it must provide the illusion of being a real machine, allowing to boot and install any Operating System (OS). It is the VMM which has that task and should do it efficiently at the same time providing this three properties~\cite{Popek1974}:
 
@@ -111,7 +111,7 @@ With a virtualised infrastructure there is an opportunity for a substantial redu
 %%	2.1.X - VDI
 %%-------------------------------------------------------------------
 \subsection{Virtual Desktop Infrastructure} % (fold)
-\label{sub:vdi}
+\label{sub:res_vdi}
 
 \begin{figure}[htbp]
 	\centering
@@ -231,7 +231,7 @@ In this section, we present a summary of the technologies mentioned above.
 %%	2.1.X - VM storage
 %%-------------------------------------------------------------------
 \subsection{Virtual Machine Image Storage} % (fold)
-\label{sub:vm_storage}
+\label{sub:res_vm_storage}
 
 The data storage is one of the focal points to address in this work. Therefore, it is meaningful to understand how a virtual machine is composed and how is translated to a representation in a storage device.
 
@@ -259,14 +259,14 @@ The basic anatomy of a Virtual Machine encompasses a collection of files that de
 In addition to the records described above, there may be some more files associated with the use of snapshots. More concretely, a \texttt{.vmsd} file and multiple \texttt{.vmsn}. The first is a file with the consolidation of storing and metadata information about snapshots. The other one, represents the snapshot itself, saving the state of the virtual machine in the moment of the creation of the snapshot.
 
 The implementation of snapshots mentioned above applies to a specific implementation of VMware and takes form as follows: first, the state of the resource is stored in the form of an immutable and persistent object. Then, all modifications that transform the state of the resource are gathered in a different object. 
-The diverse snapshotting techniques are addressed in a more comprehensive sense in the Section~\ref{sub:snapshots}.
+The diverse snapshotting techniques are addressed in a more comprehensive sense in the Section~\ref{sub:res_snapshots}.
 
 
 %%-------------------------------------------------------------------
 %%	2.2 - Storage
 %%-------------------------------------------------------------------
 \section{Storage} % (fold)
-\label{sec:storage}
+\label{sec:res_storage}
 
 As stated in previous sections, the main problem to be addressed in this work is the storage concerning virtual machines. That could be either images, snapshots, files or data structures that are needed to support the execution of a VM. 
 
@@ -279,12 +279,12 @@ At the end of the day, the idea is to present a solution that offers an appropri
 %%	2.2. - Storage Challenges
 %%-------------------------------------------------------------------
 \subsection{Storage Challenges}
-\label{sub:storage_challenges}
+\label{sub:res_storage_challenges}
 
 In a typical data centre application, with a well-designed infrastructure and in normal conditions, the storage system is steadily used but isn't being stressed continuously with requests I/O requests that directly affect the system performance. However, that postulate is no longer valid when talking about the storing of VM files for use in a VDI environment. In this type of context, some events can cascade in I/O storms that eventually introduce degradations in storage response time, which diminishes the performance of the overall system and in turn leads to a lower satisfaction level for the users of said system.
 
 \paragraph{I/O Storms}
-\label{par:ios_storms}
+\label{par:res_ios_storms}
 
 In a typical data centre application, with a well-designed infrastructure and in normal conditions, the storage system is steadily used but isn't being stressed continuously with I/O requests that directly affect the system performance. However, that postulate is no longer valid when talking about the storing of VM files for use in a VDI environment. In this type of context, some events can cascade in I/O storms that eventually introduce degradations in storage response time, which diminishes the performance of the overall system and in turn leads to a lower satisfaction level for the users of said system.
 From several events that influence a storage system we can point out some that have more expression in a VDI setting:
@@ -309,7 +309,7 @@ From several events that influence a storage system we can point out some that h
 %%	2.2. - File Systems
 %%-------------------------------------------------------------------
 \subsection{File Systems} % (fold)
-\label{sub:file_systems}
+\label{sub:res_file_systems}
 
 The traditional and perhaps most common way of storing files and, in turn, VMs is the use of file systems.
 This kind of system is used to manage the way information is stored and accessed on storage devices. A file system can be divided into three broad layers, from a top-down perspective we have:
@@ -349,7 +349,7 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 %%	2.2. - Snapshots
 %%-------------------------------------------------------------------
 \subsection{Snapshots} % (fold)
-\label{sub:snapshots}
+\label{sub:res_snapshots}
 
 In this work, the snapshot functionality of the file system itself is a valuable asset. This technique is present in some of the most recently designed file systems, such as the BTRFS. 
 As the name implies, a snapshot is an image at a given instant of the state of a resource,  we are particularly interested in snapshots of volumes (logical disks), and of files (individually or grouped, for example, in a directory).
@@ -366,7 +366,7 @@ In order for multiple snapshots, do not take up space unnecessarily, data compre
 %%	2.3. - Caching
 %%-------------------------------------------------------------------
 \section{Caching} % (fold)
-\label{sec:caching}
+\label{sec:res_caching}
 
 %!!! \textbf{TODO} - Needs More Info!!!
 % TODO Cap2 - Caching
@@ -389,7 +389,7 @@ Caches may be found beside each client or they may be located on a server that c
 %%	2.4. - Replication
 %%-------------------------------------------------------------------
 \section{Replication}
-\label{sec:replication}
+\label{sec:res_replication}
 
 %!!! \textbf{TODO} - Needs More Info!!!
 % TODO Cap2 - Replication 

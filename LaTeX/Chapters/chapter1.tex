@@ -26,7 +26,7 @@
 %%	1.1 - Context
 %%-------------------------------------------------------------------
 \section{Context} % (fold)
-\label{sec:context}
+\label{sec:intro_context}
 
 The concept of virtualisation, despite all the recent discussion, isn’t new. In reality, this technology has been around since the 1960s~\cite{Buzen1973}, but it was not until the development of virtualisation technologies for the x86 architecture~\cite{Agesen2010} and the introduction of \textit{Intel VT}~\cite{Intel2010} and \textit{AMD SVM}~\cite{AMD2010} in the 2000s that virtualisation has entered the mainstream as the go-to technology solution for server deployment across many production environments. 
 
@@ -45,7 +45,7 @@ With influential industry players following this trend, supporting more and more
 %%	1.2 - Motivation
 %%-------------------------------------------------------------------
 \section{Motivation} % (fold)
-\label{sec:motivation}
+\label{sec:intro_motivation}
 
 Virtualisation is the pillar technology that allowed for the widespread of the IaaS cloud providers in a model of economies of scale. These cloud providers, such as Amazon AWS~\cite{aws_2017}, Microsoft Azure~\cite{azure_2017} and Google Cloud Platform~\cite{gcp_2017}, manage thousands of physical machines all over the globe, with the majority of the infrastructure being multi-tenant oriented. 
 
@@ -67,7 +67,7 @@ The combination of this file system with replication and partitioning techniques
 %%	1.3 - Project Presentation
 %%-------------------------------------------------------------------
 \section{Project Presentation} % (fold)
-\label{sec:project_presentation}
+\label{sec:intro_project_presentation}
 
 This dissertation work is performed in the context of a more comprehensive project with the name \gls{iCBD}~\cite{Lopes2017}, under development at \textit{SolidNetworks – Business Consulting, Lda} part of the \textit{Reditus S.A.} group in collaboration with \textit{NOVA LINCS} hosted at \textit{DI - FCT/NOVA}.
 
@@ -83,7 +83,7 @@ The primary objective is to improve in a known model, the client-based Virtual D
 %%	1.3. - iCBD Project
 %%-------------------------------------------------------------------
 \subsection{iCBD Project} % (fold)
-\label{sub:icbd_project}
+\label{sub:intro_icbd_project}
 
 There are some leading-edge aspects of the \acrfull{iCBD} project which sets it apart from other existing solutions such as the adoption of a diskless paradigm with a remote boot, the way the platform stores \gls{VM} images, and the support for a virtualised or native execution on the target workstation~\footnote{In this document workstation is a user's desktop PC, laptop, etc., any PC compatible computing device.}, depending on the user's choice.~\cite{P2020}
 
@@ -118,7 +118,7 @@ With all the above in account, there is a clear separation from other solutions 
 %%	1.3. - Previous Work
 %%-------------------------------------------------------------------
 \subsection{Previous Work} % (fold)
-\label{sub:previous_work}
+\label{sub:intro_previous_work}
 
 There have previously been two dissertations involved in this project. The work of those students has centred in the creation of the instances of virtual machines, more specifically in a creation supported by native snapshot mechanisms of the file system where the templates reside. Testing several Files Systems that present the requirements mentioned above. As well as, conduct an analysis on the performance of those systems when working with a typical load for the platform. 
 In a few words, the work opens a path where the snapshots stop being tied to the hypervisor as a tool for the provisioning (thin or full) of clones and bestowing the job to the file system snapshot system, which is fundamental to deliver a centralised management solution.
@@ -132,7 +132,7 @@ In that sense, one of the works was used a local file system, named BTRFS, as th
 %%-------------------------------------------------------------------
 %\section{Problem Stating and Main Contributions} % (fold)
 \section{Problem Stating and Main Contributions}
-\label{sec:project_contributions}
+\label{sec:intro_project_contributions}
 
 This dissertation aims to build upon the previous contributions, deeply study the core of the iCBD platform and tackle the next set of questions, mainly:
 
@@ -153,7 +153,7 @@ This dissertation aims to build upon the previous contributions, deeply study th
 %%	3.2. - Replication and Caching - The Problem 
 %%-------------------------------------------------------------------
 \subsection{Replication and Caching - The Problem}
-\label{sec:replication_cache_theproblem}
+\label{sec:intro_replication_cache_theproblem}
 
 To answer these questions, we can formulate small topics that guide the work in a more focused way creating a list of general requirements to be addressed by this thesis.
 In general, the work will be divided into two major subjects, were the second is a direct consequence and requires the first.
@@ -161,7 +161,7 @@ In general, the work will be divided into two major subjects, were the second is
 
 %\subsection{Motivation and Goals}
 \paragraph{Motivation and Goals}
-\label{par:motivation_goals}
+\label{par:intro_motivation_goals}
 
 Providing a mechanism that ensures the correct replication of data between nodes of the platform is paramount. This process also needs to confer other properties such as achieving the best performance on data transferences, being in a factor of speed or the used bandwidth. Another point of interest is the fact that the replication process should easily integrate with any File System used in the Storage Layer (taking into account that is fundamental that the file system provides some variety of snapshotting mechanism) trying not to add a sizeable computational load.
 Following this idea, we may start thinking on how to deliver to the clients the benefits of replicating data. The replication procedure is not only a useful tool to propagate efficiently data changes throwout the nodes of the platform and act as insurance from a data loss disaster, but also capitalise on getting closer to the clients the resources that they need. Following this line of thought, an answer to the second question starts to appear. It is not only necessary to think about the location of the data, but also to study which services are used by the platform that are fundamental for running images on the client's workstations and how to integrate all so as to deliver the best experience to the highest number of clients.
@@ -189,7 +189,7 @@ To summarise, the following list poses the key requirements had in mind during t
 %%	1.3. - Main Expected Contributions
 %%-------------------------------------------------------------------
 \subsection{Main Expected Contributions} % (fold)
-\label{sub:main_expected_contributions}
+\label{sub:intro_main_expected_contributions}
 
 The main expected contributions are: 
 
@@ -211,7 +211,7 @@ In a more concrete approach, we present the work plan, for achieving the above o
 
 %\subsubsection{Replication}
 \paragraph{Replication}
-\label{par:replication_goals}
+\label{par:intro_replication_goals}
 
 \begin{itemize}
 	\item Create a middleware that integrates with the core functionalities already developed within the iCBD platform.
@@ -227,11 +227,11 @@ In a more concrete approach, we present the work plan, for achieving the above o
 	\item Provide a simple CLI and a REST API for interacting with the replication module functions.
 \end{itemize}
 
-This subject is further developed in \textbf{Section~\ref{sec:impl_replication}}.
+This subject is further developed in \textbf{Section~\ref{sec:impl_icbdrep}}.
 
 %\subsubsection{Cache Server}
 \paragraph{Caching}
-\label{par:caching_goals}
+\label{par:intro_caching_goals}
 
 \begin{itemize}
 	\item Dilute some cost of the infrastructure by having commodity hardware as proximity servers.
@@ -254,7 +254,7 @@ A detailed view of this work is presented in \textbf{Section~\ref{sec:impl_cache
 %%	1.5 - Document Structure
 %%-------------------------------------------------------------------
 \section{Document Structure} % (fold)
-\label{sec:document_structure}
+\label{sec:intro_document_structure}
 
 The remnant document is structured as follows: 
 
