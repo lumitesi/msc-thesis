@@ -241,6 +241,12 @@ The name server is a module that consists of a constant running thread and a loc
 
 Given the scenario where a node wants to make contact to another node and does not have its location. A request with the name of the node is made to the name server expecting in return a URI to call. If the requesting node already knows the location (IP and Port) of the name server, it makes the request directly. However, in the case where it also does not know how to contact the name server, resorts to a simple UDP network broadcast to locate the name server.
 
+\begin{listing}[ht]
+\inputminted{python}{./Chapters/Code/cap4_NameServer.py}
+\caption{Starting procedure of a Name Server}
+\label{listing:impl_icbd_nameserver}
+\end{listing}
+
 \paragraph{Methods in the Name Server API}
 
 The Pyro Name Server presents an extensive API, but for the purposes of our work, only the subset presented below is utilised. 
@@ -253,11 +259,6 @@ The Pyro Name Server presents an extensive API, but for the purposes of our work
 	\item \texttt{remove()} Removes an entry, created by registering an object, with the exact given name from the name server.
 \end{description}
 
-\begin{listing}[ht]
-\inputminted{python}{./Chapters/Code/cap4_NameServer.py}
-\caption{Starting procedure of a Name Server}
-\label{listing:impl_icbd_nameserver}
-\end{listing}
 
 
 
@@ -308,7 +309,7 @@ Given that all the relevant data is stored locally in a node (i.e. the actual VM
 
 Following the architecture of the replication process, one of the fundamental roles is to manage the subscription of iMIs, disseminate new versions and provide an interface to interact with it all. Given those requirements, the Master Node resides in an iCBD Administration Machine allowing to hold a particular view of all components of the system and a holistic view of the state of the platform ( i.e. identify all the nodes present in the platform, recalls all iMIs in catalogue, maintains a list with all relations between iMIs and nodes - the subscriptions). 
 
-Moreover, adding to the above, this node also acts in a way as a gateway, delivering two methods of interfacing with the platform. - a Command Line Interface (CLI) and an HTTP REST API.
+Moreover, adding to the above, this node also acts in a way as a gateway, delivering two methods of interfacing with the platform - a Command Line Interface (CLI) and an HTTP REST API.
 
 More than being having a central role in managing and overseeing the several aspects of the replication platform architecture, this node holds the responsibility of sending the new versions of an iMI as they are created. This is the highlight feature that makes use of the BTRFS Incremental Backup functionality, in this case, the send operation.
 
@@ -340,6 +341,20 @@ The principal task implies verifying the activity status of all Replica Nodes, i
 
 \subsubsection{CLI Interface}
 \label{subsub:impl_icbdrep_cli_interface}
+
+One of the methods to interact with the iCBD replication platform is through a Command-line interface provided by the Master Node, which is nothing more than a program that launched from a terminal textually recognises a series of commands and returns its result.
+
+\begin{description}
+	\item \texttt{List Replicas}
+	\item \texttt{Update Name Server}
+	\item \texttt{List Subscribed iMIs}
+	\item \texttt{Subscribe iMI}
+	\item \texttt{Unsubscribe iMI}
+	\item \texttt{List iMI available versions}
+	\item \texttt{Send iMI Snapshot}
+	\item \texttt{Send iMI Snapshot Secure Connection (SSH)}
+	\item \texttt{Delete iMI version}
+\end{description}
 
 
 \subsubsection{REST API}
