@@ -220,14 +220,12 @@ However, there is more to the \texttt{mki} script. For both flavours of the iMIs
 \label{sub:icbd_client_support_layer}
 
 The Client Support Layer is the most fluid of all layers, containing an aggregation of services (were most can origin from the outside of the platform) working together to provide the environment to a client function correctly.
-Other essential feature of this layer is its connection to the storage layer, which, using protocols such as NFS and iSCSI, allows the client to provide the necessary data not only to the boot process but also provides read/write space for the temporary storage of changes to an iMI. Moreover, it is through these protocols that the connection to user homes is carried out.
+Other essential feature of this layer is its connection to the storage layer, which, using protocols such as NFS and iSCSI, allows the client to provide the necessary data not only to the boot process but also provides read/write space for the temporary storage of changes to an iMI. Moreover, it is through these protocols that the connection to user directories is carried out.
+It is important to note that there are more essential services maintained and crucial to the provision of one iMI on the iCBD platform, not just the connection between this layer and the storage layer. This is where subjects such as address translation by a DNS or the synchronisation of time by NTP come by.
 
-%Services outside the platform
-%But there is also the need to resort to services that aren't directly connected to the iCBD platform but are need to support a client, we can think in services like Active Directory for supporting ..
-
+The second use case of this layer tackles the need to resort to services that aren't directly connected to the iCBD platform but are need to support a client. For example, it may be the case that we deploy a Windows iMI in the infrastructure of a company that already has the support for Microsoft's Active Directory; it is necessary for the iCBD platform to coexist with this type of services already present, or even facilitate the introduction of new services.
 
 %!!! \textbf{TODO} !!!
-% TODO Cap3 - Client Support Layer
 
 %\textbf{TOPICS :}
 %\begin{itemize}
@@ -244,18 +242,29 @@ Other essential feature of this layer is its connection to the storage layer, wh
 \subsection{Storage Layer}
 \label{sub:icbd_storage_layer}
 
-%!!! \textbf{TODO} !!!
-% TODO Cap3 - Storage Layer
+In a way, we can say that the most significant part of our work will focus on this layer. The storage layer is responsible for saving all platform data, whether they are iMIs, databases, virtual disks (.vmdk) from support platform VMs, or code repositories; essentially it is a tier consisting of a set of file systems each with its purpose. 
 
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Why btrfs? (Snapshots, seeding)
-	\item How are files stored?
-	\item The use of BTRFS multiple subvolumes for different parts of the platform.
-	\item The use of cloning to save multiple versions of an iMI, giving the possibility to roll back unwanted changes.
-	\item The need to replicate data - multiple locations and cache server (one of the focus of the thesis)
-	\item Should be transparent the the remaining layers. As being develop in Joao's thesis the use of CEPH  should be used with little to none modifications to other layers. (Interfacing through NFS or iSCSI just like BTRFS)
-\end{itemize}
+In the interest of this document, we will only focus on the file system that provides the storage of iMIs. Given the uniqueness of this type of data, the file system to use has to present the right features, notably the support for snapshots, being that the choice fell in the BTRFS. It is important to mention that this is not the only FS that supports snapshots. In connection with that, questions similar to those discussed in this document, but with a focus on an object-oriented file system, are being simultaneously worked on the overall scope of the project.
+
+Particular features of BTRFS are broadly exploited by the iCBD platform: sub-volumes; snapshots; cloning of both sub-volumes and snapshots; BTRFS seed device; incremental backup; just to name a few.
+These several characteristics achieve several objectives: multiple sub-volumes are used to store different parts of the platform, snapshots are widely used to create a kind of version control between changes of iMIs giving the possibility to access at any moment any of the versions, or even on creating backups of the entire platform. 
+Another important feature is the capability of using BTRFS file systems as seed devices, conceding for the multiple mounting operations of the same file system in read-only mode. Thus allowing multiple clients to use the same iMI.
+
+All these matters should bear in mind that from the point of view of the remaining layers, the type of filesystem or the way in which it implements certain operations, should be entirely transparent to them, interfacing through NFS or iSCSI, for instance. Thus, by attacking the problem of data replication between multiple file systems, transparency as an attribute is likewise fundamental. All of this will be discussed in detail within the next chapter, including an explanation of the various decision-making processes and the illustration of their implementation.
+
+
+
+%!!! \textbf{TODO} !!!
+
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item Why btrfs? (Snapshots, seeding)
+%	\item How are files stored?
+%	\item The use of BTRFS multiple subvolumes for different parts of the platform.
+%	\item The use of cloning to save multiple versions of an iMI, giving the possibility to roll back unwanted changes.
+%	\item The need to replicate data - multiple locations and cache server (one of the focus of the thesis)
+%	\item Should be transparent the the remaining layers. As being develop in Joao's thesis the use of CEPH  should be used with little to none modifications to other layers. (Interfacing through NFS or iSCSI just like BTRFS)
+%\end{itemize}
 
 %https://blogs.oracle.com/developers/save-disk-space-on-linux-by-cloning-files-on-btrfs-and-ocfs2-v2
 %In this case the file system does not create a new link pointing to an existing inode, it rather creates a new inode that shares the same disk blocks as the original file. This means that this operation only works within the boundaries of the same file system or subvolume. The outcome looks very much like a copy of the source file, but the actual data blocks have not been duplicated. Due to the copy-on-write nature, a modification of any one of the files will not be visible in the other file. Note that this should not be confused with hard links – this web page provides a good explanation of the differences.
