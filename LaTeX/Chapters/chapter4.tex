@@ -344,15 +344,33 @@ The principal task implies verifying the activity status of all Replica Nodes, i
 
 One of the methods to interact with the iCBD replication platform is through a Command-line interface provided by the Master Node, which is nothing more than a program that launched from a terminal textually recognises a series of commands and returns its result.
 
+\begin{figure}[htbp]
+	\centering
+%	\includegraphics[height=4in, width=\textwidth]{cap4_icbd_arquit}
+	\includegraphics[width=\textwidth]{cap4_clihelp}
+	\caption{iCBD Replication Module help output}
+	\label{fig:icbd_rep_clihelp}
+\end{figure}
+
+This interface, although simplistic, allows to efficiently manage all the tasks related to the replication of iMIs between the several servers of the platform. Following we demonstrate the functions provided by this interface and the effects produced on the platform:
+
 \begin{description}
-	\item \texttt{List Replicas}
-	\item \texttt{Update Name Server}
-	\item \texttt{List Subscribed iMIs}
-	\item \texttt{Subscribe iMI}
+	\item \texttt{List Replicas} - At any time it is possible to consult which nodes are registered in the platform, this command allows to list the replicas registered in the Name Server and indicates which URI is used to make a connection.
+	%
+	\item \texttt{Force Update Name Server} - As previously explained, when a replica node stops responding, that node is deleted from the records held by the Name Server. However, this process may not be immediate because of the timeout implemented. So this feature forces an update to the Name Server list by contacting all the nodes and determining if they are working correctly.
+	%
+	\item \texttt{List Subscribed iMIs} -This command receives as a parameter a replica node and shows a list of which iMIs that node is interested in receiving. It should be noted that a replica node may not subscribe to an iMI but still make it available to its client (was previously subscribed and the data was not deleted), it just will not be receiving new versions as they are being produced.
+	%
+	\item \texttt{Subscribe iMI} - Like the previous operation, this receives some arguments (a replica node and an iMI), then, registers the interest of the replica node in a given iMI. After this procedure, this node will be able to receive versions of this iMI.
+	%
 	\item \texttt{Unsubscribe iMI}
+	%
 	\item \texttt{List iMI available versions}
+	%
 	\item \texttt{Send iMI Snapshot}
+	%
 	\item \texttt{Send iMI Snapshot Secure Connection (SSH)}
+	%
 	\item \texttt{Delete iMI version}
 \end{description}
 
