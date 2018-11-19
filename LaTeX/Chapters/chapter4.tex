@@ -25,6 +25,18 @@ This chapter is partitioned as follows :
 \end{description}
 \newpage
 
+%%-------------------------------------------------------------------
+%%	4 - Motivation and System Architecture
+%%-------------------------------------------------------------------
+\section{Motivation and System Architecture}
+\label{sec:impl_mot_sysarch}
+
+\subsection{Motivation}
+\label{sub:impl_mot}
+
+\subsection{System Architecture}
+\label{sub:impl_sysarch}
+
 
 
 %%-------------------------------------------------------------------
@@ -53,7 +65,6 @@ The condition described above applies only in the choice of the File System, in 
 Due to this imposition, it is key that this work makes the best use of the BTRFS features, exploring the incremental backup capabilities. More, the replication process should fully integrate with the core platform that already distributes iMIs to clients. Preservation of consistency of the iMIs is also a concern, assuring the distribution of new versions when they are created.
 
 Moreover, it should be taken in account the locality of the data, since the communications could originate and end in the same data centre and the same local network, or happening between different locations that can be in opposite sides of the world. Such aspects as the bandwidth used and the encryption of the data becomes essential to address, requiring the examination of several compression algorithms that can be accommodated to the way the data is processed and also ways of keeping this data secure by encrypting the communications.
-\newpage
 
 %Requirements
 %The file system is set BTRFS will be used.
@@ -447,7 +458,7 @@ Next, we present the endpoints through which it is possible to interact with a m
 %%-------------------------------------------------------------------
 %%	4. - Building a iCBD Cache Server
 %%-------------------------------------------------------------------
-\section{Building a iCBD Cache Server}
+\section{Deploying an iCBD Platform with a Cache Server}
 \label{sec:impl_cache_server}
 
 %To solve some of the enunciated problems with a DaaS solution that derive from limited bandwidth, latency and jitter from the limitation of accessing the image repositories from an internet connection and provide some scalability feature with the implementation of proximity cache servers are key. These cache servers can store replicas of the iMIs created and maintained in an administration server. Moreover, since they are located in the same LAN segment as the clients is from here that they will boot.
@@ -481,8 +492,8 @@ Next, we present the endpoints through which it is possible to interact with a m
 \subsection{Services}
 \label{sub:impl_cache_services}
 
-\paragraph{VM Roles in the Platform}
-\label{par:impl_vm_roles}
+\paragraph{Roles in the Platform}
+\label{par:impl_roles}
 
 \begin{description}
 	\item [\textit{iCBD-imgs}]
