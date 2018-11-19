@@ -397,9 +397,15 @@ Our use of this framework has focused only on its ability to quickly provide an 
 Next, we present the endpoints through which it is possible to interact with a master node:
 
 \begin{description}
-	\item \texttt{GET /api/replicas} - Get the List of all Replicas 
-	\item \texttt{GET /api/replicas/update} - Get the List of all Replicas 
-	\item \texttt{GET /api/replicas/{replica}/imis} - Get the List of all Replicas 
+	\item \texttt{GET /api/replicas} - the list of all Replicas 
+	\item \texttt{GET /api/replicas/\{replica\}/imis} - list of the iMis present in a Replica 
+	\item \texttt{GET /api/replicas/\{replica\}/imis/subscribe/\{imi\}} - Replica subscribe to iMI 
+	\item \texttt{GET /api/replicas/\{replica\}/imis/unsubscribe/\{imi\}} - Replica unsubscribe to iMI 
+	\item \texttt{GET /api/replicas/\{replica\}/imis/\{imi\}/versions} - list the versions of iMI present in Replica
+	\item \texttt{GET /api/replicas/\{replica\}/imis/\{imi\}/versions/\{version\}/delete} - delete a version of iMI in Replica
+	\item \texttt{GET /api/master/imis/} - list the iMIs present in Master
+	\item \texttt{GET /api/master/imis/\{imi\}/versions} - list versions of iMIs present in Master
+	\item \texttt{GET /api/master/send?imi=\{imi\}\&version=\{version\}\&replica=\{replica\}} - send version of iMI to Replica
 \end{description}
 
 %\textbf{TOPICS :}
