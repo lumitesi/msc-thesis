@@ -146,7 +146,13 @@ So that all the components presented above can function adequately, they require
 
 \end{description}
 
-Even though the libraries presented above are not enough for the correct implementation of the all functionalities of the replication module, more libraries implemented by the community were necessary to handle aspects like communication between nodes, algorithms for data compression and to secure the data transmission between networks. Some of which we describe below and through the remaining text detailing each module.
+Even though the libraries presented above are not enough for the appropriate implementation of the all functionalities of the replication module, more libraries implemented by the community were necessary to handle aspects like communication between nodes, algorithms for data compression and to secure the data transmission between networks. Some of which we list and describe below  (a full list of Python packets imported in the project is shown in the Listing~\ref{listing:impl_icbd_pipfile}), also throughout the remaining text we detail in each module the libraries that help to accomplish its purpose.
+
+\begin{listing}[ht]
+\inputminted{python}{./Chapters/Code/cap4_pip.py}
+\caption{Pipfile for the iCBD-rep Project}
+\label{listing:impl_icbd_pipfile}
+\end{listing}
 
 
 %%-------------------------------------------------------------------
@@ -314,6 +320,7 @@ Moreover, adding to the above, this node also acts in a way as a gateway, delive
 More than being having a central role in managing and overseeing the several aspects of the replication platform architecture, this node holds the responsibility of sending the new versions of an iMI as they are created. This is the highlight feature that makes use of the BTRFS Incremental Backup functionality, in this case, the send operation.
 
 \paragraph{Sending a Snapshot to a Replica Node (Cache Server)}
+\label{par:impl_sendsnap}
 
 The general idea is: when the administration process of an iMI comes to an end, the Master Node is notified that a new version of that iMI is available. So, a new entry for that version is created and stored in the local Image Repository. Then, the main replication procedure starts. 
 
@@ -377,11 +384,27 @@ This interface, although simplistic, allows to efficiently manage all the tasks 
 
 \subsubsection{REST API}
 \label{subsub:impl_icbdrep_restapi}
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Flask lib
-	\item Endpoints
-\end{itemize}
+
+In order to complement the Comand-Line interface previously presented and creating a more straightforward and more ubiquitous way of interacting with the replication platform, a Rest API has been introduced that provides the same functionalities as the CLI.
+In order to integrate this component with the remaining replication platform, we employ one of the most used frameworks for creating web platforms in Python, the Flask micro-framework.
+
+\paragraph{Flask}
+\label{par:impl_flask}
+
+Started as an April's Fool's Day joke to become the second most popular web development frameworks. Flask is a Python micro web framework designed with simplicity in mind, enabling quick deployment of applications and at the same time providing the ability to scale for complex environments. Such library enables the development of web applications without having to worry with more low-level aspects like network protocols and thread management. This framework began its development in 2010 by Armin Ronacher as a wrapper of two of his libraries: Werkzeug and Jinja.
+
+Our use of this framework has focused only on its ability to quickly provide an environment for creating a REST API and connecting it with the rest of the replication platform. 
+Next, we present the endpoints through which it is possible to interact with a master node:
+
+\begin{description}
+	\item \texttt{GET /api/replicas} - Get the List of all Replicas 
+\end{description}
+
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item Flask lib
+%	\item Endpoints
+%\end{itemize}
 
 
 %%-------------------------------------------------------------------
