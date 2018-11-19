@@ -385,7 +385,8 @@ This interface, although simplistic, allows to efficiently manage all the tasks 
 \subsubsection{REST API}
 \label{subsub:impl_icbdrep_restapi}
 
-In order to complement the Comand-Line interface previously presented and creating a more straightforward and more ubiquitous way of interacting with the replication platform, a Rest API has been introduced that provides the same functionalities as the CLI.
+In order to complement the Comand-Line Interface previously presented and creating a more straightforward, more ubiquitous way of interacting with the replication platform, a Rest API has been introduced. Aiming to provide the same functionalities as the CLI but trying to create the roots of a component that deals well with platform scaling and the introduction of new features or components.
+
 In order to integrate this component with the remaining replication platform, we employ one of the most used frameworks for creating web platforms in Python, the Flask micro-framework.
 
 \paragraph{Flask}
@@ -396,8 +397,9 @@ Started as an April's Fool's Day joke to become the second most popular web deve
 Our use of this framework has focused only on its ability to quickly provide an environment for creating a REST API and connecting it with the rest of the replication platform. 
 Next, we present the endpoints through which it is possible to interact with a master node:
 
+\begin{listing}[ht]
 \begin{description}
-	\item \texttt{GET /api/replicas} - the list of all Replicas 
+	\item \texttt{GET /api/replicas} - list all Replicas in the system
 	\item \texttt{GET /api/replicas/\{replica\}/imis} - list of the iMis present in a Replica 
 	\item \texttt{GET /api/replicas/\{replica\}/imis/subscribe/\{imi\}} - Replica subscribe to iMI 
 	\item \texttt{GET /api/replicas/\{replica\}/imis/unsubscribe/\{imi\}} - Replica unsubscribe to iMI 
@@ -407,6 +409,15 @@ Next, we present the endpoints through which it is possible to interact with a m
 	\item \texttt{GET /api/master/imis/\{imi\}/versions} - list versions of iMIs present in Master
 	\item \texttt{GET /api/master/send?imi=\{imi\}\&version=\{version\}\&replica=\{replica\}} - send version of iMI to Replica
 \end{description}
+\caption{iCBD-Replication REST API Route Mapping}
+\label{listing:impl_restapi}
+\end{listing}
+
+%\begin{listing}[ht]
+%\inputminted{python}{./Chapters/Code/cap4_restapi}
+%\caption{iCBD-Replication REST API}
+%\label{listing:impl_restapi}
+%\end{listing}
 
 %\textbf{TOPICS :}
 %\begin{itemize}
