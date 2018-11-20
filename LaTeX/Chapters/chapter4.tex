@@ -10,13 +10,12 @@
 
 This chapter addresses the implementation of the central topics of this thesis, divided into two major fields.
 We first start with a section talking about the creation of a middleware system that provides replication features in an integrated way to the iCBD platform. While providing a detailed description of the concept and architectural model, as well as the implementation decisions, made along the accomplishment of this contribution.
-Next, we show the work done on improving the performance of the platform clients. Displaying how setting up a client-side caching system that stores images adjacent to the consumers obtain that sought enhancements. Concluding in exploring the challenges of recreating the complete platform in a new environment and implementing a real-world scenario at Nova University Computer Science department laboratories.
+Next, we show the work done on improving the performance of the platform clients. Displaying how setting up a client-side caching system that stores images adjacent to the consumers obtain that sought enhancements. Concluding in exploring the challenges of recreating the complete platform in a new environment and implementing a real-world scenario at Nova University Computer Science department laboratories. This chapter is partitioned as follows :
 
-%will at last state the problem and motivation for introduction replication techniques in the storage components of the platform. Moreover, the section prefaces the importance of the implementation of cache servers that hold part of the distribution burden and crucial for the support of an increased number of clients.
-
-This chapter is partitioned as follows :
+%will at last state the problem and motivation for introduction replication techniques in the storage components of the platform. Moreover, the section prefaces the importance of the implementation of cache servers that hold part of the distribution burden and crucial for the support of an increased number of clients. 
 
 \begin{description}
+	\item [Section~\ref{sec:impl_mot_sysarch}] begins by explaining the motivation for the implementation of a replication module within the iCBD platform, as well as explaining the need to include a new role in the platform with the creation and deployment of a cache server near the clients. Concluding with the overall architecture of the system and how both topics complement each other.
     %
     \item [Section~\ref{sec:impl_icbdrep}] overviews the implementation of the middleware dubbed iCBD-Replication. Beginning the journey through the initial architectural process and then showing the implemented components and their interaction with the several layers of the platform.
     %
@@ -41,7 +40,7 @@ This chapter is partitioned as follows :
     \centering
     \includegraphics[height=4in]{cap4_icbd_rep_simple}
     \caption{iCBD Replication Architecture}
-    \label{fig:icbd_rep_arch}
+    \label{fig:icbd_rep_ar ch}
 \end{figure}
 
 %%-------------------------------------------------------------------
@@ -86,7 +85,7 @@ A first step is trying to understand the most efficient way to transfer this uni
 
 The BTRFS developers provide a userspace set of utilities that can manage BTRFS filesystems, called \texttt{btrfs-progs}. Within that set of tools, there is a pair of commands, \texttt{btrfs send}~\cite{btrfs_send}, and \texttt{btrfs receive}~\cite{btrfs_receive}, that provides the capability to transport data via a stream and employ those differences in a remote filesystem. 
 
-The send command facilitates the process of generating a stream of instructions that describe changes between two subvolume snapshots. Also available in the command is the ability to use an incremental mode, where given a parent snapshot that is available in both send and receive sides, only the small delta between snapshots (e.x. \textit{V2} and \textit{V2-1} in fig~\ref{fig:imi_snap}) is going to integrate the stream. This feature is outstanding since considerably reduces the amount of information that needs to be transferred to reconstruct the snapshot in the receiving end. The send side operations occur in-kernel, beginning by determining differences within subvolumes and based on those differences the kernel generates a set of instructions in a custom formulated stream.
+The send command facilitates the process of generating a stream of instructions that describe changes between two subvolume snapshots. Also available in the command is the ability to use an incremental mode, where given a parent snapshot that is available in both send and receive sides, only the small delta between snapshots (e.x. \textit{V2} and \textit{V2-1} in fig~\ref{fig:icbd_rep_imi_snap}) is going to integrate the stream. This feature is outstanding since considerably reduces the amount of information that needs to be transferred to reconstruct the snapshot in the receiving end. The send side operations occur in-kernel, beginning by determining differences within subvolumes and based on those differences the kernel generates a set of instructions in a custom formulated stream.
 
 \begin{figure}[htbp]
     \centering
@@ -94,7 +93,6 @@ The send command facilitates the process of generating a stream of instructions 
     \caption{iCBD iMI Snapshots Structure}
     \label{fig:icbd_rep_imi_snap}
 \end{figure}
-\newpage
 
 On the remote end, the received command accepts the stream generated by the send command and uses that data to recreate one or more snapshots. Contrary to the send command, receive executes in user space, replaying the instructions that come in the stream one by one, these instructions include the most relevant calls found in a Virtual File System, with Unix system calls like \texttt{create()}, \texttt{mkdir()}, \texttt{link()}, \texttt{symlink()}, \texttt{rename()}, \texttt{unlink()}, \texttt{write()}, along with others.~\cite{btrfs_design}
 
@@ -180,7 +178,7 @@ Even though the libraries presented above are not enough for the appropriate imp
 Coordinate the multiple modules and its activities, demands from the middleware a need to share a communication channel connected through a network. 
 The remote procedure call (RPC) brings support for inter-process communication allowing a procedure on a system to invoke an operation running in a process in a different location, most likely on a remote system.
 
-As seen in figure~\ref{fig:icbd_rep_architecture}, multiple processes are running in different machines any given time, and those processes need to continually send and receive information: perhaps operations to execute, metadata updates, or just monitoring if a process is running according to the desired plan or is in a faulty state.
+As seen in figure~\ref{fig:icbd_rep_mods_comms}, multiple processes are running in different machines any given time, and those processes need to continually send and receive information: perhaps operations to execute, metadata updates, or just monitoring if a process is running according to the desired plan or is in a faulty state.
 Managing the nodes is a perfect case for the use of the Pyro 4 library, that gives a holistic view of the system and allows triggering a multitude of operations in each node.
 
 
@@ -405,14 +403,6 @@ In order to complement the Comand-Line Interface previously presented and creati
 
 In order to integrate this component with the remaining replication platform, we employ one of the most used frameworks for creating web platforms in Python, the Flask micro-framework.
 
-\paragraph{Flask}
-\label{par:impl_flask}
-
-Started as an April's Fool's Day joke to become the second most popular web development frameworks. Flask is a Python micro web framework designed with simplicity in mind, enabling quick deployment of applications and at the same time providing the ability to scale for complex environments. Such library enables the development of web applications without having to worry with more low-level aspects like network protocols and thread management. This framework began its development in 2010 by Armin Ronacher as a wrapper of two of his libraries: Werkzeug and Jinja.
-
-Our use of this framework has focused only on its ability to quickly provide an environment for creating a REST API and connecting it with the rest of the replication platform. 
-Next, we present the endpoints through which it is possible to interact with a master node:
-
 \begin{listing}[ht]
 \begin{description}
 	\item \texttt{GET /api/replicas} - list all Replicas in the system
@@ -428,6 +418,15 @@ Next, we present the endpoints through which it is possible to interact with a m
 \caption{iCBD-Replication REST API Route Mapping}
 \label{listing:impl_restapi}
 \end{listing}
+
+\paragraph{Flask}
+\label{par:impl_flask}
+
+Started as an April's Fool's Day joke to become the second most popular web development frameworks. Flask is a Python micro web framework designed with simplicity in mind, enabling quick deployment of applications and at the same time providing the ability to scale for complex environments. Such library enables the development of web applications without having to worry with more low-level aspects like network protocols and thread management. This framework began its development in 2010 by Armin Ronacher as a wrapper of two of his libraries: Werkzeug and Jinja.
+
+Our use of this framework has focused only on its ability to quickly provide an environment for creating a REST API and connecting it with the rest of the replication platform. 
+Next, we present the endpoints through which it is possible to interact with a master node:
+
 
 %\begin{listing}[ht]
 %\inputminted{python}{./Chapters/Code/cap4_restapi}
@@ -448,14 +447,23 @@ Next, we present the endpoints through which it is possible to interact with a m
 \subsection{Replica Node}
 \label{sub:impl_icbdrep_replica_node}
 
+The replica node introduces a lightweight module that is responsible for facilitating the process of transferring and updating the iMIs that are closest to the clients.
+This module responds to the question of how to simplify the process of making available iMIs closer to the client. Complementing the remaining modules of the iCBD platform, here the focus is on implementing the logic of receiving snapshots, as well as providing a way to manage which iMIs are subscribed with their different versions. With these features, we have all the components to build a cache server, something that will be explained in detail in the section~\ref{sec:impl_cache_server}.
+
+Contrasting with the Master Node, it is not possible to interact directly with a replica; all operations will always be conducted through a Master who then is in charge of communicating with the Replica, asking him to perform those actions. This fact is more than an architectural design choice, this way we meet one of the requirements that define that a cache server should be as light as possible leaving the platform management element to a centralised location not needing to know anything concerning the overall platform state. However, there are parts in common. Similarly to the Master Node one of the components present is an Image Repository, which in this case, manages locally the iMIs and respective versions.
+
 \paragraph{Receiving a Snapshot}
 \label{par:impl_receive_snap}
+By far, this functionality is the reason for the existence of this module. The process of receiving a version of an iMI is complementary to the send process explained in Section~\ref{par:impl_sendsnap} even though much more straightforward. 
+As explained, the \texttt{send()} operation needs some computation resources since it has to calculate all the differences between versions to transfer, and after that step create a stream of operations that when executed recreate precisely the differences between versions. 
+So, on the receiving side of this stream (in this case the Replica Node), the \texttt{receive()} operation only is only required to receive the stream, decode the operations to administer to the file system and execute them.
 
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Operations on the local repository
-	\item The receive operation
-\end{itemize}
+
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item Operations on the local repository
+%	\item The receive operation
+%\end{itemize}
 
 
 
