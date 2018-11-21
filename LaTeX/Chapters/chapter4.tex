@@ -271,6 +271,7 @@ Given the scenario where a node wants to make contact to another node and does n
 
 The Pyro Name Server presents an extensive API, but for the purposes of our work, only the subset presented below is utilised. 
 
+%\begin{listing}[ht]
 \begin{description}
 	\item \texttt{locateNS()} Get a proxy for a name server somewhere in the network.
 	\item \texttt{register()} Enrol an object on the name server associating the URI with a logical name.
@@ -278,7 +279,9 @@ The Pyro Name Server presents an extensive API, but for the purposes of our work
 	\item \texttt{lookup()} Looks for a single name registration and returns the corresponding URI.
 	\item \texttt{remove()} Removes an entry, created by registering an object, with the exact given name from the name server.
 \end{description}
-
+%\caption{Used methods from Pyro4 Name Server API}
+%\label{listing:impl_pyro_nameserver_api}
+%\end{listing}
 
 
 

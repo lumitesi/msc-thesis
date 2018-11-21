@@ -40,7 +40,7 @@ The organisation of this chapter is as follows:
 \section{Virtualisation}
 \label{sec:res_virtualisation}
 
-Most of today's machines have such a level of performance that allows the simultaneous execution of multiple applications and the sharing of these resources by several users. In this sense, it is natural to have a line of thought in which all available resources are taken advantage of efficiently.
+Most of today's machines have such a level of performance that allows the simultaneous execution of multiple applications and the sharing of these resources by several users. In this sense, it is natural to have a line of thought in which all available resources are taken advantage of efficiently. % TODO Refazer este paragrafo
 
 Virtualisation is a technique that allows for the abstraction of the hardware layer and provides the ability to run multiple workloads on a shared set of resources. Nowadays, virtualisation is an integral part of many \textit{IT} sectors with applications ranging from hardware-level virtualisation, operating system-level virtualisation, and high-level language virtual machines.
 \nocite{VMware_VM2006}
@@ -57,19 +57,19 @@ In today's architectures, a modern term was been coined, the \textit{Hypervisor}
 \subsection{Hypervisors} % (fold)
 \label{sub:res_hypervisors}
 
-The most important aspect of running a VM is that it must provide the illusion of being a real machine, allowing to boot and install any Operating System (OS). It is the VMM which has that task and should do it efficiently at the same time providing this three properties~\cite{Popek1974}:
+The most important aspect of running a VM is that it must provide the illusion of being a real machine, allowing to boot and install any Operating System (OS) available for the real hardware. It is the VMM which has that task and should do it efficiently at the same time providing this three properties~\cite{Popek1974}:
 
 \begin{description}
 	\item[Fidelity:] a program should behave on a VM the same way or in much the same way as if it were running on a physical machine.
 	%
-	\item[Performance:] much of the instructions in the virtual machine should be executed directly by the real processor without intervention by the hypervisor.
+	\item[Performance:] the vast majority of the instructions in the virtual machine should be executed directly by the real processor without any intervention by the hypervisor.
 	%
 	\item[Isolation:] the VMM must have complete control over the resources. 
 \end{description}
 
 A hypervisor is, therefore, both an Operating System and a Virtual Machine Monitor. It can be deployed on top of a standard OS, such as \textit{Linux} or \textit{Microsoft Windows}, or in a bare metal server.
 
-To start a VM, the hypervisor kernel spins up a VMM, which holds the responsibility of virtualising the architecture and provide the platform where the VM will lie. Thus, since the VM executes on top of the VMM, there is a layer of separation between the VM and the hypervisor kernel, with the necessary calls and data communications taking place through the VMM. This feature confers a necessary degree of isolation to the system. With the hypervisor  kernel taking care of host-centric tasks such as \textit{CPU} and memory scheduling, and network and storage data movement, the VMM assumes responsibility to provide those resources to the VM.
+To start a VM, the hypervisor kernel spins up a VMM, which holds the responsibility of virtualising the architecture and provide the platform where the VM will lie. Thus, since the VM executes on top of the VMM, there is a layer of separation between the VM and the hypervisor kernel, with the necessary calls and data communications taking place through the VMM. This feature confers the necessary degree of isolation to the system. With the hypervisor  kernel taking care of host-centric tasks such as \textit{CPU} and memory scheduling, and network and storage data movement, the VMM assumes responsibility to provide those resources to the VM.
 
 An hypervisor can be classified into two different types~\cite{Aneja2011}, depicting two virtualisation design strategies, as shown in Figure~\ref{fig:hypervisors}:
 
@@ -81,26 +81,26 @@ An hypervisor can be classified into two different types~\cite{Aneja2011}, depic
 \end{figure}
 
 \begin{description}
-	\item [Type 1 hypervisor:] Sometimes referred as a bare-metal hypervisor, since there is no need to rely on a host operating system, as it runs directly on the hardware. Moreover, it is the only program executed by the CPU in its most privileged mode. As there isn't layer between the hypervisor and the resources, this type of hypervisor presents a more efficient solution than the Type 2.
+	\item [Type 1 hypervisor:] Sometimes referred as a bare-metal hypervisor, since there is no need to rely on a host operating system, as it runs directly on the hardware. Moreover, it is the only program executed by the CPU in its most privileged mode. As there isn't any layer between the hypervisor and the resources, this type of hypervisor presents a more efficient solution than the Type 2.
 
-	In addition to the improved performance provided by the sharing or partitioning of devices between the several guest VMs, this architecture provides the benefit of supporting the execution of real-time OSs. The low-level nature of these hypervisors with the broad access to the hardware has proven useful for use-cases that need to deploy a multiplicity of operating systems.
+	In addition to the improved performance provided by the sharing or partitioning of devices between the several guest VMs, this architecture provides the benefit of supporting the execution of real-time OSs. The low-level nature of these hypervisors with the broad access to the hardware has proven useful for use-cases that need to deploy a multiplicity of operating systems even in mission-critical circumstances.
 	
-	Recognizing all the facts above, we can point that there are also some disadvantages. Any drivers needed to support different hardware platforms must be covered by the hypervisor package.
+	Recognising all the facts above, we can point that there are also some disadvantages. Any drivers needed to support different hardware platforms must be covered by the hypervisor package. % TODO Acrescentar o facto de para ter garantias tem que se ter hardware aprovado pelo hypervisor
 	
 	%Furthermore, considering that Type 1 hypervisors do not have an underlying OS, the complexity of installing and configuring this type of solution increases.
 	%
-	\item [Type 2 hypervisor:] This second variant of the hypervisor model relies on an already installed operating system and acts very similarly to any conventional process. Here, the hypervisor layer is a union of a host operating system with specialised virtualisation software that will manage the guest VM. In this case, the hypervisor makes use of the services provided by the OS, which leads to a more significant memory footprint when compared to Type 1 but is integrated seamlessly with the remainder of the system. An excellent illustration of this kind of paradigm is \gls{KVM}~\cite{Kivity2007} and VMware Workstation/Fusion~\cite{Agesen2010}.
+	\item [Type 2 hypervisor:] This second variant of the hypervisor model relies on an already installed operating system and acts very similarly to any conventional process. Here, the hypervisor layer is a union of a host operating system with specialised virtualisation software, including extensions to that OS kernel, that will manage the guest VM. In this case, the hypervisor makes use of the services provided by the OS, which leads to a more significant memory footprint when compared to Type 1 but is integrated seamlessly with the remainder of the system. An excellent illustration of this kind of paradigm is Oracle VirtualBox and VMware Workstation/Fusion~\cite{Agesen2010}.
 	
 	In this architecture, the host operating system retains ownership of the physical components, with each VM having access to a confined subset of those devices, and the virtual machine monitor providing an environment that emulates the actual hardware per VM. 
 	%One advantage is quickness of installation and configuration since the installation process for most of these type of hypervisors only requires the execution of an elemental installer, delivering the instantaneous ability to run a multitude of different operating systems.
 	
-	All the above culminates in some advantages: Type 2 hypervisors are regularly deployed for software testing, on users one workstation dismissing the requirement for a dedicated test machine. 
+	All the above culminates in some advantages: Type 2 hypervisors are regularly deployed on desktop an laptop class of hosts, allowing: simulation of a rather complex testing virtualised systems without the expense and complexity of managing dedicated hardware; seamless integration with a graphical environment; host-guest file and print sharing.
 	%Also, provide support for running multiple OSs on the same physical machine, which can be valuable for those who rely on multiple applications written for a particular or legacy OS.
 \end{description}
 
-Either way, the challenge lays in the fact that the hypervisor needs to execute the guests OS instructions in a safe manner and at the same time provide possible different machine configurations to each of them. These characteristics, such as the number and architecture of virtual CPUs (vCPU), the amount and type of memory available (vRAM), the allowed space to store files (vDisk), and so on, are user configurable but it is the job of the hypervisor to do all the resource management. The settings of these components reside in a VM configuration file. In the case of VMware hypervisors, the file has the \texttt{.vmx} extension,\cite{VMWare_VMFiles,Portnoy2012} while in a KVM environment, that configuration is stored in a \texttt{.xml} file.~\cite{chirammal2016}
+Either way, the challenge lays in the fact that the hypervisor needs to provide to guest OS a safe execution environment and at the same time create different machine configurations to each one of them. These characteristics, such as the number and architecture of virtual CPUs (vCPU), the amount and type of memory available (vRAM), the allowed space to store files (vDisk), and so on, are user configurable but it is the job of the hypervisor to do all the resource management. The settings of these individual components reside in a VM configuration file. In the case of VMware hypervisors, the file has the \texttt{.vmx} extension,\cite{VMWare_VMFiles,Portnoy2012} while in a KVM environment, that configuration is stored in a \texttt{.xml} file.~\cite{chirammal2016}
 
-With a virtualised infrastructure there is an opportunity for a substantial reduction in the number of servers which, in turn, diminishes the setup time as those VMs are, in a broad manner, created with the recourse to cloning techniques. Software updates can be hugely simplified and made available to all VMs at once if those VMs are created on-demand at the beginning of a user session. 
+With a virtualised infrastructure there is an opportunity for a substantial reduction in the number of servers which, in turn, diminishes the setup time as those VMs are, in a broad manner, created simply by cloning techniques. Software updates can be hugely simplified and made available to all VMs at once if those VMs are created on-demand from up-to-date templates at the beginning of a user session.
 %Even availability is improved since it is an easy task to launch a new VM from a template and migrate all the services that were being made reachable by one that suffered a failure.
 
 % subsection hypervisors (end)
@@ -122,27 +122,27 @@ With a virtualised infrastructure there is an opportunity for a substantial redu
 
 It is common to find in a typical midsize corporate infrastructure hundreds of servers and thousands of workstations. All in a diverse ecosystem counting with many hardware configurations, different OSs and applications needs. Probably even supporting several versions of the same software is required for the day to day operations.
 
-Organisations debate themselves daily with the traditional problem of installing software in local workstations disks one-by-one (even if employing an automated process). This task tends to be daunting as a company escalates in size and leads to some other predicaments:
+Organisations struggle daily with the traditional problem of installing software in local workstations disks one-by-one (even if employing an automated process). This task tends to be daunting as a company escalates in size and leads to some other predicaments:
 
 \begin{itemize}
-	\item A Systems Administrator and IT Staff burden with significant infrastructure administration responsibilities.
+	\item A Systems Administrator and IT Staff burden with significant infrastructure administration responsibilities and technical skills.
 	%
-	\item A delay on the installation or reinstallation of new software and recovery from breakdowns.
+	\item A delay on the installation or reinstallation of new software and recovery from breakdowns or administration mistakes, which in large installations such intervention could take days.
 	%
 	\item Installation processes may consume much of the available bandwidth in a network, so if this job is to be executed simultaneously on several workstations, it tends to be scheduled to off work hours to avoid disturbances.
 	%
 	\item Periodical software updates (such Microsoft's famous Patch Tuesdays~\cite{patch_2017}) are ordinarily released in the morning's first boot of a workstation, which can bloat the traffic and render useless the workstation for the remainder of the update period.
 	%
-	\item If an update proves to be undesirable, by introducing some unexpected behaviour, it is quite difficult to reverse this situation, and may even demand a new configuration infrastructure-wise.
+	\item If an update proves to be undesirable, by introducing some unexpected behaviour, it is quite difficult to reverse this situation, which may even demand a new configuration infrastructure-wise.
 \end{itemize}
 
-One solution to the unpleasant situations outlined above is to minimise the footprint of installed software and reduce its managing needs. It is possible to conceive all the software required to run a workstation (Operating System and applications) packaged in a single unit like a Virtual Machine. This mechanism allows for the virtualisation of a workstation that can be executed either locally on a typical PC / Laptop, or on a server. The implementation with more relevance and with more expression at the moment is the \gls{VDI}.
+One solution to the unpleasant situations outlined above is to minimise the footprint of installed software and reduce its managing needs. It is possible to conceive all the software required to run a workstation (Operating System and applications) packaged in a single unit like a Virtual Machine. This mechanism allows for the virtualisation of a workstation that can be executed either locally on a typical PC / Laptop, or on a server. The most relevant approach and with more expression at the moment is the \gls{VDI}.
 
 The concept encompasses a series of techniques, providing on-demand availability of desktops, in which, all computing is performed employing virtual machines~\cite{VMWare_VDI2006}.
-Typically this solution offers a centralised architecture, where the user's environment resides on a server in a data centre, as shown on Figure~\ref{fig:VDI}. However, other components are required, such as storage for the users and VMs data and a network capable of moving large data blocks quickly, all in a perspective where from the user's viewpoint there can't be any apparent difference between a virtual desktop and a local installation.
+Typically this solution offers a centralised architecture, where users desktops run in VMs, the user's environment resides on a server in a data centre, as shown in Figure~\ref{fig:VDI}. However, other components are required, such as storage for the users and VMs data and a network capable of moving large data blocks quickly, all in a perspective where from the user's viewpoint there can't be any apparent difference between a virtual desktop and a local installation.
 
-There are two antagonistic approaches to the architecture, one focused on the server-side and the other on the client-side but both solutions are in an in-house paradigm were all configurations, management and storage needs are the responsibility of the business. A third approach emerged in recent years, with the peculiarity of being cloud-based, coined Desktop as a Service.
-In this section, we present a summary of the technologies mentioned above.
+There are two antagonistic approaches to the architecture, one focused on the server-side and the other on the client-side but both solutions are in an in-house paradigm were all configurations, management and storage needs are the responsibility of the business IT staff. A third approach emerged in recent years, with the peculiarity of being cloud-based, coined Desktop as a Service.
+In this section, we present a summary of the technologies above-mentioned.
 
 \begin{description}
 	\item [Server-based VDI] This is the most common approach, in which the VM runs remotely on a server through a hypervisor. In this model, the images for the virtualised desktops remain deposited in a storage system within a Data Centre. Then, when the times comes for the execution of such VM, a server that is running a hypervisor provisions the VM from storage and puts it into action. Featuring such benefit, as the fact that only a low-performance thin client with support for a protocol such as Remote Desktop Protocol (RDP)~\cite{Microsoft_RDP} or the Remote Framebuffer Protocol (RFB)~\cite{rfc6143} is required to interact with the virtual desktop.

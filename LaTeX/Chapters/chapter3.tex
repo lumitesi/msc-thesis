@@ -76,15 +76,15 @@ The iCBD platform encompasses the use of multiple services. To achieve a better 
 
 
 \begin{description}
-	\item [\acrfull{iMI}] embodies the required files to run a iCBD platform client; this nomenclature was borrowed and adapted from Amazon Web Services AMI~\cite{aws_ami}. An iMI includes a VM template (with an operating system, configurations and applications), the iCBD boot package ( a collection of files needed for a network boot and custom-made to the operating system) and an assortment of configurations for services like PXE and iSCSI.
+	\item [\acrfull{iMI}] embodies the required files to run a iCBD platform client; this nomenclature was borrowed and adapted from Amazon Web Services AMI~\cite{aws_ami}. An iMI includes a VM template (with an operating system, configurations and applications), the iCBD boot package (a collection of files needed for a network boot and custom-made to the operating system) and an assortment of configurations for services like PXE and iSCSI.
 	%
-	\item [Boot Services Layer] is responsible for providing the initial process from which the client machines will boot from the network, and later on transfer a bespoke boot package, using services such as \acrshort{PXE}, \acrshort{DHCP}, \acrshort{TFTP} and \acrshort{HTTP}.
-	%
-	\item [Administration Layer] to maintain all the iMI life cycle, from its creation to its retirement, currently this is done with a custom set of scripts.
-	% takes advantage of a virtualisation stack (can be based in either \acrshort{KVM} or VMWare products) to engage in maintaining all the needed aspects for the successful creation and update processes of an \acrshort{iMI} lifecycle.  Employing a custom set of scripts, the creation of an iCBD Boot Package is also a duty of this layer. 
+	\item [Boot Services Layer] is responsible for providing the initial method from which the client machines will boot from the network, and later on transfer a bespoke boot package, using services such as \acrshort{PXE}, \acrshort{DHCP}, \acrshort{TFTP} and \acrshort{HTTP}.
 	%
 	\item [Client Support Layer] provides support for client side operations including, e.g., authentication, read/write storage space for the client (since iMIs run on "diskless" workstations) and its home directories. 
 	%deals with the demands of a deployed and running iCBD image, such as, providing read/write space (since iMIs run on diskless workstations) and storing users home directories. As well as, hosting domain controllers, centralised authentication amongst other services that can be already in place in the midst of a clients infrastructure. Granting the ability to deploy a customised iMI in any scenario.
+	%
+	\item [Administration Layer] to maintain all the iMI life cycle, from its creation to its retirement, currently this is done with a custom set of scripts.
+	% takes advantage of a virtualisation stack (can be based in either \acrshort{KVM} or VMWare products) to engage in maintaining all the needed aspects for the successful creation and update processes of an \acrshort{iMI} lifecycle.  Employing a custom set of scripts, the creation of an iCBD Boot Package is also a duty of this layer. 
 	%
 	\item [Storage Layer] maintains the repository of iMIs and provides essential operations such as version control of the VM images files. Our work is fundamentally focused on this layer, extending it in such a way that a single repository abstraction is built on top of the local / individual repositories through replication and caching. These local repositories are implemented on BTRFS or CEPH and may be exported to clients using \acrshort{NFS} or \acrshort{iSCSI}.
 	

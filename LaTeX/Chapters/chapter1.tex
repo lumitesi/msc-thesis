@@ -52,7 +52,7 @@ Virtualisation is the pillar technology that allowed for the widespread of the I
 The sheer magnitude of those numbers leads to an obvious problem. How to store all this data efficiently? Not only there is the need to store client generated data but also manage all the demands of the infrastructure and the many services offered. One approach taken by these companies was the development of their proprietary storage solutions. For instance, Google uses BigTable distributed storage system \cite{Chang2006}, to store product specific data, and then serve it to users. This system relies on the Google File System underneath to provide a robust solution to store logs and data files, designed to be reliable, scalable and fault tolerance.
 
 One characteristic in particular that stands out and is present in many of today's systems is the use of snapshots with copy-on-write techniques. The adoption of such methods allows for quick copy operations of large data sets but saving resources. At the same time, it provides high-availability with read-only copies of the data always ready to use and allowing applications to continue execution of write operations simultaneously.
-All the above-mentioned properties joined with others such as replication and data distribution, to comprise the fundamentals of what is needed to run a highly distributed and scalable file system. For instance, the duplication of records across multiple machines, not only serves as a security net in case of a misfortune event avoiding having a single point of failure but can also be used to maximise availability and take advantage of network bandwidth. 
+All the above-mentioned properties joined with others such as replication and data distribution, comprise the fundamentals of what is needed to run a highly distributed and scalable file system. For instance, the duplication of records across multiple machines, not only serves as a security net in case of a misfortune event avoiding having a single point of failure but can also be used to maximise availability and take advantage of network bandwidth. 
 
 %Existing file systems address some of these properties by default, however, in most cases, they were designed to be compatible with an increasing diversity of devices that run UNIX-based Operating Systems and need to offer a POSIX API, being more concerned with a local environment. 
 %TODO
@@ -71,7 +71,7 @@ The combination of this file system with replication and partitioning techniques
 
 This dissertation work is performed in the context of a more comprehensive project with the name \gls{iCBD}~\cite{Lopes2017}, under development at \textit{SolidNetworks – Business Consulting, Lda} part of the \textit{Reditus S.A.} group in collaboration with \textit{NOVA LINCS} hosted at \textit{DI - FCT/NOVA}.
 
-The primary objective is to improve in a known model, the client-based Virtual Desktop Infrastructure, developing an infrastructure to support the execution, in a non-intrusive way, of virtualised desktops in conventional workstations.
+The primary objective is to improve in a known model, the client-based Virtual Desktop Infrastructure, developing an infrastructure to support the execution, in a non-intrusive way, of native or virtualised desktops in conventional workstations.
 
 %This dissertation work in enveloped in a larger project by the name iCBD, Infrastructure for Client-Based (Virtual) Desktop (Computing), were the objectives pass by the development of a computational infrastructure capable of supporting the execution of virtual desktops in an assortment of devices having as its main characteristic a non-intrusive approach. 
 
@@ -85,7 +85,7 @@ The primary objective is to improve in a known model, the client-based Virtual D
 \subsection{iCBD Project} % (fold)
 \label{sub:intro_icbd_project}
 
-There are some leading-edge aspects of the \acrfull{iCBD} project which sets it apart from other existing solutions such as the adoption of a diskless paradigm with a remote boot, the way the platform stores \gls{VM} images, and the support for a virtualised or native execution on the target workstation~\footnote{In this document workstation is a user's desktop PC, laptop, etc., any PC compatible computing device.}, depending on the user's choice.~\cite{P2020}
+There are some leading-edge aspects of the \acrfull{iCBD} project which sets it apart from other existing solutions such as the adoption of a diskless paradigm with a remote boot, the way the platform stores \gls{VM} images, and the support for a virtualised or native execution on the target workstation~\footnote{In this document workstation is a user's desktop PC, laptop, etc., any PC compatible computing device with a recent enough architecture that support modern hypervisors.}, depending on the user's choice.~\cite{P2020}
 
 The remote boot of the users workstation requires the cooperation of \acrshort{HTTP}, \acrshort{TFTP}, and \acrshort{DHCP} and image repository servers, that store VM templates as well as running instances based on them.
 To address the process of communication between workstations and the platform it is used the HTTP protocol, providing flexibility and efficiency in the communication of the messages.~\cite{P2020,Nuno2016,Eduardo2016}
@@ -139,7 +139,7 @@ This dissertation aims to build upon the previous contributions, deeply study th
 \begin{itemize}
 	%\item \textit{Needing a distribute data model between nodes, which can be set apart geographically, how to achieve that and maintain the consistency and availability of the data?}
 	%\item \textit{How to scale the platform in order to handle a large number of clients and maintain or even enhance the performance?}
-	\item \textit{In a geographically dispersed, multi-server iCBD infrastructure, how do we keep the VM templates consistent and available even on the presence of network faults?}
+	\item \textit{In a geographically dispersed, multi-server iCBD infrastructure, how do we keep the VM templates consistent and available even on the manifestation of network faults?}
 	%
 	\item \textit{How do we keep the management of templates across multiple "zones", simple?}
 	%
@@ -196,13 +196,13 @@ The main expected contributions are:
 \begin{itemize}
   \item Perform a throughout analysis of the already implemented iCBD platform modules and the several layers where it expands in order to understand the inner works, providing an excellent platform to build upon and allowing for an efficient planning of the remaining work. 
   %
-  \item The study, develop, and evaluate an implementation of a distributed and replicated BTRFS file system for VM storage.
+  \item To study, develop, and evaluate an implementation of a distributed and replicated BTRFS file system for VM storage.
   %
   \item Implement a client-side caching solution in order to increase availability, improve response time, and enable better management of resources.
   %
   \item Integrate the solutions described above  with the work previously developed and the existing infrastructure
   %
-  \item And finally, carry out a series of tests that lead to a meaningful conclusion and that provide help in the design of the remaining platform.
+  \item And finally, carry out a series of tests that lead to a meaningful conclusion and that guidance help in the design of the remaining platform.
 \end{itemize}
 
 
@@ -237,6 +237,7 @@ This subject is further developed in \textbf{Section~\ref{sec:impl_icbdrep}}.
 	\item Dilute some cost of the infrastructure by having commodity hardware as proximity servers.
 	%
 	\item Bring the data closer to the final clients giving enough storage capacity to servers, storing the most used images.
+	% TODO Provide a good and consistent user experience, with no significant diference in boot time and perceived (OS and APPS) performance between running from a local disk (even an SSD) or from the iCBD Platform
 	%
 	\item Facilitate a user experience where the is no distinction on booting an OS from a local disk or the iCBD platform.
 	%
