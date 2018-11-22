@@ -8,12 +8,16 @@
 \chapter{Implementation of the \textit{iCBD-Replication and Cache Server}}
 \label{cha:impl_replication_caching}
 
-This chapter addresses the implementation of the central topics of this thesis, divided into two major fields.
-We first start with a section talking about the creation of a middleware system that provides replication features in an integrated way to the iCBD platform. While providing a detailed description of the concept and architectural model, as well as the implementation decisions, made along the accomplishment of this contribution.
-Next, we show the work done on improving the performance of the platform clients. Displaying how setting up a client-side caching system that stores images adjacent to the consumers obtain that sought enhancements. Concluding in exploring the challenges of recreating the complete platform in a new environment and implementing a real-world scenario at Nova University Computer Science department laboratories. This chapter is partitioned as follows :
+%This chapter addresses the implementation of the central topics of this thesis, divided into two major fields.
+%We first start with a section talking about the creation of a middleware system that provides replication features in an integrated way to the iCBD platform. While providing a detailed description of the concept and architectural model, as well as the implementation decisions, made along the accomplishment of this contribution.
+%Next, we show the work done on improving the performance of the platform clients. Displaying how setting up a client-side caching system that stores images adjacent to the consumers obtain that sought enhancements. Concluding in exploring the challenges of recreating the complete platform in a new environment and implementing a real-world scenario at Nova University Computer Science department laboratories. This chapter is partitioned as follows :
 
 %will at last state the problem and motivation for introduction replication techniques in the storage components of the platform. Moreover, the section prefaces the importance of the implementation of cache servers that hold part of the distribution burden and crucial for the support of an increased number of clients. 
 
+This chapter is about the core of this thesis: the iCBD-Replication and Cache Server, a middleware
+system that provides replication features in an integrated way to the iCBD platform. Naturally, the first subsection provides a detailed description of the motivation, architecture and design aspects while the second subsection concentrates on the implementation. Finally, the last subsection deals with the process of building the Replication and Cache Server: that is, how the modules are installed and deployed in an iCBD infrastructure.
+
+% TODO Cap4 - Rever estes pontos
 \begin{description}
 	\item [Section~\ref{sec:impl_mot_sysarch}] begins by explaining the motivation for the implementation of a replication module within the iCBD platform, as well as explaining the need to include a new role in the platform with the creation and deployment of a cache server near the clients. Concluding with the overall architecture of the system and how both topics complement each other.
     %
@@ -30,17 +34,21 @@ Next, we show the work done on improving the performance of the platform clients
 \section{Motivation and System Architecture}
 \label{sec:impl_mot_sysarch}
 
-\subsection{Motivation}
-\label{sub:impl_mot}
+One of the key objectives of iCBD is to provide a platform that can stretch from a fully hosted, on-site architecture to one where an important part of its services is cloud-based. Naturally, in-the-middle solutions are also interesting, such as one where, e.g., both the administration and storage of \textit{“golden”} iMIs are cloud-based, while the rest is on-premises. Therefore, it becomes evident that data locality is an important subject, and thus one must study how data flows between the components of the iCBD platform – a complex, data-intensive platform, boasting multiple storage devices and many different networks, accessed by multiple consumers demanding data at any given time.
 
-\subsection{System Architecture}
-\label{sub:impl_sysarch}
+All these factors, allied to the desire of having a distributed and scalable platform architecture, result in the need to design a new service whose mission is to ensure that data is correctly replicated in the appropriate places, and consistency of the various versions of the iCBD Machine Images stored is maintained. This led to the high-level architecture of Figure~\ref{fig:impl_icbd_rep_arch_simple}
+
+%\subsection{Motivation}
+%\label{sub:impl_mot}
+
+%\subsection{System Architecture}
+%\label{sub:impl_sysarch}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[height=4in]{cap4_icbd_rep_simple}
-    \caption{iCBD Replication Architecture}
-    \label{fig:icbd_rep_ar ch}
+    \caption{iCBD Replication and Caching Architecture (high-level)}
+    \label{fig:impl_icbd_rep_arch_simple}
 \end{figure}
 
 %%-------------------------------------------------------------------
@@ -49,43 +57,55 @@ Next, we show the work done on improving the performance of the platform clients
 \section{Implementation of a Replication Module}
 \label{sec:impl_icbdrep}
 
-One of the central objectives of iCBD is to provide a platform that can be both cloud-centric, with the administration and a portion of the storage burden gathered in a public cloud, or fully hosted on client premises. Either way, it becomes evident that data locality is an important subject, which means that there is the necessity to study how this data will flow between the multiple components of the iCBD platform.
-As can be imagined, this is a data-intensive platform, boasting multiple storage devices in many networks and an array of consumers demanding that data at any given time.
+%One of the central objectives of iCBD is to provide a platform that can be both cloud-centric, with the administration and a portion of the storage burden gathered in a public cloud, or fully hosted on client premises. Either way, it becomes evident that data locality is an important subject, which means that there is the necessity to study how this data will flow between the multiple components of the iCBD platform.
+%As can be imagined, this is a data-intensive platform, boasting multiple storage devices in many networks and an array of consumers demanding that data at any given time.
 
-All these factors allied to the platform architecture result in the need to create a new component, whose chief mission is to ensure that the data is correctly replicated in the appropriate places, maintaining the consistency of the various versions of the iCBD Machine Images stored.
+%All these factors allied to the platform architecture result in the need to create a new component, whose chief mission is to ensure that the data is correctly replicated in the appropriate places, maintaining the consistency of the various versions of the iCBD Machine Images stored.
 
+When our project started, iCBD was already available; therefore, our Replication and Caching Server (from now on, RCS) had to be integrated with the existing architecture and support (and enhance) the previous work. This influences the choices available for the RCS implementation and could, in a worst-case scenario, severely limit them. Fortunately, that was not the case.
+
+iCBD was designed from the start based on the assumption that the storage layer where iMIs live was built on top of a storage system which supports snapshots. In the first prototype, Btrfs was chosen for the storage layer but, in theory, any storage system that supports snapshots can be used in the platform. That is, in fact, the case with a parallel work being developed in another dissertation, where the focus is the use of an object-based storage system, Ceph.
 
 
 %%-------------------------------------------------------------------
 %%	4. - Requirements of the Module
 %%-------------------------------------------------------------------
-\subsection{Requirements of the Module}
+\subsection{Requirements}
 \label{sub:impl_requirements_icbdrep}
 
-Since the beginning of this work, the file system selected for use in the storage layer was selected, this is due to the fact that, there was already a functioning prototype of the core iCBD platform making use of BTRFS for all data storage matters. The most critical feature for the operation of the platform is that the file system supports snapshots. BTRFS is a modern file system based on the copy-on-write (COW) principle capable of creating lightweight copies of a file. We detailed the importance of this trait in Section~\ref{sub:icbd_storage_layer}.
-% TODO Cap4 Requirements Citation needed on COW
- 
-The condition described above applies only in the choice of the File System, in theory, any File System that supports snapshots can be employed in the platform. That is, in fact, the case with the work developed in a dissertation carried out in parallel to this one, where the focus is the use of an object-oriented file system, in particular, the CEPH File System.
-Due to this imposition, it is key that this work makes the best use of the BTRFS features, exploring the incremental backup capabilities. More, the replication process should fully integrate with the core platform that already distributes iMIs to clients. Preservation of consistency of the iMIs is also a concern, assuring the distribution of new versions when they are created.
-
-Moreover, it should be taken in account the locality of the data, since the communications could originate and end in the same data centre and the same local network, or happening between different locations that can be in opposite sides of the world. Such aspects as the bandwidth used and the encryption of the data becomes essential to address, requiring the examination of several compression algorithms that can be accommodated to the way the data is processed and also ways of keeping this data secure by encrypting the communications.
-
-%Requirements
+%\textbf{TOPICS :}
 %The file system is set BTRFS will be used.
 %Many reasons for that:
 %The most important is the support for snapshots
 %Compression
+
+%Since the beginning of this work, the file system selected for use in the storage layer was selected, this is due to the fact that, there was already a functioning prototype of the core iCBD platform making use of BTRFS for all data storage matters. The most critical feature for the operation of the platform is that the file system supports snapshots. BTRFS is a modern file system based on the copy-on-write (COW) principle capable of creating lightweight copies of a file. We detailed the importance of this trait in Section~\ref{sub:icbd_storage_layer}.
+ 
+%The condition described above applies only in the choice of the File System, in theory, any File System that supports snapshots can be employed in the platform. That is, in fact, the case with the work developed in a dissertation carried out in parallel to this one, where the focus is the use of an object-oriented file system, in particular, the CEPH File System.
+%Due to this imposition, it is key that this work makes the best use of the BTRFS features, exploring the incremental backup capabilities. More, the replication process should fully integrate with the core platform that already distributes iMIs to clients. Preservation of consistency of the iMIs is also a concern, assuring the distribution of new versions when they are created.
+
+%Moreover, it should be taken in account the locality of the data, since the communications could originate and end in the same data centre and the same local network, or happening between different locations that can be in opposite sides of the world. Such aspects as the bandwidth used and the encryption of the data becomes essential to address, requiring the examination of several compression algorithms that can be accommodated to the way the data is processed and also ways of keeping this data secure by encrypting the communications.
+
+Btrfs is a modern file system based on the concept of copy-on-write (COW): it is capable of creating lightweight copies of filesystem structures – files, directories, volumes. We already detailed the importance of this trait in Section~\ref{sub:icbd_storage_layer}. Therefore, a mandatory step was to investigate Btrfs-provided tools that could help us to achieve our primary goal: being able to move information (“base” iMIs and their snapshots) around, from “master” to “secondary” nodes, while consuming the minimum bandwidth – one must not forget that, while a typical Linux iMI is less than 10 GB, a Windows 10 iMI is circa 40 GB. We found that Btrfs has incremental backup capabilities, and therefore we set out to explore those.
+ 
+So,  Btrfs’s incremental backup capabilities are a good starting point; however, their purpose is to help in data transfer; but that is not enough. Preservation of consistency of the iMIs is also a concern, as one has to assure that iMIs cached in the RCSs are up-to-date, and when a new iMI is created its distribution will start “immediately”, to ensure high availability in case of faults. Moreover, the locality of the data should be taken into account, since data transfer endpoints may be located within the same data centre, or at, e.g., geographically disperse regions in the world. Bandwidth use and data encryption become essential, requiring the study of compression algorithms and encryption techniques.
 
 
 %\subsubsection{Preliminary tests on the BTRFS Incremental Backup features}
 \paragraph{BTRFS Incremental Backup feature}
 \label{par:impl_incremental_btrfs}
 
+%A first step is trying to understand the most efficient way to transfer this unique kind of data (i.e. an iMI). Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network.
+
+%The BTRFS developers provide a userspace set of utilities that can manage BTRFS filesystems, called \texttt{btrfs-progs}. Within that set of tools, there is a pair of commands, \texttt{btrfs send}~\cite{btrfs_send}, and \texttt{btrfs receive}~\cite{btrfs_receive}, that provides the capability to transport data via a stream and employ those differences in a remote filesystem. 
+
+%The send command facilitates the process of generating a stream of instructions that describe changes between two subvolume snapshots. Also available in the command is the ability to use an incremental mode, where given a parent snapshot that is available in both send and receive sides, only the small delta between snapshots (e.x. \textit{V2} and \textit{V2-1} in fig~\ref{fig:icbd_rep_imi_snap}) is going to integrate the stream. This feature is outstanding since considerably reduces the amount of information that needs to be transferred to reconstruct the snapshot in the receiving end. The send side operations occur in-kernel, beginning by determining differences within subvolumes and based on those differences the kernel generates a set of instructions in a custom formulated stream.
+
+%On the remote end, the received command accepts the stream generated by the send command and uses that data to recreate one or more snapshots. Contrary to the send command, receive executes in user space, replaying the instructions that come in the stream one by one, these instructions include the most relevant calls found in a Virtual File System, with Unix system calls like \texttt{create()}, \texttt{mkdir()}, \texttt{link()}, \texttt{symlink()}, \texttt{rename()}, \texttt{unlink()}, \texttt{write()}, along with others.~\cite{btrfs_design}
+
 A first step is trying to understand the most efficient way to transfer this unique kind of data (i.e. an iMI). Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network.
 
-The BTRFS developers provide a userspace set of utilities that can manage BTRFS filesystems, called \texttt{btrfs-progs}. Within that set of tools, there is a pair of commands, \texttt{btrfs send}~\cite{btrfs_send}, and \texttt{btrfs receive}~\cite{btrfs_receive}, that provides the capability to transport data via a stream and employ those differences in a remote filesystem. 
-
-The send command facilitates the process of generating a stream of instructions that describe changes between two subvolume snapshots. Also available in the command is the ability to use an incremental mode, where given a parent snapshot that is available in both send and receive sides, only the small delta between snapshots (e.x. \textit{V2} and \textit{V2-1} in fig~\ref{fig:icbd_rep_imi_snap}) is going to integrate the stream. This feature is outstanding since considerably reduces the amount of information that needs to be transferred to reconstruct the snapshot in the receiving end. The send side operations occur in-kernel, beginning by determining differences within subvolumes and based on those differences the kernel generates a set of instructions in a custom formulated stream.
+Btrfs has a set of userspace utilities to manage Btrfs filesystems, called \texttt{btrfs-progs}; these include a pair of commands, \texttt{btrfs send}~\cite{btrfs_send}, and \texttt{btrfs receive}~\cite{btrfs_receive}, that provide the capability to transport data via a stream and apply differences from/to a remote filesystem. The send command simplifies the process of generating a stream of instructions that describe changes between two subvolume snapshots. Also available is the ability to use an incremental mode, where given a parent snapshot that is available in both the send and receive sides, only the small delta between snapshots (e.x. V2 and V2-1 in Figure~\ref{fig:icbd_rep_imi_snap}) is going to integrate the stream. This feature considerably reduces the amount of information that needs to be transferred to reconstruct a snapshot in the receiving end. The send-side operations occur in-kernel, beginning by determining differences within subvolumes and, based on those differences, the kernel generates a set of instructions in a custom-formulated stream.
 
 \begin{figure}[htbp]
     \centering
@@ -94,17 +114,11 @@ The send command facilitates the process of generating a stream of instructions 
     \label{fig:icbd_rep_imi_snap}
 \end{figure}
 
-On the remote end, the received command accepts the stream generated by the send command and uses that data to recreate one or more snapshots. Contrary to the send command, receive executes in user space, replaying the instructions that come in the stream one by one, these instructions include the most relevant calls found in a Virtual File System, with Unix system calls like \texttt{create()}, \texttt{mkdir()}, \texttt{link()}, \texttt{symlink()}, \texttt{rename()}, \texttt{unlink()}, \texttt{write()}, along with others.~\cite{btrfs_design}
+On the remote end, the receiving command accepts the stream generated by the send and uses that data to recreate one or more snapshots. Contrary to the send command, receive executes in user space, replaying the instructions in the stream one by one; the set of instructions includes the most relevant calls found in a Virtual File System, such as \texttt{create()}, \texttt{mkdir()}, \texttt{link()}, \texttt{symlink()}, \texttt{rename()}, \texttt{unlink()}, and \texttt{write()}, along with others~\cite{btrfs_design}.
 
 
 %https://btrfs.wiki.kernel.org/index.php/Incremental_Backup
 %https://www.samba.org/ftp/rsync/rsync.html
-
-%The first step is to try to understand the most efficient way to transfer this peculiar kind of data. Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network. In this sense, we next present some preliminary tests in multiple ways of transferring snapshots between BTRFS file systems both in the same machine and in different ones.
-%The results obtained here conjugated with the defined requirements are essential for defining the architecture of the replication module steering the implementation at its best path.
-
-%Before the start of any implementation, there was the need to validate the capabilities of the BTRFS file system regarding sending snapshots across different systems.
-%As one of the requirements was the efficiency of the transference of data. So a small comparison was in order. 
 
 
 
@@ -122,49 +136,59 @@ On the remote end, the received command accepts the stream generated by the send
 	\caption{iCBD Replication Modules and Communications}
 	\label{fig:icbd_rep_mods_comms}
 \end{figure}
+ 
+%Since the replication module needs to interact with several bash scripts, with the core iCBD platform, including command line tools and some operating systems low-level features, we betted that the most suitable approach was creating a python distributed middleware using a master-replica paradigm.
 
-% TODO - Cap4 System Overview - Falta referir que foi efectuada uma primeira implementação em bash script 
-Since the replication module needs to interact with several bash scripts, with the core iCBD platform, including command line tools and some operating systems low-level features, we betted that the most suitable approach was creating a python distributed middleware using a master-replica paradigm.
+%Python as a programming language enjoys some valid idiosyncrasies, functioning as an object-oriented language, possessing an extensive standard library and enjoys a big community delivering packages with a wide range of functionality, all facts that contribute to make it the best programming language to bundle everything together.
 
-Python as a programming language enjoys some valid idiosyncrasies, functioning as an object-oriented language, possessing an extensive standard library and enjoys a big community delivering packages with a wide range of functionality, all facts that contribute to make it the best programming language to bundle everything together.
+%The several modules of the middleware comprise the main functionalities allowing a node to behave as a Master or Replica node, where each one maintains its individual Image Repository. Then there are also a number of libraries that were developed to interface with some tools, as the BTRFS tool talked about above~\ref{par:incremental_btrfs}, to interface with an SSH connection, build wrappers for compression algorithms and even provide a REST API.
 
-The several modules of the middleware comprise the main functionalities allowing a node to behave as a Master or Replica node, where each one maintains its individual Image Repository. Then there are also a number of libraries that were developed to interface with some tools, as the BTRFS tool talked about above~\ref{par:incremental_btrfs}, to interface with an SSH connection, build wrappers for compression algorithms and even provide a REST API.
+%An overview with a small description of the functionality of each component of the system follows:
 
-An overview with a small description of the functionality of each component of the system follows:
+Since the replication module interacts with different tools and utilities, e.g., bash scripts and command line tools and some OS calls, we think that the most suitable approach was to create a Python distributed middleware layer using a master-replica paradigm.
+
+Python, as a programming language, enjoys some idiosyncrasies, functioning as an object-oriented language, possessing an extensive standard library and enjoying a big community delivering packages with a wide range of functionality; all these facts contribute to make it the most appropriate programming language to bind everything together in our iCBD platform.
+
+Our middleware is composed of several modules and includes all the necessary functionalities that allow a node to behave as a Master or as a Replica, where each maintains its individual Image Repository. A number of libraries were also developed: to interface with some tools, such as Btrfs send / receive and with SSH, to build wrappers for compression algorithms, and even to provide a REST API.
+
+An overview with a small description of the functionality of each component of the RCS system follows:
 
 \begin{description}
-	\item [Master Node] This node acts both as a controller to the replication system and an interface to interact with a client whether through a CLI or REST API. Is required that this node reside on an iCBD Administration machine since this is the node that will send changes made to an iMI to all replicas. It is also responsible for providing a communication interface with the Name Server, in this sense when an administrator wants information about which nodes are present on the platform, or what is their status; these requests obtain a route through the master node.
+	\item [Master Node] This node acts both as a controller to the replication system and an interface to interact with a client whether through a CLI or REST API. This node shall reside on an iCBD Administration machine since it must deliver changes made to iMIs to all replicas. It is also responsible for communicating with the Name Server to gather information about which nodes are present on the platform, or what is their status; even instruct the replicate nodes to execute certain operations.
 	%
-	\item [Replica Node] The main task of this node is to maintain the subscribed list of iMIs updated, receiving the last version of those machine images and store them in the file system as soon as the Master Node makes the available. At request, the Replica Node can deliver the list of iMIs that is storing (including and very important the version numbers of the iMIs present in the node). As well as at any time subscribe to a new iMI which from that point forward will include the roster.
+	\item [Replica Node] Its main task is to maintain the list of subscribed iMIs that are not up-to-date, receive the updates as soon as the Master Node sends them, and store them locally. Upon request, the Replica Node can deliver the list of iMIs that are locally stored and their version numbers, and subscribe (or unsubscribe) for new IMIs.
 	%
-	\item [Name Server] The name server service will run parallel to the Master Node, holding a phone book style record listing all the nodes in the replication system. Nodes register themselves in the name server during the startup process, and at any moment can query the location of another node. All this information is deposited in a simple database.
+	\item [Name Server] This service lives in the same machine as the Master Node, holds records about nodes in the replication system, in a phone book type simple database. Nodes register themselves in the name server during the startup process (and leave on shutdown) and can, at any moment, query about the location of other nodes.
 	%
-	\item [Keep Alive] The keep-alive module consists of a thread, launched by the master node, tasked with periodically check if the replica nodes are still working correctly. When its identified that a replica node stopped responding, this service immediately sends a request to the Name Server for the removal of the dead node from the directory.
+	\item [Keep Alive] It's a Master Node thread that periodically checks if Replica Nodes are still operating correctly. When it identifies that a replica node is no longer responding, it immediately sends a request to the for the removal of the dead node from the Name Server’s directory.
 	%
-	\item [Image Repository] This module is a custom-made data structure to hold a large set of iCBD Snapshot objects in a \texttt{key:value} store. In addition to storing these objects, provides an interface to quickly know which iMIs are store within the node that accommodates the repository. Every node in the platform (i.e. Master or Replica) must necessarily launch one repository.
+	\item [Image Repository] This module is a custom-made data structure that holds a (large) set of iCBD Snapshot objects in a \texttt{key:value} store. In addition to storing these objects, it has an interface that provides quick answers to queries that ask which iMIs are stored in the node’s repository. Every node in the platform (i.e. Master or Replica) must necessarily hold one repository.
 \end{description}
 
 
-So that all the components presented above can function adequately, they require help from several libraries. A description of those implemented libraries ensue:
+%So that all the components presented above can function adequately, they require help from several libraries. A description of those implemented libraries ensue:
+
+All the previously described components interact with a number of “objects”, so it is not a surprise that a sizeable amount of code that we have created has been packed into a number of libraries:
 
 \begin{description}
-	\item [BTRFS Lib] The BTRFS library holds two classes. The first, called \texttt{BTRFS Tool} that is a python wrapper for the \texttt{btrfs-progs} tool, described in section~\ref{par:impl_incremental_btrfs}. The second, designated \texttt{BtrfsFsCheck} implements functions to validate if a given path is part of a BTRFS filesystem, case its true is also possible to verify if that path comprises a subvolume. Additionally, this tool is provided with a method to discover all snapshots in a directory.
+	\item [BTRFS Lib] The Btrfs library holds two classes: the first one, called \texttt{Btrfs Tool}, is a Python wrapper for \texttt{btrfs-progs}, described in section~\ref{par:impl_incremental_btrfs}.; the other class, designated \texttt{BtrfsFsCheck} implements functions that validate if a given path transverses a Btrfs filesystem and, if it does, verifies if in that path a subvolume also exists. Additionally, a method is provided to discover all snapshots in a directory.
 	%
-	\item [Compression Lib] Since multiple compression algorithms are used, makes all the sense to create a library that encapsulates multiple wrappers, one for each algorithm. These wrappers in reality only need to provide compression and decompression methods for a stream of data, with the remaining operations not present.
+	\item [Compression Lib] Since multiple compression algorithms are used, it makes sense to create a library that encapsulates multiple wrappers, one for each algorithm; these wrappers only contain code that provides compression and decompression of data streams, no other operations are present.
 	%
-	\item [Serialiser Lib] Some of the communications between nodes require the transmission of objects, to that effect a library containing serialisation and deserialisation methods for those objects is a requirement.
+	\item [Serialiser Lib] Some communication operations between nodes require the transmission of objects; therefore a library containing serialisation and deserialisation methods for those objects has been implemented.
 	%
-	\item [SSH Lib] This library implements a wrapper for the SSH command, allowing the creation of a tunnel so that data can be funnelled through a secured connection between nodes in different networks.
+	\item [SSH Lib] This library implements a wrapper for the SSH command, allowing the creation of tunnels so that data can be funnelled through a secure connection between nodes.
 	%
-	\item [REST API Lib] To comply with one of the objectives of the replication module, a REST API should be provided. That is precisely what this library does, providing the endpoints to interact with the system. Also enabling an easy way to expand that interaction to other modules of the platform.
-
+	\item [REST API Lib] To comply with one of the objectives of the replication module, a REST API should be provided. That is precisely what this library does, providing the endpoints to interact with the system, and enabling an easy way to expand that interaction to other platform modules.
 \end{description}
 
-Even though the libraries presented above are not enough for the appropriate implementation of the all functionalities of the replication module, more libraries implemented by the community were necessary to handle aspects like communication between nodes, algorithms for data compression and to secure the data transmission between networks. Some of which we list and describe below  (a full list of Python packets imported in the project is shown in the Listing~\ref{listing:impl_icbd_pipfile}), also throughout the remaining text we detail in each module the libraries that help to accomplish its purpose.
+%Even though the libraries presented above are not enough for the appropriate implementation of the all functionalities of the replication module, more libraries implemented by the community were necessary to handle aspects like communication between nodes, algorithms for data compression and to secure the data transmission between networks. Some of which we list and describe below  (a full list of Python packets imported in the project is shown in the Listing~\ref{listing:impl_icbd_pipfile}), also throughout the remaining text we detail in each module the libraries that help to accomplish its purpose.
+
+The libraries we created to implemented the common set of functionalities required for the replication module, do require more libraries, implemented by the Python community. These are necessary to handle communication between nodes, algorithms for data compression, and secure data transmission; the most relevant ones are described through the remaining text in this section.
 
 \begin{listing}[ht]
 \inputminted{python}{./Chapters/Code/cap4_pip.py}
-\caption{Pipfile for the iCBD-rep Project}
+\caption{Dependences of the iCBD-Replication module bundled in a Pipfile}
 \label{listing:impl_icbd_pipfile}
 \end{listing}
 
@@ -175,69 +199,90 @@ Even though the libraries presented above are not enough for the appropriate imp
 \subsection{Communications between nodes}
 \label{sub:impl_rep_comms}
 
-Coordinate the multiple modules and its activities, demands from the middleware a need to share a communication channel connected through a network. 
-The remote procedure call (RPC) brings support for inter-process communication allowing a procedure on a system to invoke an operation running in a process in a different location, most likely on a remote system.
+%Coordinate the multiple modules and its activities, demands from the middleware a need to share a communication channel connected through a network. 
+%The remote procedure call (RPC) brings support for inter-process communication allowing a procedure on a system to invoke an operation running in a process in a different location, most likely on a remote system.
 
-As seen in figure~\ref{fig:icbd_rep_mods_comms}, multiple processes are running in different machines any given time, and those processes need to continually send and receive information: perhaps operations to execute, metadata updates, or just monitoring if a process is running according to the desired plan or is in a faulty state.
-Managing the nodes is a perfect case for the use of the Pyro 4 library, that gives a holistic view of the system and allows triggering a multitude of operations in each node.
+%As seen in figure~\ref{fig:icbd_rep_mods_comms}, multiple processes are running in different machines any given time, and those processes need to continually send and receive information: perhaps operations to execute, metadata updates, or just monitoring if a process is running according to the desired plan or is in a faulty state.
+%Managing the nodes is a perfect case for the use of the Pyro 4 library, that gives a holistic view of the system and allows triggering a multitude of operations in each node.
+
+To coordinate the multiple modules and their activities, an abstraction of a network-shared communication channel must be supported. The remote procedure call (RPC) was chosen to support the inter-process communication, allowing a procedure running on a system to invoke an operation in a process running in a different location, most likely on a remote system.
+
+As seen in figure~\ref{fig:icbd_rep_mods_comms}, multiple processes are running in different machines any given time, and these processes need to continually send and receive information: operations that must be executed, metadata updates, monitoring if a process is compliant with its expected behaviour or is in a faulty state, etc. Managing nodes is just the right case for the Pyro 4 library, one that gives an holistic view of the system and allows triggering operations in a node.
 
 
 %\subsubsection{Pyro4 Library}
 \paragraph{Pyro4 Library}
 \label{par:impl_pyro4_lib}
 %https://pythonhosted.org/Pyro4/
-Pyro 4~\cite{pyro4} is a library that enables the development of python applications in which objects can talk to each other over the network through the use of RPCs. Its designed to be very easy to use and integrate into a project and at the same time provide considerable flexibility. This library can be imagined as an adhesive to integrate various components of a heterogeneous system easily.
+%Pyro 4~\cite{pyro4} is a library that enables the development of python applications in which objects can talk to each other over the network through the use of RPCs. Its designed to be very easy to use and integrate into a project and at the same time provide considerable flexibility. This library can be imagined as an adhesive to integrate various components of a heterogeneous system easily.
 
-There are some core features employed in the iCBD replication module, but not limited to:
+%There are some core features employed in the iCBD replication module, but not limited to:
 
+Pyro4~\cite{pyro4} is a library that enables the development of Python applications where objects can talk to each other over the network through the use of RPCs. It is designed to be very easy to use and integrate in projects while having a considerable flexibility. This library can be imagined as a glue that easily integrates various components of a heterogeneous system.
+
+Some Pyro4 core features are used in the iCBD replication module including (but not limited to):
 
 \begin{description}
-	\item [Proxy] This object acts as a substitute for the real one, intercepting the calls to a given method of that object. Then through the Pyro library, the call is sent to the actual object that probably resides in a remote machine, also returning the resulting data of the call. Which is very useful considering that the function that performs a call to the object does not need to know if it is dealing with a normal or a remote object.
+	\item [Proxy] This object acts as a substitute for the real one, intercepting the calls to a given method of that object. Then, through the Pyro library, the call is sent to the actual object - one that will probably reside in a remote machine – and will return the resulting data (very useful, considering that the function that performs the call does not need to know if it is dealing with a local or remote object).
 	%
-	\item [Pyro object] A Pyro object is a regular python object that goes through a registration process with Pyro in order to facilitate remote access to it. Objects are written just as any other piece of code, but the fact that Pyro knows its existence allows calls to that object that may originate in other programs.
+	\item [Pyro object] A Pyro object is a regular Python object that goes through a registration process with Pyro in order to facilitate remote access to it. Objects are written just as any other piece of code, but the fact that Pyro knows their existence allows other programs to place calls.
 	%
-	\item [Pyro daemon] This component is the one that listens for remote method calls done to a proxy, dispatches them to the real object and collects the result of the call returning it to the caller.
+	\item [Pyro daemon] This component listens for remote method calls done to a proxy, dispatches them to the real object, collects the result of the call, and returns it to the caller.
 	%
-	\item [Name Server] Is this tool that keeps track of the objects actual locations in the network so they can move around freely and transparently. Works similarly to a yellow-pages book, providing lookups based on metadata tags.
+	\item [Name Server] It keeps track of the object's actual locations in the network so that they can move around freely and transparently. Similarly to a yellow-pages book, provides a way to lookup objects based on metadata tags.
 	%
-	\item [Automatic reconnecting] If a client (in our case a Replica Node) becomes disconnected to the server (Master Node), because of a server crash or a communications error, there is an automatic retry mechanism to handle this fault.
+	\item [Automatic reconnecting] Provides an automatic retry mechanism to handle the fault that arises when a client (in our case a Replica Node) becomes disconnected from the server (Master Node) as a result of a server crash or communications error.
 	%
-	\item [Secure communication] Pyro itself does not encrypt by default the data it sends over the network. Still, Pyro RPCs communications can travel over a secure network (VPN, SSL/SSH tunnel) where the encryption is taken care of externally to the library. Alternatively, it is also possible to enable SSL/TLS in the Pyro library itself, securing all communications with custom cert files, private keys, and passwords.
+	\item [Secure communication] Pyro, in itself, does not encrypt by default the data it sends over the network. Still, Pyro RPCs communications can travel over a secure network (VPN, SSL/SSH tunnel) where the encryption is performed outside the library. Alternatively, it is also possible to enable SSL/TLS in the Pyro library itself, securing all communications with custom cert files, private keys, and passwords.
 	%
-	\item [Serialisation] Pyro supports the transformation of objects into streams of bytes that flow over the network to a receiver that deserialises them back into the original format. This process is essential to ensure the delivery of all data that remote method calls receive as arguments, as well as the corresponding responses.
+	\item [Serialisation] Pyro supports the transformation of objects into streams of bytes that flow over the network to a receiver that reconstructs them back into the original format. This process is essential to ensure the delivery of all data that remote method calls receive as arguments, as well as the corresponding responses they return.
 \end{description}
 
 
 \paragraph{TCP Sockets and Secure Shell Protocol (SSH)}
 \label{par:impl_tcp_sockets_ssh}
-Despite the facts presented above, system coordination is not all the burden laid on the network, the main task of this system is to replicate virtual machine images among the several nodes, so the network also has responsibility on carrying large volumes of data (result of transferring iMIs). The Pyro4 library gives the possibility to secure its communications, but that only covers method calls within replication nodes. 
+%Despite the facts presented above, system coordination is not all the burden laid on the network, the main task of this system is to replicate virtual machine images among the several nodes, so the network also has responsibility on carrying large volumes of data (result of transferring iMIs). The Pyro4 library gives the possibility to secure its communications, but that only covers method calls within replication nodes. 
 
-The delivery process of iMIs throughout nodes follow one of two principles: in the first scenario, we consider the case where the iMI does not leave the same trusted local network (i.e. communications within the walls of one organisation); the second implies the transport of data between third-party networks, even the internet. 
+%The delivery process of iMIs throughout nodes follow one of two principles: in the first scenario, we consider the case where the iMI does not leave the same trusted local network (i.e. communications within the walls of one organisation); the second implies the transport of data between third-party networks, even the internet. 
 
-When talking about an organisational network, it's safe to assume that there are some security measures already in place (e.g. VLANs), so in this regard, we transfer the concerns about data security for that layer. That fact allows the use of a simple Stream Socket~\cite{py_socks} which provides a connection-oriented flow of data with error detection, in our case implemented on top of TCP. The application of this type of socket and the non-use of cyphers allows the best performance in the transfer of an iMI without the addition of computationally heavy tasks such as encrypting a large amount of data.
+%When talking about an organisational network, it's safe to assume that there are some security measures already in place (e.g. VLANs), so in this regard, we transfer the concerns about data security for that layer. That fact allows the use of a simple Stream Socket~\cite{py_socks} which provides a connection-oriented flow of data with error detection, in our case implemented on top of TCP. The application of this type of socket and the non-use of cyphers allows the best performance in the transfer of an iMI without the addition of computationally heavy tasks such as encrypting a large amount of data.
 
-In the second case, to solve the question of the data travelling through open networks, an extension of the previous solution is presented, using the same type of socket but redirecting the flow through an SSH tunnel deployed between nodes. 
+%In the second case, to solve the question of the data travelling through open networks, an extension of the previous solution is presented, using the same type of socket but redirecting the flow through an SSH tunnel deployed between nodes. 
 
-This solution in addition to solving the issue of ensuring data security in the transferal process is a modular solution that allows future changes in the way data is encrypted without needing significant modifications to the code base. Even so, we do not believe that this is a perfect security model, there is room for improvement, but, not being the focal point of this work, we still wanted to provide some security features for conducting functional tests linking geographically separated data centres.
+%This solution in addition to solving the issue of ensuring data security in the transferal process is a modular solution that allows future changes in the way data is encrypted without needing significant modifications to the code base. Even so, we do not believe that this is a perfect security model, there is room for improvement, but, not being the focal point of this work, we still wanted to provide some security features for conducting functional tests linking geographically separated data centres.
 
+Coordination of system activities is only a part of the work that “loads” the network; the other, and more important part, is carrying large volumes of data (as a result of transferring GB-sized iMIs) to perform the replication tasks that keep VM images consistent across RCS nodes. The Pyro4 library allows secure communications, but only for method calls (arguments and responses) within replication nodes.
 
+The delivery process of iMIs throughout nodes follows one out of two principles: in the first scenario, we consider the case where the iMI does not leave the same trusted local network (i.e. communications within the walls of one organisation); the second covers the transport of data across external networks, including the Internet.
+
+When discussing intranet environments, it’s safe to assume that there are some security measures already in place (e.g. VLANs) so, in this regard, we assume that data security is already catered for. That allows us to use a simple Stream Socket~\cite{py_socks}, which does provide a connection-oriented flow of data with error detection, in our case implemented on top of TCP. This option, when paired with non-encrypted communications, delivers the best performance possible for the transfer of an iMI.
+
+In the second case, which involves data travelling through external networks, an extension of the previous solution is employed: we used the same type of socket, but transport data through an SSH tunnel deployed between nodes.
+
+This, in addition to solving the issue of ensuring data security in the transferal process, has the benefit of being a modular solution that allows future changes in the way data is encrypted without needing significant modifications to the code base. But, while we do not believe that this is a perfect security model, and there is room for improvement, we will not pursue that avenue because this is not the focal point of this work. However, the current solution does provide the level of security we deemed enough to conduct functional tests linking geographically separated data centres.
 
 \paragraph{Data Compression}
 \label{par:impl_data_compression}
 
-Following one of the requirements stated above, our work should aim for reducing the bandwidth consumed by the operations of the iCBD platform, and that includes the replication of iMIs. Part of this subject is already addressed in the Storage Layer since the images, by default, are transparently stored in BTRFS compressed with zlib~\cite{btrfs_compression}. However, the replication process using the BTRFS send and receive features, as explained in section~\ref{par:incremental_btrfs}, does not send the iMIs as is, send an instruction stream, and those instructions present as an excellent candidate to be compressed. 
+%Following one of the requirements stated above, our work should aim for reducing the bandwidth consumed by the operations of the iCBD platform, and that includes the replication of iMIs. Part of this subject is already addressed in the Storage Layer since the images, by default, are transparently stored in BTRFS compressed with zlib~\cite{btrfs_compression}. However, the replication process using the BTRFS send and receive features, as explained in section~\ref{par:incremental_btrfs}, does not send the iMIs as is, send an instruction stream, and those instructions present as an excellent candidate to be compressed. 
 
-Given the design of the send \/ receive feature, is unthinkable to hold in memory all the instructions waiting to be compressed, or store that information in a file, compress it an then send without creating a huge bottleneck and introducing a delay on the replication process. To expedite the process of transmitting the stream compressed and without postponements, only compression algorithms that provide a framing format (i.e. allowing compressing streams that can then more easily be decompressed without having
-to hold the entire stream in memory) were chosen.
+%Given the design of the send \/ receive feature, is unthinkable to hold in memory all the instructions waiting to be compressed, or store that information in a file, compress it an then send without creating a huge bottleneck and introducing a delay on the replication process. To expedite the process of transmitting the stream compressed and without postponements, only compression algorithms that provide a framing format (i.e. allowing compressing streams that can then more easily be decompressed without having to hold the entire stream in memory) were chosen.
 
-In this work, we included three algorithms that presented the framing format characteristic, and that demonstrated to be popular in use, but maintained a code base modular where is very easy to add a new algorithm.
+%In this work, we included three algorithms that presented the framing format characteristic, and that demonstrated to be popular in use, but maintained a code base modular where is very easy to add a new algorithm.
+
+As noted in the section where requirements were discussed, our implementation should aim for a reduction in the bandwidth used by operations in the iCBD platform, and that includes the replication of iMIs. Part of it is already addressed in the Storage Layer since the images, by default, are transparently stored in Btrfs compressed with zlib~\cite{btrfs_compression}. However, the replication process using the Btrfs send and receive, as explained in section~\ref{par:impl_incremental_btrfs}, does not send an iMI itself, but an “instruction” stream (which includes the data to be transferred) which, in itself, is an excellent candidate to compression.
+
+Given the design of the send/receive features, is unthinkable to hold in memory all the stream waiting to be compressed, or store that information in a file, compress it, and then send it, without creating a huge bottleneck and introducing a delay on the replication process. To expedite the process of transmitting a compressed stream immediately, only compression algorithms that provide a framing format (i.e. allow decompressing without having to hold the entire stream in memory) were chosen.
+
+In this work, we included three algorithms that had the desired the framing format feature and were found to be widely used, maintaining a modular code base in order to support the future inclusion of other algorithms.
+
 
 \begin{description}
-	\item [LZ4] is a lossless data compression algorithm centred on compression and decompression speeds, that belongs to the LZ77 family~\cite{lz77} of byte-oriented compression schemes. The reference implementation is in C and initially implemented by Yann Collet. There are also ports and bindings, from the original C implementation, in various languages like Java, C\#, Python, Go, among others. In this work, we use a multi-threadable python biding by Iotic Labs called \textit{py-lz4framed}~\cite{lz4framed}.
+	\item [LZ4] is a lossless data compression algorithm that belongs to the LZ77 family~\cite{lz77} of byte-oriented compression schemes and is focused on maximizing compression and decompression speeds. Its reference implementation is in C and was initially implemented by Yann Collet. There are ports and bindings in various languages such as Java, C\#, Python, and Go, among others. In this work, we use a multithreaded Python version developed by Iotic Labs called \textit{py-lz4framed}~\cite{lz4framed}.
 	%
-	\item [zlib] is a widely used, kind of a \textit{de facto} standard, library of lossless data compression that uses an abstraction of the DEFLATE compression algorithm (also a variation of LZ77). The algorithm written by Jean-loup Gailly and Mark Adler provides good compression on a wide variety of data sets and environments with the minimal use of system resources.~\cite{zlib} Written in C, can be found in the most diverse platforms: used by the Linux Kernel in multiple instances, multimedia libraries, databases, version control systems, and others. In the replication module, we employ the included zlib library~\cite{py_zlib} in python which provides an interface to the zlib C library.
+	\item [zlib] is a widely used, and kind of a \textit{de facto} standard, library of lossless data compression that uses an abstraction of the DEFLATE compression algorithm (also a variation of LZ77). The algorithm version written by Jean-loup Gailly and Mark Adler provides good compression on a wide variety of data sets and environments with the minimal use of system resources~\cite{zlib}. Written in C, it can be found in a wide diversity of platforms: in the Linux Kernel in multiple modules, and in multimedia libraries, databases, version control systems, and others. In the replication module, we use the zlib library~\cite{py_zlib} included in Python, which then provides an interface to the zlib C library.
 	%
-	\item [Snappy] is a compression \/ decompression library, created by Google~\cite{snappy}, that contrary to other algorithms, strives for very high speeds at reasonable compression rates, not maximum compression. The library is written in C++ but counts with several bindings for the most popular languages. In order to interface with python, we used the python binding~\cite{py_snappy} for the snappy C++ compression library, provided by Andrés Moreira.
+	\item [Snappy] is a compression \/ decompression library, created by Google~\cite{snappy}, that contrary to other algorithms, strives for very high speeds at reasonable compression rates, not maximum compression. The library is written in C++ but has several bindings for the most popular languages. In order to interface with Python, we used the Python binding~\cite{py_snappy} for the snappy C++ compression library provided by Andrés Moreira.
 \end{description}
 
 %%-------------------------------------------------------------------
@@ -253,13 +298,21 @@ In this work, we included three algorithms that presented the framing format cha
 %	\item How the Name Server is controlled?
 %\end{itemize}
 
-In a distributed systems environment the various nodes need to know how to communicate with each other: uniquely identifying themselves and refer to there locations. The mechanism that addresses this problem is commonly referred to as Naming.~\cite{tanenbaum_2006}
+%In a distributed systems environment the various nodes need to know how to communicate with each other: uniquely identifying themselves and refer to there locations. The mechanism that addresses this problem is commonly referred to as Naming.~\cite{tanenbaum_2006}
 
-The iCBD Replication module implements this feature, attributing to each node an identity tuple with three elements: \texttt{(Node Name, Node URI, Tag)} that is registered in a name server allowing for subsequent locate a node by its name, or retrieve a set of nodes that are marked by the same tag.
+%The iCBD Replication module implements this feature, attributing to each node an identity tuple with three elements: \texttt{(Node Name, Node URI, Tag)} that is registered in a name server allowing for subsequent locate a node by its name, or retrieve a set of nodes that are marked by the same tag.
 
-The name server is a module that consists of a constant running thread and a local \textit{SQLite} database. It makes use of the aforementioned Pyro4 Name Server, but instead of being launched from a console, it leverages the "launch on your code" feature provided by the library to seamlessly integrate this feature with the remaining modules and starts up together with other modules of the Master Node.
+%The name server is a module that consists of a constant running thread and a local \textit{SQLite} database. It makes use of the aforementioned Pyro4 Name Server, but instead of being launched from a console, it leverages the "launch on your code" feature provided by the library to seamlessly integrate this feature with the remaining modules and starts up together with other modules of the Master Node.
 
-Given the scenario where a node wants to make contact to another node and does not have its location. A request with the name of the node is made to the name server expecting in return a URI to call. If the requesting node already knows the location (IP and Port) of the name server, it makes the request directly. However, in the case where it also does not know how to contact the name server, resorts to a simple UDP network broadcast to locate the name server.
+%Given the scenario where a node wants to make contact to another node and does not have its location. A request with the name of the node is made to the name server expecting in return a URI to call. If the requesting node already knows the location (IP and Port) of the name server, it makes the request directly. However, in the case where it also does not know how to contact the name server, resorts to a simple UDP network broadcast to locate the name server.
+
+In a distributed systems environment, nodes need to know how to communicate with each other, uniquely identify themselves and be able to refer to their locations. The mechanism that addresses this problem is commonly referred to as Naming~\cite{tanenbaum_2006}.
+
+The iCBD Replication module implements a Naming Server, where each node is identified by a tuple with three elements: Node Name, Node URI, and Tag. Tuples are registered in the name server and operation include locating a node by its name, or retrieving a set of nodes that are marked with the same tag.
+
+The name server is a module that consists of a continuously running thread and a local SQLite database. It uses the aforementioned Pyro4 Name Server, but instead of being launched from a console, it leverages the "launch on your code" feature provided by the library to seamlessly integrate with the remaining modules and starts up together with other modules of the Master Node.
+
+Consider the scenario where a node wants to contact another node and does not have its location: a request (which includes the name of the target node) must be made to the name server, expecting in return a URI for the target node. If the requesting node already knows the location (IP and Port) of the name server, it directly addresses it; however, if the node does not know how to contact the name server, it resorts to a simple UDP network broadcast to locate it.
 
 \begin{listing}[ht]
 \inputminted{python}{./Chapters/Code/cap4_NameServer.py}
@@ -269,15 +322,15 @@ Given the scenario where a node wants to make contact to another node and does n
 
 \paragraph{Methods in the Name Server API}
 
-The Pyro Name Server presents an extensive API, but for the purposes of our work, only the subset presented below is utilised. 
+The Pyro Name Server presents an extensive API but, for the purpose of our work, only the subset presented below is used:
 
 %\begin{listing}[ht]
 \begin{description}
 	\item \texttt{locateNS()} Get a proxy for a name server somewhere in the network.
-	\item \texttt{register()} Enrol an object on the name server associating the URI with a logical name.
-	\item \texttt{list()} List all objects registered in the name server. The results will be filtered if a prefix is provided.
+	\item \texttt{register()} Enrol an object in the name server, associating the URI with a logical name.
+	\item \texttt{list()} List all objects registered in the name server; the results will be filtered if a prefix is provided.
 	\item \texttt{lookup()} Looks for a single name registration and returns the corresponding URI.
-	\item \texttt{remove()} Removes an entry, created by registering an object, with the exact given name from the name server.
+	\item \texttt{remove()} Removes an entry, created by registering an object with the exact given name, from the name server.
 \end{description}
 %\caption{Used methods from Pyro4 Name Server API}
 %\label{listing:impl_pyro_nameserver_api}
@@ -292,22 +345,34 @@ The Pyro Name Server presents an extensive API, but for the purposes of our work
 \subsection{Image Repository}
 \label{sub:impl_icbdrep_image_repo}
 
-Each Replica Node in the platform can subscribe to an independent set of iMIs that will be replicated to its local storage, with the Master Node holding the entire collection. 
-To represent this relation between nodes and to facilitate the process of knowing which image is present in each node we implemented an Image Repository.
+%Each Replica Node in the platform can subscribe to an independent set of iMIs that will be replicated to its local storage, with the Master Node holding the entire collection. 
+%To represent this relation between nodes and to facilitate the process of knowing which image is present in each node we implemented an Image Repository.
 
-This sub-module is present in every node (Master and Replicas) and presents itself with a central role in the replication process, not only, by the fact of acting as the backbone for the subscription of images, but also by tracking all versions of iMIs present in the platform working similarly to a versioning system. As described before, the iCBD platform stores the multiple versions of one iMI as snapshots, that materialise as directories in the local filesystem. Like to what happens in the Name Server, the information stored by the Image Repository is backed in persistent storage in the form of an \textit{SQLite} database. 
+%This sub-module is present in every node (Master and Replicas) and presents itself with a central role in the replication process, not only, by the fact of acting as the backbone for the subscription of images, but also by tracking all versions of iMIs present in the platform working similarly to a versioning system. As described before, the iCBD platform stores the multiple versions of one iMI as snapshots, that materialise as directories in the local filesystem. Like to what happens in the Name Server, the information stored by the Image Repository is backed in persistent storage in the form of an \textit{SQLite} database. 
 
-The interface that the Image Repository offers is elementary, giving a hand full of mutator methods (get and set functions) to populate one main data structure. The structure used is the Python builtin Dictionary, allowing to establish an unordered set of \texttt{key:value} pairs, where the \texttt{key} is the name of the iMI and the \texttt{value} is a \texttt{List} of several \textit{icbdSnapshot} objects, one for each version.
+%The interface that the Image Repository offers is elementary, giving a hand full of mutator methods (get and set functions) to populate one main data structure. The structure used is the Python builtin Dictionary, allowing to establish an unordered set of \texttt{key:value} pairs, where the \texttt{key} is the name of the iMI and the \texttt{value} is a \texttt{List} of several \textit{icbdSnapshot} objects, one for each version.
+
+Each Replica Node in the platform can subscribe to an independent set of iMIs that will be replicated to its local storage, with the Master Node holding the entire collection. To represent this relation between nodes and to facilitate the process of knowing which image is present in each node, we implemented an Image Repository.
+
+The Image Repository sub-module is present in every node (Master and Replicas) and plays a central role in the replication process, not only because it acts as a backbone for the subscription of images, but also because it tracks all iMI versions available in the platform in a way similar to that of a versioning system. As described before, the iCBD platform stores multiple versions of one iMI as snapshots, that materialise as directories in the local filesystem. The information stored by the Image Repository is backed in persistent storage in the form of an SQLite database, similarly to what happens in the Name Server.
+
+The interface that the Image Repository provides is very simple, and consists of a handful of mutator methods (get and set functions) that populate one main data structure, based on the Python built-in Dictionary, thus providing an unordered set of \texttt{key:value} pairs, where the \texttt{key} is the name of the iMI and the \texttt{value} is a \texttt{List} of several \textit{icbdSnapshot} objects, one for each version.
 
 %\subsubsection{iCBD Snapshot Object Structure (iMI)}
 \paragraph{iCBD Snapshot Object Structure (iMI)}
 \label{par:impl_icbdrep_snapshot}
 
-Inside the replication module, the iMI as presented in Section~\ref{sub:icbd_imi}, is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to distinguish the multiple images present in the system unequivocally, but do not hold actual data.
+%Inside the replication module, the iMI as presented in Section~\ref{sub:icbd_imi}, is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to distinguish the multiple images present in the system unequivocally, but do not hold actual data.
 
-In that sense, from this lightweight object, we can obtain: the name of the iMI, its version number, the full path to the VM files in the filesystem, the location of the boot package regarding the version in question, and the configuration file for the iSCSI target. Since the data stored within this object is appended on its creation and is immutable, the object only provides \texttt{get} functions to retrieve its values.
+%In that sense, from this lightweight object, we can obtain: the name of the iMI, its version number, the full path to the VM files in the filesystem, the location of the boot package regarding the version in question, and the configuration file for the iSCSI target. Since the data stored within this object is appended on its creation and is immutable, the object only provides \texttt{get} functions to retrieve its values.
 
-Given that all the relevant data is stored locally in a node (i.e. the actual VM file; the boot package; the iSCSI configuration files) the \textit{icbdSnapshot} object only needs to maintain the paths to that data in relation to the local filesystem, leading to a clean and straightforward interface that can be seen in Listing~\ref{listing:impl_icbdSnapshot}.
+%Given that all the relevant data is stored locally in a node (i.e. the actual VM file; the boot package; the iSCSI configuration files) the \textit{icbdSnapshot} object only needs to maintain the paths to that data in relation to the local filesystem, leading to a clean and straightforward interface that can be seen in Listing~\ref{listing:impl_icbdSnapshot}.
+
+Inside the replication module the iMI, as presented in Section~\ref{sub:icbd_imi}, is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to unequivocally identify the multiple images present in the system unequivocally; but it does not hold actual data.
+
+In that sense, from this lightweight object, we can get hold of: the name of the iMI, its version number, the full path to the VM files in the filesystem, the location of the boot package associated with that particular version, and the configuration file for the iSCSI target.
+
+Since the data stored in this object is appended at creation and is immutable, the object only provides \texttt{get} functions to retrieve its values. Given that all the relevant data is stored locally in a node (i.e. the actual VM file, the boot package, and the iSCSI configuration files) the \textit{icbdSnapshot} object only needs to maintain paths to that data with regard to the local filesystem, leading to a clean and straightforward interface that can be seen in Listing~\ref{listing:impl_icbdSnapshot}.
 
 \begin{listing}[ht]
 \inputminted{python}{./Chapters/Code/cap4_icbdSnapshot.py}
@@ -330,22 +395,36 @@ Given that all the relevant data is stored locally in a node (i.e. the actual VM
 %	\item The send operation 
 %\end{itemize}
 
-Following the architecture of the replication process, one of the fundamental roles is to manage the subscription of iMIs, disseminate new versions and provide an interface to interact with it all. Given those requirements, the Master Node resides in an iCBD Administration Machine allowing to hold a particular view of all components of the system and a holistic view of the state of the platform ( i.e. identify all the nodes present in the platform, recalls all iMIs in catalogue, maintains a list with all relations between iMIs and nodes - the subscriptions). 
+%Following the architecture of the replication process, one of the fundamental roles is to manage the subscription of iMIs, disseminate new versions and provide an interface to interact with it all. Given those requirements, the Master Node resides in an iCBD Administration Machine allowing to hold a particular view of all components of the system and a holistic view of the state of the platform ( i.e. identify all the nodes present in the platform, recalls all iMIs in catalogue, maintains a list with all relations between iMIs and nodes - the subscriptions). 
 
-Moreover, adding to the above, this node also acts in a way as a gateway, delivering two methods of interfacing with the platform - a Command Line Interface (CLI) and an HTTP REST API.
+%Moreover, adding to the above, this node also acts in a way as a gateway, delivering two methods of interfacing with the platform - a Command Line Interface (CLI) and an HTTP REST API.
 
-More than being having a central role in managing and overseeing the several aspects of the replication platform architecture, this node holds the responsibility of sending the new versions of an iMI as they are created. This is the highlight feature that makes use of the BTRFS Incremental Backup functionality, in this case, the send operation.
+%More than being having a central role in managing and overseeing the several aspects of the replication platform architecture, this node holds the responsibility of sending the new versions of an iMI as they are created. This is the highlight feature that makes use of the BTRFS Incremental Backup functionality, in this case, the send operation.
+
+The architecture and design of the replication process dictate that managing the subscription of iMIs, disseminating new versions and, finally, providing an interface to interact with these services is fundamental. 
+
+Given those requirements, the Master Node resides in an iCBD Administration Machine allowing it to hold a global view of all components of the system and a holistic view of the state of the platform (i.e., identify all the nodes present in the platform, list all iMIs in catalogue, maintain a list of all relations between iMIs and nodes - the subscriptions).
+
+And, furthermore, the Master Node also acts as a gateway, providing two methods to interface with the platform: a Command Line Interface (CLI) and an REST API.
+
+Besides having a central role in managing and overseeing the different aspects of the replication platform architecture, the Master Node holds the responsibility of sending new versions of an iMI as soon as they are created, using the Btrfs Incremental Backup feature (in this case, the send operation).
 
 \paragraph{Sending a Snapshot to a Replica Node (Cache Server)}
 \label{par:impl_sendsnap}
 
-The general idea is: when the administration process of an iMI comes to an end, the Master Node is notified that a new version of that iMI is available. So, a new entry for that version is created and stored in the local Image Repository. Then, the main replication procedure starts. 
+%The general idea is: when the administration process of an iMI comes to an end, the Master Node is notified that a new version of that iMI is available. So, a new entry for that version is created and stored in the local Image Repository. Then, the main replication procedure starts. 
 
-First, it is checked which nodes have subscribed to iMI. For those who have subscribed we need to check the latest version available in the Replica's Image Repository, this process will determine if the new version can be sent immediately, or if it is necessary to transfer some intermediate versions. 
+%First, it is checked which nodes have subscribed to iMI. For those who have subscribed we need to check the latest version available in the Replica's Image Repository, this process will determine if the new version can be sent immediately, or if it is necessary to transfer some intermediate versions. 
 
-Any of the cases, we are transmitting only the differences between versions, not the whole iMI. Assuming that only the last delta (the most recent changes) will be shipped, it is determined whether the transfer will occur using an encrypted communication channel and/or whether some compression algorithm will be applied in the data before being sent. This information is also conveyed to the receiving side so that it is ready to accept the data. 
+%Any of the cases, we are transmitting only the differences between versions, not the whole iMI. Assuming that only the last delta (the most recent changes) will be shipped, it is determined whether the transfer will occur using an encrypted communication channel and/or whether some compression algorithm will be applied in the data before being sent. This information is also conveyed to the receiving side so that it is ready to accept the data. 
 
-Only after all this process begins the data transfer, being aided by the libraries mentioned above, btrfsLib; compressionLib and sshLib. The process of receiving an IMI can be found in the Section~\ref{par:impl_receive_snap}.
+%Only after all this process begins the data transfer, being aided by the libraries mentioned above, btrfsLib; compressionLib and sshLib. The process of receiving an IMI can be found in the Section~\ref{par:impl_receive_snap}.
+
+The overall process follows these steps: when the task of administrating an iMI is finished, the Master Node is notified that a new version (of that iMI) is available; a new entry for that version is then created and stored in the local Image Repository; afterwards, the main replication procedure starts.
+
+The replication procedure proceeds as follows: first, the list of nodes that have subscribed to that iMI is gathered; then one obtains the last version available in the Replica’s Image Repository and that “value” will be used to determine if the new version can be sent immediately, or if it is necessary to transfer some intermediate versions. In any case, only the differences between versions are sent, not the whole iMI. Assuming that only the last delta (the most recent changes) will be shipped, it is now necessary to decide whether the transfer will occur using a plain or encrypted communication channel and/or whether some compression algorithm will be applied to the data before being sent. This information is also conveyed to the receiving side so that it is ready to accept the data.
+
+Only after completion of the above-described process, will the data transfer be carried out, using the btrfsLib, compressionLib and sshLib libraries. The process of receiving an IMI can be found in Section~\ref{par:impl_receive_snap}.
 
 \paragraph{Keep Alive}
 \label{par:impl_icbdrep_keep_alive}
@@ -357,16 +436,23 @@ Only after all this process begins the data transfer, being aided by the librari
 %	\item Case any change talks to the Name Server to change things according
 %\end{itemize}
 
-There is a point mentioned when presenting the Pyro4 platform mentioned that this library allows the automatic reconnection of clients to the Master Node, however, the opposite is not provided. In case of failure of a Replica Node, the Name Server is not automatically informed of this failure, in fact, this event would only be noticed when a connection with that node failed.
+%There is a point mentioned when presenting the Pyro4 platform mentioned that this library allows the automatic reconnection of clients to the Master Node, however, the opposite is not provided. In case of failure of a Replica Node, the Name Server is not automatically informed of this failure, in fact, this event would only be noticed when a connection with that node failed.
 
-Since we want the Master Node view always to be consistent with the status of the platform, it is essential that the Name Server always hold its information up-to-date. It is to satisfy this accountability that this submodule enters in the picture. Similarly to the Name Server, the Keep Alive feature is also launched in conjunction with the Master Node and also runs on its own thread, making the execution flow independent of any other sub-module.
+%Since we want the Master Node view always to be consistent with the status of the platform, it is essential that the Name Server always hold its information up-to-date. It is to satisfy this accountability that this submodule enters in the picture. Similarly to the Name Server, the Keep Alive feature is also launched in conjunction with the Master Node and also runs on its own thread, making the execution flow independent of any other sub-module.
 
-The principal task implies verifying the activity status of all Replica Nodes, indexed by the Name Server, in a quite simple manner. Taking the list of all Replica Nodes and with a periodicity of about ten seconds, each node is reached with a style of a ping expecting a response to the challenge. If there is no acknowledgement, two further contact attempts are performed, if those too fail, it is assumed that something wrong happened to that node and is therefore declared inactive. At this point, the Name Server is reached notifying that a node entered a failed state and should be excluded from the record. 
+%The principal task implies verifying the activity status of all Replica Nodes, indexed by the Name Server, in a quite simple manner. Taking the list of all Replica Nodes and with a periodicity of about ten seconds, each node is reached with a style of a ping expecting a response to the challenge. If there is no acknowledgement, two further contact attempts are performed, if those too fail, it is assumed that something wrong happened to that node and is therefore declared inactive. At this point, the Name Server is reached notifying that a node entered a failed state and should be excluded from the record.
+
+When the Pyro4 platform was presented, we mentioned that this library allows the automatic reconnection of clients to the Master Node. However, the opposite is not provided, i.e., in case of failure of a Replica Node, the Name Server is not automatically informed of that failure; in fact, this event would only be noticed when a connection with that node was attempted and failed.
+Since we want the Master Node view to be always consistent with the status of the platform, it is essential that the Name Server is always up-to-date; so, we implemented this module.
+
+The Keep Alive module is started along with the Master Node and runs its own thread, making the execution flow independent of any other sub-module (as with the Name Server). Its main task is to verify the activity status of all Replica Nodes indexed by the Name Server, in a quite simple manner: it gathers the list of all Replica Nodes and, with a period of about ten seconds, each node is sent a message and must deliver a response. If there is no response, two further attempts to contact that node are performed, and if those fail too, it is assumed that something wrong happened and that node is declared inactive. Then, the Name Server is notified that a node entered a failed state, and should be excluded from the “database”.
 
 \subsubsection{CLI Interface}
 \label{subsub:impl_icbdrep_cli_interface}
 
-One of the methods to interact with the iCBD replication platform is through a Command-line interface provided by the Master Node, which is nothing more than a program that launched from a terminal textually recognises a series of commands and returns its result.
+%One of the methods to interact with the iCBD replication platform is through a Command-line interface provided by the Master Node, which is nothing more than a program that launched from a terminal textually recognises a series of commands and returns its result.
+
+One of the methods to interact with the iCBD replication platform is through a Command Line Interface provided by the Master Node; the CLI is nothing more than a program that is started on a terminal window and recognises a simple vocabulary that includes a few verbs (command words), arguments and options, executes them, and returns its result.
 
 \begin{figure}[htbp]
 	\centering
@@ -376,7 +462,9 @@ One of the methods to interact with the iCBD replication platform is through a C
 	\label{fig:icbd_rep_clihelp}
 \end{figure}
 
-This interface, although simplistic, allows to efficiently manage all the tasks related to the replication of iMIs between the several servers of the platform. Following we demonstrate the functions provided by this interface and the effects produced on the platform:
+%This interface, although simplistic, allows to efficiently manage all the tasks related to the replication of iMIs between the several servers of the platform. Following we demonstrate the functions provided by this interface and the effects produced on the platform:
+
+Following we demonstrate the functions provided by this interface and the effects produced on the platform:
 
 \begin{description}
 	\item \texttt{List Replicas} - At any time it is possible to consult which nodes are registered in the platform, this command allows to list the replicas registered in the Name Server and indicates which URI is used to make a connection.
