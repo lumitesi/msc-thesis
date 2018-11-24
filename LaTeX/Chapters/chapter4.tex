@@ -671,22 +671,42 @@ R-ENSINO-PRIV-DI & R-ENSINO-PRIV-DI &  &
 %\label{sub:system_overview}
 
 %%-------------------------------------------------------------------
-%%	4. - Services
+%%	4. - Roles in the Platform
 %%-------------------------------------------------------------------
-\subsection{Services}
-\label{sub:impl_cache_services}
+\subsection{Roles in the Platform}
+\label{sub:impl_roles}
 
-\paragraph{Roles in the Platform}
-\label{par:impl_roles}
+%\paragraph{Roles in the Platform}
+%\label{par:impl_roles}
 
-The several services needed to deploy the platform can be grouped by the following roles:
+From the beginning of the project, the entire platform was supported by a single VM that centralised all the services. That was the case of the early mentioned deployment on the Nova University site and is still the case in the SolidNetworks site. But, taking advantage of the restructuring and the new installation, it was considered that several machines (physical and virtual) should be employed, each with the purpose of supporting part of the platform. Thus were created the different roles that we describe below:
 
 \begin{description}
-	\item [\textit{iCBD-imgs}]
-	\item [\textit{iCBD-rw}]
+	\item [\textit{iCBD-imgs}] One can consider the role of this machine as the core of the whole platform given its two main functions: it is in this machine that all the versions of all the iMIs available by the platform are stored; it is also responsible for managing the iMI administration process described in the Section~\ref{par:admin_imi}. With the creation of the replication system, one more responsibility is added to this machine, since it is here that will reside the Master Node (described in Section~\ref{sub:impl_icbdrep_master_node}) that manages the entire replication service of iMIs.  For the deployment of this role on the Nova University cluster we created a VM with 4 vCPUs, 32GB vRAM and 2 Hard Disks.
+	%
+	\item [\textit{iCBD-rw}] This machine as the key role of making available temporary read/write space (in form of a directory by client) that the clients set up during the boot process. This way any changes that users make while using an IMI are saved but only while the workstation is in operation, once a session is closed the data is deleted. One of the reasons for separating this functionality from the iCBD-imgs machine is to provide a way to visualise the weight of having multiple clients booting iMIs at the same time, not polluting the results with reads and writes for regular usage. As the functionality of this machine is only the provision of iSCSI and NFS servers for accessing r/w space its specifications may be a bit more conservative with a VM boasting 4 vCPUs, 8GB vRAM and 2 Hard Disks.
+	%
 	\item [\textit{iCBD-home}]
+	%
 	\item [\textit{iCBD-cache}]
+	%
+	\item [\textit{iCBD-client}]
 \end{description}
+
+\begin{table}[]
+\centering
+\begin{tabular}{lccccc}
+ & \textbf{vCPU} & \textbf{vRam} & \textbf{Hard Disks} & \textbf{Interfaces} & \textbf{OS} \\ \cline{2-6} 
+\textit{iCBD-imgs} & 4 & 32 GB & 16 GB + 600 GB & 5 & CentOS 7 \\
+\textit{iCBD-rw} & 4 & 8 GB & 16 GB + 300 GB & 4 & CentOS 7 \\
+\textit{iCBD-home} & 4 & 8 GB & 16 GB + 100 GB & 4 & CentOS 7 \\
+\textit{iCBD-cache} & 4 & 32 GB & 16 GB + 600 GB & 2 & CentOS 7 \\
+\textit{iCBD-client} & 4 & 8 GB & Diskless & 1 & Network Boot
+\end{tabular}
+\caption{Specifications of the virtual hardware of the iCBD machines}
+\label{tab:impl_VM_Specs}
+\end{table}
+
 
 \paragraph{Installing iCBD Core Services}
 \label{par:impl_install_icbd_core}
