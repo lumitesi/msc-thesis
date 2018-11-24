@@ -62,7 +62,7 @@ All these factors, allied to the desire of having a distributed and scalable pla
 
 %All these factors allied to the platform architecture result in the need to create a new component, whose chief mission is to ensure that the data is correctly replicated in the appropriate places, maintaining the consistency of the various versions of the iCBD Machine Images stored.
 
-When our project started, iCBD was already available; therefore, our Replication and Caching Server (from now on, RCS) had to be integrated with the existing architecture and support (and enhance) the previous work. This influences the choices available for the RCS implementation and could, in a worst-case scenario, severely limit them. Fortunately, that was not the case.
+When our project started, iCBD was already available; therefore, our Replication and Caching Service (from now on, RCS) had to be integrated with the existing architecture and support (and enhance) the previous work. This influences the choices available for the RCS implementation and could, in a worst-case scenario, severely limit them. Fortunately, that was not the case.
 
 iCBD was designed from the start based on the assumption that the storage layer where iMIs live was built on top of a storage system which supports snapshots. In the first prototype, Btrfs was chosen for the storage layer but, in theory, any storage system that supports snapshots can be used in the platform. That is, in fact, the case with a parallel work being developed in another dissertation, where the focus is the use of an object-based storage system, Ceph.
 
@@ -577,15 +577,94 @@ So, on the receiving side of this stream (in this case the Replica Node), the \t
 %Como os clientes nestas categorias tipicamente necessitam de dezenas, centenas ou mais de postos de trabalho, na prática é impossível suportá-los directamente a partir de repositórios remotos de VMs templates. Em vez disso, iremos recorrer a “servidores de proximidade” ou “c​ache-servers”​, máquinas Linux reais ou virtuais devidamente dimensionadas e configuradas, instaladas na LAN dos clientes, idealmente uma (ou mais) por cada segmento de rede, as quais manterão réplicas das VMs templates a que cada cliente tem acesso nos repositórios remotos.
 %Com estes cache-servers localmente acessíveis aumentar-se-á drasticamente a velocidade de transferência de dados e a latência e o jitter nos acessos reduzir-se-ão a valores insignificantes, podendo cada cache-server suportar dezenas (ou mais) de PCs clientes (estimamos o número em 15 a 30 por cada interface gigabit nos cache-servers, estimativa que permanece válido para PCs clientes ligados a 100 Mbps através de switches com ligação gigabit aos cache-servers).
 
+Once the process of creating a mechanism to support the replication of iMIs has been completed, we have reached the stage where we tackle the problems of supporting a large number of clients, such a: limited bandwidth between a central repository and the workstations; high latency and jitter derived from network congestion or configuration errors in network equipment. So we believe that bringing the iMIs closer to the workstations is the way to solve all these problems.
+
+At the beginning of this work, there already existed in the DI infrastructure an iCBD installation, but it was limited to only one Virtual Machine very limited regarding its resources and a couple of clients (also VMs), not to mention that the version of the platform as badly outdated and missing important features since implemented. Those limitations originated from the fact that the platform was sharing the same already scarce infrastructure as the remaining research projects and services of the department
+
+All of this changed with the acquisition of new equipment for the exclusive use of this project, which became the perfect circumstance to think about the general architecture of the services and carry out a fresh installation of the whole platform.
+
 
 \subsection{The infrastructure}
 \label{sub:impl_infrastructure}
+
+At our disposal is a modern infrastructure, including a two-node cluster - HPE ProLiant DL380 Gen9, interconnected by an HPE Flexfabric 5700 managed switch with 10Gbps links and storage provided by an HPE MSA 2040 SAN Storage Disk Array.
+According to project requirements, the cache server should be supported by a low-cost machine, for this purpose, a desktop PC used in another research project was reconditioned, making it only a few modifications, such as, upgrading the amount of RAM and adding a second hard disk. 
+
+The general specifications of all these components can be found in the tables~\ref{tab:imple_hp}, ~\ref{tab:imple_msa} and ~\ref{tab:imple_cs}.
+
+
+\begin{table}[htpb]
+\centering
+\begin{tabular}{ll}
+\textit{\textbf{CPU}}             & 2x Intel Xeon E5-2670 v3 @ 2.30GHz        \\
+\textit{\textbf{Memory}}          & 128 GB                                    \\
+\textit{\textbf{Controller Type}} & 12Gb/s SAS                                \\
+\textit{\textbf{Ethernet}}        & 2 ports at 10 Gbps plus 4 ports at 1 Gbps \\
+\textit{\textbf{Hypervisor}}      & VMware ESXi, 6.5.0, 4564106              
+\end{tabular}
+\caption{Specifications of one HP ProLiant DL380 Gen9 host}
+\label{tab:imple_hp}
+\end{table}
+
+\begin{table}[htpb]
+\centering
+\begin{tabular}{ll}
+\textit{\textbf{Controllers}}    & 2 MSA 2040 SAS                          \\
+\textit{\textbf{Total Capacity}} & 7.2 TB                                  \\
+\textit{\textbf{Disks}}          & 12 HP SAS 600GB 10k Rpms                \\
+\textit{\textbf{Host interface}} & 8 12Gb/sec SAS ports (4 per controller) \\
+\textit{\textbf{Ethernet}}       & 2 ports at 1 Gbps (1 per controller)   
+\end{tabular}
+\caption{Specifications of the HPE MSA 2040 SAN Storage}
+\label{tab:imple_msa}
+\end{table}
+
+\begin{table}[htpb]
+\centering
+\begin{tabular}{ll}
+\textit{\textbf{CPU}} 		& Intel Core i5-650 @ 3.20GHz \\
+\textit{\textbf{Memory}} 	& 12 GB \\
+\textit{\textbf{Storage}} 	& 2x SATA 80 GB  + SATA 160 GB \\
+\textit{\textbf{Ethernet}} 	& 2 ports at 1 Gbps \\
+\textit{\textbf{OS}} 		& CentOS 7 3.10.0-514
+\end{tabular}
+\caption{Specifications of the Cache Server}
+\label{tab:imple_cs}
+\end{table}
+
+
+\begin{figure}[htbp]
+	\centering
+%	\includegraphics[height=4in, width=\textwidth]{cap4_icbd_arquit}
+	\includegraphics[width=\textwidth]{cap4_rack}
+	\caption{iCBD Cluster Rack Diagram}
+	\label{fig:icbd_rep_rack}
+\end{figure}
+
 
 
 
 \paragraph{Network}
 \label{par:impl_infra_network}
 
+\begin{description}
+	\item [\textit{DI Distributed VSwitch}] - Labs and Outside access Networks
+	\item [\textit{iCBD Distributed VSwitch}] - Internal Networks
+\end{description}
+
+\begin{table}[]
+\centering
+\begin{tabular}{ll|ll}
+\multicolumn{2}{c|}{\textbf{DI Distributed VSwitch}} & \multicolumn{2}{c}{\textbf{iCBD Distributed VSwitch}} \\ \hline
+\multicolumn{1}{c}{\textit{Port Group}} & \multicolumn{1}{c|}{\textit{VLAN}} & \multicolumn{1}{c}{\textit{Port Group}} & \multicolumn{1}{c}{\textit{VLAN}} \\
+DMZ-PRIV-DI & DMZ-PRIV-DI & iCBD-Adm-Net & VMWARE\_VMOTION\_DI \\
+DMZ-PUB-DI & DMZ-PUB-DI & iCBD-Ceph & VMWARE\_VMOTION\_DI \\
+LAB-DI-110 & LAB-DI-110 & iCBD-Net & VMWARE\_VMOTION\_DI \\
+LAB-DI-112 & LAB-DI-112 & iCBD-Rep & VMWARE\_FT\_DI \\
+R-ENSINO-PRIV-DI & R-ENSINO-PRIV-DI &  & 
+\end{tabular}
+\caption{Specifications of all Networks}
+\end{table}
 
 %\subsection{System Overview}
 %\label{sub:system_overview}
@@ -599,13 +678,14 @@ So, on the receiving side of this stream (in this case the Replica Node), the \t
 \paragraph{Roles in the Platform}
 \label{par:impl_roles}
 
+The several services needed to deploy the platform can be grouped by the following roles:
+
 \begin{description}
 	\item [\textit{iCBD-imgs}]
 	\item [\textit{iCBD-rw}]
 	\item [\textit{iCBD-home}]
 	\item [\textit{iCBD-cache}]
 \end{description}
-
 
 \paragraph{Installing iCBD Core Services}
 \label{par:impl_install_icbd_core}
