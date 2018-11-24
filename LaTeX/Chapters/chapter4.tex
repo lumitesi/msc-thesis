@@ -645,8 +645,9 @@ Since it is intended that the iCBD platform coexist with other services and inte
 In the cluster, we have a virtualisation architecture based on the VMware solution, which makes available, as part of the VSphere suite, a centralised interface for virtual machine networking called Distributed Switch, from which one can configure, VM connections to switches for the entire cluster. 
 
 \begin{description}
-	\item [\textit{DI Distributed VSwitch}] - Labs and Outside access Networks
-	\item [\textit{iCBD Distributed VSwitch}] - Internal Networks
+	\item [\textit{DI Distributed VSwitch}] - This switch holds five port groups, two corresponding to the networks of the laboratories, and the rest are networks used by various services of the department with differentiating levels of access (students, teachers, public).
+	%
+	\item [\textit{iCBD Distributed VSwitch}] - The networks present in this switch are only visible within the cluster, having as a role to differentiate the types of traffic produced: a management network; another for the administration of iMIs, and the remaining ones for traffic generated in tests of the platform and the Replication and Caching System.
 \end{description}
 
 Taking advantage of that two Distributed Switches were configured, each corresponding to one of the two traffic types listed above, in order to compartmentalise and not have platform traffic running through networks used daily by the department. Each PortGroup referenced in table~\ref{tab:impl_dvs} corresponds to a different network.
