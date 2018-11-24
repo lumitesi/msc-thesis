@@ -588,7 +588,8 @@ All of this changed with the acquisition of new equipment for the exclusive use 
 \label{sub:impl_infrastructure}
 
 At our disposal is a modern infrastructure, including a two-node cluster - HPE ProLiant DL380 Gen9, interconnected by an HPE Flexfabric 5700 managed switch with 10Gbps links and storage provided by an HPE MSA 2040 SAN Storage Disk Array.
-According to project requirements, the cache server should be supported by a low-cost machine, for this purpose, a desktop PC used in another research project was reconditioned, making it only a few modifications, such as, upgrading the amount of RAM and adding a second hard disk. 
+According to project requirements, the cache server should be supported by a low-cost machine, for this purpose, a desktop PC used in another research project was reconditioned, making it only a few modifications, such as, upgrading the amount of RAM and adding a second hard disk.
+We can also count on using two teaching laboratories of the Department of Computer Science (Labs. 110 and 112) where each one contains 15 modern workstations (CPU - Intel Core i3-7100 @ 3.90GHz; RAM - 8 GB; Gigabit Lan) able to support virtualisation, to serve as clients of the platform.
 
 The general specifications of all these components can be found in the tables~\ref{tab:imple_hp}, ~\ref{tab:imple_msa} and ~\ref{tab:imple_cs}.
 
@@ -605,6 +606,8 @@ The general specifications of all these components can be found in the tables~\r
 \caption{Specifications of one HP ProLiant DL380 Gen9 host}
 \label{tab:imple_hp}
 \end{table}
+
+\newpage
 
 \begin{table}[htpb]
 \centering
@@ -633,24 +636,20 @@ The general specifications of all these components can be found in the tables~\r
 \end{table}
 
 
-\begin{figure}[htbp]
-	\centering
-%	\includegraphics[height=4in, width=\textwidth]{cap4_icbd_arquit}
-	\includegraphics[width=\textwidth]{cap4_rack}
-	\caption{iCBD Cluster Rack Diagram}
-	\label{fig:icbd_rep_rack}
-\end{figure}
-
-
-
 
 \paragraph{Network}
 \label{par:impl_infra_network}
+
+Since it is intended that the iCBD platform coexist with other services and integrate into existing networks, we categorised the types of traffic that will be produced. We have internal traffic restricted to the platform - resulting from the execution of the various iCBD services and communication between them; and external traffic - which is an effect of accesses to the Internet or the act sending iMIs to workstations in the laboratories.
+
+In the cluster, we have a virtualisation architecture based on the VMware solution, which makes available, as part of the VSphere suite, a centralised interface for virtual machine networking called Distributed Switch, from which one can configure, VM connections to switches for the entire cluster. 
 
 \begin{description}
 	\item [\textit{DI Distributed VSwitch}] - Labs and Outside access Networks
 	\item [\textit{iCBD Distributed VSwitch}] - Internal Networks
 \end{description}
+
+Taking advantage of that two Distributed Switches were configured, each corresponding to one of the two traffic types listed above, in order to compartmentalise and not have platform traffic running through networks used daily by the department. Each PortGroup referenced in table~\ref{tab:impl_dvs} corresponds to a different network.
 
 \begin{table}[]
 \centering
@@ -664,6 +663,7 @@ LAB-DI-112 & LAB-DI-112 & iCBD-Rep & VMWARE\_FT\_DI \\
 R-ENSINO-PRIV-DI & R-ENSINO-PRIV-DI &  & 
 \end{tabular}
 \caption{Specifications of all Networks}
+\label{tab:impl_dvs}
 \end{table}
 
 %\subsection{System Overview}
