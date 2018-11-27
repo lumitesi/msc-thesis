@@ -14,18 +14,19 @@
 %	\item Assert the performance gained by storing iMI closer to client workstations
 %\end{itemize}
 
-The following chapter reports the experimental work performed in order to study both the performance of the implemented replication module and the executability and the performance improvements to the introduction of a cache server role in the iCBD platform.
-
-É de notar que a validade funcional foi testada durante todo o processo de desenvolvimento, notando-se que todos os componentes apresentados encontram-se funcionais.
-Este capitulo mostra 
+The following chapter reports the experimental work performed in order to study both the executability and performance of the Replication and Caching Service. We describe the tests defined and performed following with some analysis of the results obtained, always trying to co-relate to the effects observed throughout the platform.
 
 The chapter is divided into the following sections:
 
 \begin{description}
     %
-    \item [Section~\ref{}] .
+    \item [Section~\ref{sec:eval_exp_setup}] .
     %
-    \item [Section~\ref{}] ..
+    \item [Section~\ref{sec:eval_method}] ..
+    %
+    \item [Section~\ref{sec:eval_rep_bench}] ..
+    %
+    \item [Section~\ref{sub:eval_cache_bench}] ..
     %
 \end{description}
 
@@ -42,21 +43,28 @@ The chapter is divided into the following sections:
 %https://github.com/axboe/fio
 %https://github.com/giantswarm/filesystem-benchmark
 
-%%-------------------------------------------------------------------
-%%	5. - Metodology
-%%-------------------------------------------------------------------
-\section{Metodology}
-\label{sec:eval_method}
-
-Unless stated otherwise, all tests were executed ten times removing the best and worst result. The final result is the average of the remaining values. 
-%Throughput results are presented in Transactions per Minute (TPM).
-
 
 %%-------------------------------------------------------------------
 %%	5. - Experimental Setup
 %%-------------------------------------------------------------------
 \section{Experimental Setup}
 \label{sec:eval_exp_setup}
+
+For the execution of all the tests presented in this chapter, the iCBD platform installation illustrated in the previous chapter was fully employed. To the infrastructure, we deployed two more virtual cache servers (adding to the physical cache server already in operation) with the entire iCBD solution including the RCS.
+
+Also as discussed in the previous chapter, the Computer Science Department provided two laboratories (Lab 110 and Lab. 112) fully equipped with fifteen machines each, to perform validation of the caching solution at a functional level and the execution of subsequent performance tests.
+
+In order to make the iMIs fully functional in a laboratory environment, some changes were made.
+First, two network interfaces of both iCBD-rw and iCBD-home servers, where connected to both laboratories. Then settings were changed, in order for the VM iCBD-imgs serve iMIs to Lab. 110 and iCBD-cache02 (Physical Server Cache) to Lab. 112. 
+This meant that we created an environment in which the machine that hosts the Lab. 110 is more powerful, but for an iMI to reach one workstation has to go through more network equipment with the possibility of a performance loss caused by network congestion. While the cache server was connected directly to the switch that serves the Lab. 112. A schematic of all these connections can be found in Figure~\ref{fig:eval_setup}
+
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap5_lab_setup}
+	\caption{iCBD Nodes and Networking Setup}
+	\label{fig:eval_setup}
+\end{figure}
 
 \begin{table}[htpb]
 \centering
@@ -70,6 +78,22 @@ Unless stated otherwise, all tests were executed ten times removing the best and
 \end{tabular}
 \caption{Physical infrastructure of the FCT NOVA and SolidNetworks sites}
 \end{table}
+
+
+%%-------------------------------------------------------------------
+%%	5. - Metodology
+%%-------------------------------------------------------------------
+\section{Metodology}
+\label{sec:eval_method}
+
+It is necessary to understand that in analysing the RCS we have to divide this analysis into two parts — one regarding replication and the second testing the cache method of iMIs. This situation is due to, although complementary, the two functionalities perform different operations within the iCBD platform.
+
+
+Unless stated otherwise, all tests were executed five times removing the best and worst result. The final result is the average of the remaining values. 
+%Throughput results are presented in Transactions per Minute (TPM).
+
+
+
 
 
 
@@ -109,30 +133,16 @@ Unless stated otherwise, all tests were executed ten times removing the best and
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[height=4in]{cap5_secboot_imgs}
-	\caption{Boot time from iCBD-imgs VM in a five workstation sequential boot scenario}
-	\label{fig:boot_imgs}
+	\includegraphics[height=4in]{cap5_NB_iSCSI}
+	\caption{Mean Boot Time of five workstations using iSCSI (Sequential Boot Scenario), comparing iMI provider and network speed}
+	\label{fig:boot_iscsi}
 \end{figure}
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[height=4in]{cap5_secboot_cache}
-	\caption{Boot time from iCBD-Cache02 in a five workstation sequential boot scenario}
-	\label{fig:boot_cache}
-\end{figure}
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[height=4in]{cap5_secboot_cache_stats}
-	\caption{System metrics for one run on the iCBD-Cache02 in a five workstation sequential boot scenario}
-	\label{fig:boot_cache_stats}
-\end{figure}
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[height=4in]{cap5_secboot_imgs_stats}
-	\caption{System metrics for one run on the iCBD-imgs in a five workstation sequential boot scenario}
-	\label{fig:boot_imgs_stats}
+	\includegraphics[height=4in]{cap5_NB_NFS}
+	\caption{Mean Boot Time of five workstations using NFS (Sequential Boot Scenario), comparing iMI provider and network speed}
+	\label{fig:boot_nfs}
 \end{figure}
 
 \begin{table}[]
@@ -159,12 +169,39 @@ Unless stated otherwise, all tests were executed ten times removing the best and
 \textbf{iMI} & \textbf{} & \textbf{iCBD-imgs} & \textbf{iCBD-Cache02} \\ \hline
 \multirow{2}{*}{\textit{Linux iCBD Client Native}} & iSCSI & 20.035 s & 23.020 s \\
  & NFS & 23.248 s & 28.156 s \\ \hline
-\multirow{2}{*}{\textit{Linux iCBD Client VM}} & iSCSI & 42.627 s & 46.752 s \\
- & NFS & 44.734 s & 53.840 s
+\multirow{2}{*}{\textit{Linux iCBD Client VM}} & iSCSI & 42.627 s & 52.952 s \\
+ & NFS & 44.734 s & 54.840 s
 \end{tabular}
 	\caption{Comparison of boot times in a boot storm situation in both providers (iCBD-imgs and iCBD-cache02)}
 	\label{tab:bootstorm_both}
 \end{table}
+
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap5_BS_combo}
+	\caption{Boot Time of fifteen workstations simultaneously (Boot Storm Scenario) comparing iMI provider}
+	\label{fig:bootstorm_time}
+\end{figure}
+
+
+\subsubsection{iMI provider system load}
+\label{susub:eval_sys_load}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap5_secboot_imgs_stats}
+	\caption{System metrics for iCBD-imgs on one run of the five workstations sequential boot scenario test}
+	\label{fig:boot_imgs_stats}
+\end{figure}
+
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap5_secboot_cache_stats}
+	\caption{System metrics for iCBD-Cache02 on one run of the five workstations sequential boot scenario test}
+	\label{fig:boot_cache_stats}
+\end{figure}
 
 
 \begin{figure}[htbp]
