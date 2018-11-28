@@ -30,7 +30,6 @@ The chapter is divided into the following sections:
     %
 \end{description}
 
-
 %%-------------------------------------------------------------------
 %%	5. - Motivation
 %%-------------------------------------------------------------------
@@ -68,7 +67,7 @@ Also as discussed in the previous chapter, the Computer Science Department provi
 
 There was also a need to make some changes to VMs that were already deployed, in order to make the laboratories fully functional. First, the VMs iCBD-rw and iCBD-home were connected to the networks of both laboratories configuring the interfaces with fixed IPs. Then, one interface of the iCBD-imgs VM was set up to be connected to the Lab. 110 network and also assigned a fixed IP, then some changes were performed in the iCBD configuration files to allow workstations connected to this network access to iMIs. Also, in the Physical Cache Server, one of the interfaces was configured in the network of Lab. 112, and similar configurations were necessary for this server to provide iMIs to the workstations of this Laboratory.
 
-It is still important to note two aspects, first the Physical Cache Server and the Lab. 112 workstations are attached to the same managed switch, so the communications between them only cross this device. Whereas all communications between workstations of both laboratories and VMs deploy in the cluster travel through various equipment in the FCT NOVA network and therefore may suffer from adverse network conditions entirely out of our control. Second, all of these connections described above are ensured by Gigabit links, either at the level of the network equipment or by the interfaces (virtual or physical) of the servers. A simplistic schematic of all these connections can be found in Figure~\ref{fig:eval_setup}
+It is still important to note two aspects, first the Physical Cache Server and the Lab. 112 workstations are attached to the same managed switch, so the communications between them only cross this device. Whereas all communications between workstations of both laboratories and VMs deploy in the cluster travel through various equipment in the FCT NOVA network and therefore may suffer from adverse network conditions entirely out of our control. Second, all of these connections described above are ensured by Gigabit links, either at the level of the network equipment or by the interfaces (virtual or physical) of the servers. A simplistic schematic of all these connections can be found in Figure~\ref{fig:eval_setup}.
 
 \begin{figure}[htbp]
 	\centering
@@ -97,15 +96,30 @@ It is still important to note two aspects, first the Physical Cache Server and t
 \section{Metodology}
 \label{sec:eval_method}
 
-It is necessary to understand that in analysing the RCS we have to divide this analysis into two parts — one regarding replication and the second testing the cache method of iMIs. This situation is due to, although complementary, the two functionalities perform different operations within the iCBD platform.
+The analysis of the RCS was divided into two distinct moments: a first part, which addressed the functional validation of both components of the RCS after being integrated into the iCBD platform, testing its execution correction; and a second part in which we focused on the performance of these components when faced with a production environment.
 
+\paragraph{Functional validation}
+\label{par:eval_func_val}
 
-Unless stated otherwise, all tests were executed five times removing the best and worst result. The final result is the average of the remaining values. 
-%Throughput results are presented in Transactions per Minute (TPM).
+Concerning the replication module, in order to test that this system is functional in a multi-node environment, the Master Node was started in the iCBD-imgs VM and three Replica Nodes, one in each Cache servers (virtual - iCBD-cache01 \& iCBD-Cache03 and physical - iCBD-Cache02). Being observed that the Replica Node had registered on the Name Server as expected and that the communications between the Master Node and Replicas were done correctly.
 
+Next, were carried out two types of test repeatedly. One focused on sending a complete version of an IMI that was not present in the Replicas' Image Repository, forcing the transportation of all the data that are part of this iMIs. We also took advantage of this moment to verify if after the sending process the local Image Repository reflected the addition of the new iMI. This scenario is likely to occur when its the first time that a replica subscribes to a new iMI.
 
+The second type of test revolved about sending versions of iMIs that Replicas already possessed older ones in their repository. This is done to simulate the case where after the administration of an iMI this update is distributed by the Replicas with only the changed data being sent. At the end of each of these tests, we performed a calculation of an MD5 hash with the \texttt{md5sum} tool, in order to ensure that the received data was being reliably transferred.
 
- 
+In order to validate the correct functioning of Cache Servers we mainly focused on iCBD-cache02 (Physical Cache Server), mostly because it was connected directly to one of the laboratories allowing for immediate testing of a workstation iMI boot. Given the integration of the iCBD platform with the remaining network services and policies of  FCT NOVA, a considerable iterative process of experimentation was required, constantly tuning some parameters of some iCBD services until we arrived at a fully functional configuration.
+In the end, it was confirmed that it is possible to boot the workstations with iMIs powered by the Cache Server.
+
+\paragraph{Performance Benchmarking}
+\label{par:eval_perf_bench}
+
+In this second phase of testing, the goal was to ascertain the performance of RCS in a production environment. In the case of the replication module, we make a comparison between multiple configurations of our solution (with or without compression and secure communications) and the \texttt{rsync} tool, measuring both the time spent on the transference process as well the amount of data transmitted between nodes.
+
+While in the performance tests concerning the cache server, we measured the time spent on the boot process of a workstation. Comparing when the iMI was provided by the Cache Server or by the iCBD-imgs VM hosted at the cluster with more significant resources. For these test batteries, we consider the boot time the time elapsed from the beginning of a load of a kernel until the initialisation of all the services in userspace is finished, making use of the tool \texttt{systemd-analyze}.
+
+Unless stated otherwise, all tests were executed five times removing the best and worst result. The final result is the average of the remaining values. The results of the work performed in these two fields are demonstrated in the following sections.
+
+\newpage
 
 
 
@@ -114,6 +128,12 @@ Unless stated otherwise, all tests were executed five times removing the best an
 %%-------------------------------------------------------------------
 \section{Replication Service Benchmark}
 \label{sec:eval_rep_bench}
+
+\subsubsection{Sending a complete version of an iMI}
+\label{susub:eval_iMI_full}
+
+\subsubsection{Sending only the delta between version of an iMI}
+\label{susub:eval_iMI_delta}
 
 %\textbf{TOPICS :}
 %\begin{itemize}

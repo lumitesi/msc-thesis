@@ -92,7 +92,7 @@ So,  Btrfs’s incremental backup capabilities are a good starting point; howeve
 
 
 %\subsubsection{Preliminary tests on the BTRFS Incremental Backup features}
-\paragraph{BTRFS Incremental Backup feature}
+\paragraph{Btrfs Incremental Backup feature}
 \label{par:impl_incremental_btrfs}
 
 %A first step is trying to understand the most efficient way to transfer this unique kind of data (i.e. an iMI). Given the fact that we are working with a file system with snapshots capabilities, we want to take advantage of this functionality and minimise the amount of data roaming the network.
@@ -171,7 +171,7 @@ An overview with a small description of the functionality of each component of t
 All the previously described components interact with a number of “objects”, so it is not a surprise that a sizeable amount of code that we have created has been packed into a number of libraries:
 
 \begin{description}
-	\item [BTRFS Lib] The Btrfs library holds two classes: the first one, called \texttt{Btrfs Tool}, is a Python wrapper for \texttt{btrfs-progs}, described in section~\ref{par:impl_incremental_btrfs}.; the other class, designated \texttt{BtrfsFsCheck} implements functions that validate if a given path transverses a Btrfs filesystem and, if it does, verifies if in that path a subvolume also exists. Additionally, a method is provided to discover all snapshots in a directory.
+	\item [Btrfs Lib] The Btrfs library holds two classes: the first one, called \texttt{Btrfs Tool}, is a Python wrapper for \texttt{btrfs-progs}, described in section~\ref{par:impl_incremental_btrfs}.; the other class, designated \texttt{BtrfsFsCheck} implements functions that validate if a given path transverses a Btrfs filesystem and, if it does, verifies if in that path a subvolume also exists. Additionally, a method is provided to discover all snapshots in a directory.
 	%
 	\item [Compression Lib] Since multiple compression algorithms are used, it makes sense to create a library that encapsulates multiple wrappers, one for each algorithm; these wrappers only contain code that provides compression and decompression of data streams, no other operations are present.
 	%
