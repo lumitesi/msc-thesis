@@ -752,7 +752,7 @@ The last step involved the installation of the physical Cache Server the closest
 
 Of course, the process of creating a single VM that does platform support is a lengthy one and with some significant details to be addressed. In this sense, the Annex~\ref{ann:icdb_install} provides a document that was produced at the same time as the installation process of the platform on the Nova University site proceeded, that document details with much clarity all the steps needed to create a VM, the installation and configuration process of the respective services required to execute the iCBD.
 
-\paragraph{BTRFS bug found in CentOS 7 Kernel}
+\paragraph{Btrfs bug found in CentOS 7 Kernel}
 \label{par:impl_centos_bug}
 
 As a curiosity during the process of building the \textit{iCBD-imgs} VM, we found a bug in a core component of the \textit{coreutils} tool introduced in the kernel version \texttt{3.10.0-693.5.2} of CentOS 7. The \texttt{cp} command when used with option \texttt{--reflink=always} failed with the indication "failed to clone 'someFile': Operation not supported". This behaviour was reported to both CentOS and Red Hat and was eventually resolved. A more in-depth description of this process can be found in Annex~\ref{ann:bug}.
