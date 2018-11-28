@@ -50,14 +50,25 @@ The chapter is divided into the following sections:
 \section{Experimental Setup}
 \label{sec:eval_exp_setup}
 
-For the execution of all the tests presented in this chapter, the iCBD platform installation illustrated in the previous chapter was fully employed. To the infrastructure, we deployed two more virtual cache servers (adding to the physical cache server already in operation) with the entire iCBD solution including the RCS.
+To ensure the correct execution of all the tests we intended to carry out some adjustments to the iCBD platforms were necessary. To the infrastructure, we deployed two more virtual cache servers (adding to the physical cache server already in operation) with the entire iCBD solution including the RCS. 
 
-Also as discussed in the previous chapter, the Computer Science Department provided two laboratories (Lab 110 and Lab. 112) fully equipped with fifteen machines each, to perform validation of the caching solution at a functional level and the execution of subsequent performance tests.
+Also as discussed in the previous chapter, the Computer Science Department provided two laboratories (Lab 110 and Lab. 112) fully equipped with fifteen machines each (the general specifications of these machines can be seen in the table~\ref{tab:exp_lab_work}), with the objective of performing validation testing of the caching solution at a functional level and then the execution of performance tests.
 
-In order to make the iMIs fully functional in a laboratory environment, some changes were made.
-First, two network interfaces of both iCBD-rw and iCBD-home servers, where connected to both laboratories. Then settings were changed, in order for the VM iCBD-imgs serve iMIs to Lab. 110 and iCBD-cache02 (Physical Server Cache) to Lab. 112. 
-This meant that we created an environment in which the machine that hosts the Lab. 110 is more powerful, but for an iMI to reach one workstation has to go through more network equipment with the possibility of a performance loss caused by network congestion. While the cache server was connected directly to the switch that serves the Lab. 112. A schematic of all these connections can be found in Figure~\ref{fig:eval_setup}
+\begin{table}[]
+\centering
+\begin{tabular}{ll}
+\textbf{CPU} & Intel Core i3-7100 @ 3.90GHz \\
+\textbf{Memory} & 8 GB \\
+\textbf{Storage} & 275GB SSD \\
+\textbf{Ethernet} & 1 Gbps
+\end{tabular}
+\caption{Specifications of the Laboratories Workstations}
+\label{tab:exp_lab_work}
+\end{table}
 
+There was also a need to make some changes to VMs that were already deployed, in order to make the laboratories fully functional. First, the VMs iCBD-rw and iCBD-home were connected to the networks of both laboratories configuring the interfaces with fixed IPs. Then, one interface of the iCBD-imgs VM was set up to be connected to the Lab. 110 network and also assigned a fixed IP, then some changes were performed in the iCBD configuration files to allow workstations connected to this network access to iMIs. Also, in the Physical Cache Server, one of the interfaces was configured in the network of Lab. 112, and similar configurations were necessary for this server to provide iMIs to the workstations of this Laboratory.
+
+It is still important to note two aspects, first the Physical Cache Server and the Lab. 112 workstations are attached to the same managed switch, so the communications between them only cross this device. Whereas all communications between workstations of both laboratories and VMs deploy in the cluster travel through various equipment in the FCT NOVA network and therefore may suffer from adverse network conditions entirely out of our control. Second, all of these connections described above are ensured by Gigabit links, either at the level of the network equipment or by the interfaces (virtual or physical) of the servers. A simplistic schematic of all these connections can be found in Figure~\ref{fig:eval_setup}
 
 \begin{figure}[htbp]
 	\centering
@@ -94,7 +105,7 @@ Unless stated otherwise, all tests were executed five times removing the best an
 
 
 
-
+ 
 
 
 
