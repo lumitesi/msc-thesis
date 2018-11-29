@@ -11,16 +11,25 @@
 \section{Conclusions}
 \label{sec:con_conclusions}
 
-\textbf{TOPICS :}
-\begin{itemize}
-	\item The requirements of the implementation of the iCBD-Replication were achieved 
-	\item Simple replication of iMI though multiple nodes with a subscription model, where the node only receives the iMIs that really want.
-	\item Successful creation of a complete iCBD platform in FCT NOVA campus.
-	\item Verifica-se que a introdução do cache server aumenta um pouco o tempo de boot dos clientes, mas mais importante verifica-se capaz de aguentar o boot simultâneo de um Lab. completo ficando pelos 20\% de ocupação de CPU. Verificando-se assim uma alta escalabilidade horizontal da solução.
-	\item Two department lab running the solution as a trial, and instrumental in getting experimental results
-\end{itemize}
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item The requirements of the implementation of the iCBD-Replication were achieved 
+%	\item Simple replication of iMI though multiple nodes with a subscription model, where the node only receives the iMIs that really want.
+%	\item Successful creation of a complete iCBD platform in FCT NOVA campus.
+%	\item Verifica-se que a introdução do cache server aumenta um pouco o tempo de boot dos clientes, mas mais importante verifica-se capaz de aguentar o boot simultâneo de um Lab. completo ficando pelos 20\% de ocupação de CPU. Verificando-se assim uma alta escalabilidade horizontal da solução.
+%	\item Two department lab running the solution as a trial, and instrumental in getting experimental results
+%\end{itemize}
 
-%As a result of our research and experimentation, we found that:
+
+The work developed by this thesis introduced two new components to the iCBD platform, a replication mechanism following a subscription model that allows the propagation of iMI by several replicas, and the concept of Cache Server that paves a way to support a large number of clients.
+
+We show that the implementation of the replication system of iMIs in a Master - Replica model not only provides a process for sending iMIs in a geographically dispersed and multi-server environment, delivering network fault tolerance properties, but also a control layer that simplifies the entire process related to the government of the state of each node. And still being modular to the point of allowing the possibility of being easily extendable to other file systems other than Btrfs.
+
+We discussed the complete installation process of the iCBD platform, from root, in the infrastructure of the Department of Computer Science of FCT NOVA, detailing some of the challenges encountered. All this work culminated in the elaboration of an installation manual and demonstrating the feasibility of integrating a Cache Server into the iCBD platform.
+
+Finally, we evaluated both components of this work by performing a comprehensive functional validation, and by designing a benchmark to the system performance of both replication and caching systems. Being that the results demonstrated total feasibility of the solutions proposed, having been achieved the integration with the work already developed in the iCBD platform. 
+
+In the replication system, we saw that the solution presented meets the proposed requirements and obtains performance levels in line with what was expected. Regarding the introduction of a Cache Server on the platform, the results consistently show a more considerable boot time when comparing to clients that boot from a machine with more significant resources. Which is mainly due to the cache server possessing hardware not much better than a workstation, we can discern that when compared to a traditional server-based VDI solution~\cite{Lopes2017_presentation}, the load on this component, even in a boot storm scenario, does not exceed 20\%. This fact leads us to conclude that the platform can be scaled horizontally.
 
 %\begin{itemize}
 %	\item bla..
@@ -29,13 +38,19 @@
 \section{Future Work}
 \label{sec:con_future_work}
 
-\textbf{TOPICS :}
-\begin{itemize}
-	\item Replica to Replica iMI transfer
-	\item Diskless Servers / selfhosting - provision iCBD Servers from iMI
-	\item Micro Services, as started with this thesis (building iCBD-Replication as a standalone application) the functionalities of the iCBD Core can be segmented in multiple small services, in order to achieve a better use of resources and an easier deployment in a multi homed scenario.
-	\item Infrastructure as Code, orchestrate and automate all the process described in the chapter Implementation of a Cache Server.
-\end{itemize}
+During the process of development of this work, several ideas for future developments in this project came up.
+
+Taking advantage of the extensibility of the assembled system for iMI replication, it could be extended in such a way that the replicas may communicate with each other, allowing the transfer of versions of iMIs directly between replicas. This scenario would be especially advantageous in a circumstance where the Master Node is located in a geographic location far way from the Replicas or even hosted in a public cloud. With several Replica Nodes installed on the same network, only one of the nodes needed to receive a new version of the iMI then he would send it directly to the other Replicas.
+
+Another idea that started to be implemented in the modularity of the installation of the iCBD platform on the FCT NOVA site is the segmentation of the multiple components into microservices, where each one is able to operate autonomously using a kind of inter-process communication mechanism or merely the network itself. With this change, it is believed that it would be possible to make better use of the resources allocated to the platform, and probably even more important is the fact that it provides the support for launching services independently of their location, as well as facilitating the development in parallel of different features of the platform without affecting the platform as a whole.
+
+%\textbf{TOPICS :}
+%\begin{itemize}
+%	\item Replica to Replica iMI transfer
+%	\item Diskless Servers / selfhosting - provision iCBD Servers from iMI
+%	\item Micro Services, as started with this thesis (building iCBD-Replication as a standalone application) the functionalities of the iCBD Core can be segmented in multiple small services, in order to achieve a better use of resources and an easier deployment in a multi homed scenario.
+%	\item Infrastructure as Code, orchestrate and automate all the process described in the chapter Implementation of a Cache Server.
+%\end{itemize}
 
 
 
