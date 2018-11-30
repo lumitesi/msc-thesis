@@ -171,7 +171,7 @@ An overview with a small description of the functionality of each component of t
 All the previously described components interact with a number of “objects”, so it is not a surprise that a sizeable amount of code that we have created has been packed into a number of libraries:
 
 \begin{description}
-	\item [Btrfs Lib] The Btrfs library holds two classes: the first one, called \texttt{Btrfs Tool}, is a Python wrapper for \texttt{btrfs-progs}, described in section~\ref{par:impl_incremental_btrfs}.; the other class, designated \texttt{BtrfsFsCheck} implements functions that validate if a given path transverses a Btrfs filesystem and, if it does, verifies if in that path a subvolume also exists. Additionally, a method is provided to discover all snapshots in a directory.
+	\item [Btrfs Lib] The Btrfs library holds two classes: the first one, called \texttt{Btrfs Tool}, is a Python wrapper for \texttt{btrfs-progs}, described in section~\ref{par:impl_incremental_btrfs}; the other class, designated \texttt{BtrfsFsCheck} implements functions that validate if a given path transverses a Btrfs filesystem and, if it does, verifies if in that path a subvolume also exists. Additionally, a method is provided to discover all snapshots in a directory.
 	%
 	\item [Compression Lib] Since multiple compression algorithms are used, it makes sense to create a library that encapsulates multiple wrappers, one for each algorithm; these wrappers only contain code that provides compression and decompression of data streams, no other operations are present.
 	%
@@ -579,21 +579,24 @@ Documentation for all this project was generated using a tool called Sphinx~\cit
 %Como os clientes nestas categorias tipicamente necessitam de dezenas, centenas ou mais de postos de trabalho, na prática é impossível suportá-los directamente a partir de repositórios remotos de VMs templates. Em vez disso, iremos recorrer a “servidores de proximidade” ou “c​ache-servers”​, máquinas Linux reais ou virtuais devidamente dimensionadas e configuradas, instaladas na LAN dos clientes, idealmente uma (ou mais) por cada segmento de rede, as quais manterão réplicas das VMs templates a que cada cliente tem acesso nos repositórios remotos.
 %Com estes cache-servers localmente acessíveis aumentar-se-á drasticamente a velocidade de transferência de dados e a latência e o jitter nos acessos reduzir-se-ão a valores insignificantes, podendo cada cache-server suportar dezenas (ou mais) de PCs clientes (estimamos o número em 15 a 30 por cada interface gigabit nos cache-servers, estimativa que permanece válido para PCs clientes ligados a 100 Mbps através de switches com ligação gigabit aos cache-servers).
 
-Once the process of creating a mechanism to support the replication of iMIs has been completed, we have reached the stage where we tackle the problems of supporting a large number of clients, such a: limited bandwidth between a central repository and the workstations; high latency and jitter derived from network congestion or configuration errors in network equipment. So we believe that bringing the iMIs closer to the workstations is the way to solve all these problems.
+Once the process of creating a mechanism to support the replication of iMIs has been completed, we have reached a stage where we must tackle the set of problems that may arise when supporting a large number of clients. A short list is: limited bandwidth between the central repository and distant (in terms of latency, but also bandwidth) workstations; high latencies and jitter resulting from network congestion events and/or configuration errors in the network equipment.
+We believe that bringing the iMIs closer to the workstations is a way to solve all these problems at once.
 
-At the beginning of this work, there already existed in the DI infrastructure an iCBD installation, but it was limited to only one Virtual Machine very limited regarding its resources and a couple of clients (also VMs), not to mention that the version of the platform as badly outdated and missing important features since implemented. Those limitations originated from the fact that the platform was sharing the same already scarce infrastructure as the remaining research projects and services of the department
+When our work started, there was already an iCBD infrastructure in place at DI-FCT/NOVA; however, all iCBD support services were deployed in a single VM, with limited resources (when we took into account that the infrastructure had a lot more resources) and tests were run on a couple of VMs that were used as a (virtual) replacement for the user’s physical workstations. And the software versions were both quite old, when compared with the iCBD development infrastructure held at SolidNetworks, and missing important features that were then available at the development site.
 
-All of this changed with the acquisition of new equipment for the exclusive use of this project, which became the perfect circumstance to think about the general architecture of the services and carry out a fresh installation of the whole platform.
+Those limitations originated from the fact that iCBD project had no dedicated infrastructure, it was sharing the same already scarce resources with other research projects and services at DI. Fortunately, that situation changed with the acquisition of new equipment dedicated solely to this project, and that created the perfect opportunity to re-evaluate the architecture of the iCBD services and carry out a fresh installation of the whole platform.
 
 
-\subsection{The infrastructure}
+\subsection{The iCBD infrastructure at DI-FCT NOVA}
 \label{sub:impl_infrastructure}
 
-At our disposal is a modern infrastructure, including a two-node cluster - HPE ProLiant DL380 Gen9, interconnected by an HPE Flexfabric 5700 managed switch with 10Gbps links and storage provided by an HPE MSA 2040 SAN Storage Disk Array.
-According to project requirements, the cache server should be supported by a low-cost machine, for this purpose, a desktop PC used in another research project was reconditioned, making it only a few modifications, such as, upgrading the amount of RAM and adding a second hard disk.
-We can also count on using two teaching laboratories of the Department of Computer Science (Labs. 110 and 112) where each one contains 15 modern workstations (CPU - Intel Core i3-7100 @ 3.90GHz; RAM - 8 GB; Gigabit Lan) able to support virtualisation, to serve as clients of the platform.
+The core of the iCBD infrastructure at DI-FCT NOVA is a two-node cluster based on HPE ProLiant DL380 Gen9 servers interconnected via an HPE Flexfabric 5700 managed switch with 10Gbps links with external storage provided by an HPE MSA 2040 SAN Storage Disk Array.
+For the “remote” nodes, i.e., the replication and cache servers, the project proposal that was submitted for funding had low-end/low-cost servers in mind; in our tests, a desktop PC that was disposed from another research project was reconditioned, and we upgraded the amount of RAM and added a second hard disk.
 
-The general specifications of all these components can be found in the tables~\ref{tab:imple_hp}, ~\ref{tab:imple_msa} and ~\ref{tab:imple_cs}.
+Finally, the workstation/client testbed was provided by two student laboratories at DI (Labs. 110 and 112), each containing 15 modern PCs (CPU - Intel Core i3-7100 @ 3.90GHz; RAM - 8 GB; Gigabit Ethernet). An important feature was the i3 CPU, which supports Intel VT and is able to run hypervisors.
+
+
+The detailed specifications of all these components can be found in the tables~\ref{tab:imple_hp}, ~\ref{tab:imple_msa} and ~\ref{tab:imple_cs}.
 
 
 \begin{table}[htpb]
@@ -625,20 +628,25 @@ The general specifications of all these components can be found in the tables~\r
 \end{table}
 
 
-\paragraph{Network}
+\paragraph{iCBD Networking}
 \label{par:impl_infra_network}
 
-Since it is intended that the iCBD platform coexist with other services and integrate into existing networks, we categorised the types of traffic that will be produced. We have internal traffic restricted to the platform - resulting from the execution of the various iCBD services and communication between them; and external traffic - which is an effect of accesses to the Internet or the act sending iMIs to workstations in the laboratories.
+iCBD must be able to coexist with other services and be integrated into existing networks; therefore, we studied all types of traffic generated by the platform in order to be able to segregate it into different logical (or physical, if the need arises) networks thus preventing it from “interfering” with other services in the organisation.
+At the topmost level we can subdivide the traffic in two groups: internal, restricted to the platform, which is generated by the different iCBD services when they communicate between them; and external, which can be further subdivided into general Internet access, intra-net traffic, between the core platform and remote servers or workstation clients in the labs – for example, for iMI transfer.
 
-In the cluster, we have a virtualisation architecture based on the VMware solution, which makes available, as part of the VSphere suite, a centralised interface for virtual machine networking called Distributed Switch, from which one can configure, VM connections to switches for the entire cluster. 
+The iCBD core cluster runs the VMware vSphere suite, which provides advanced network virtualisation features. One of those is the Distributed vSwitch (DVS) which is a single virtual switch that spans all (or a subset of) nodes in the cluster and acts as a single point of administration for the creation of “port groups” that share a common set of characteristics (such as VLAN ID), and to whom VMs connect.
+
+The iCBD infrastructure uses two DVSs:
 
 \begin{description}
-	\item [\textit{DI Distributed VSwitch}] - This switch holds five port groups, two corresponding to the networks of the laboratories, and the rest are networks used by various services of the department with differentiating levels of access (students, teachers, public).
 	%
-	\item [\textit{iCBD Distributed VSwitch}] - The networks present in this switch are only visible within the cluster, having as a role to differentiate the types of traffic produced: a management network; another for the administration of iMIs, and the remaining ones for traffic generated in tests of the platform and the Replication and Caching System.
+	\item [\textit{DI DVS}] - This virtual switch, dedicated to external traffic, holds five port groups: two of them handling traffic to the two student labs, and the rest supporting the (logical) networks used by various services of the department with differentiating levels of access (students, teachers, public).
+	%
+	\item [\textit{iCBD DVS}] - This virtual switch, dedicated to internal cluster traffic, has port groups that differentiate the various types of traffic: management; administration of iMIs; monitoring (of traffic generated in platform tests); and, finally, traffic for the Replication and Caching System.
+	%
 \end{description}
 
-Taking advantage of that two Distributed Switches were configured, each corresponding to one of the two traffic types listed above, in order to compartmentalise and not have platform traffic running through networks used daily by the department. Each PortGroup referenced in table~\ref{tab:impl_dvs} corresponds to a different network.
+Table~\ref{tab:impl_dvs} lists the relationship between the VDS portgroups and the FCT/NOVA VLANs (which are managed by an external entity – the Divisão de Infraestruturas Informáticas).
 
 \begin{table}[]
 \centering
@@ -655,9 +663,6 @@ R-ENSINO-PRIV-DI & R-ENSINO-PRIV-DI &  &
 \label{tab:impl_dvs}
 \end{table}
 
-%TODO Falta falar sobre storage
-%\paragraph{Storage}
-%\label{par:impl_infra_storage}
 
 %%-------------------------------------------------------------------
 %%	4. - Roles in the Platform
@@ -668,24 +673,24 @@ R-ENSINO-PRIV-DI & R-ENSINO-PRIV-DI &  &
 %\paragraph{Roles in the Platform}
 %\label{par:impl_roles}
 
-From the beginning of the project, the entire platform was supported by a single VM that centralised all the services. That was the case of the early mentioned deployment on the Nova University site and is still the case in the SolidNetworks site. But, taking advantage of the restructuring and the new installation, it was considered that several machines (physical and virtual) should be employed, each with the purpose of supporting part of the platform. Thus were created the different roles that we describe below:
+As previously reported, from the beginning of the project, the entire platform was supported by a single VM that centralised all the services – and that is still the case in the SolidNetworks site. But, taking advantage of the new hardware, we set out to distribute the different platform services to distinct servers (physical and virtual), using the notion of roles. The current version has the following roles/servers:
 
 \begin{description}
-	\item [\textit{iCBD-imgs}] One can consider the role of this machine as the core of the whole platform given its three main functions: it is in this machine that all the versions of all the iMIs available by the platform are stored; it is responsible for managing the iMI administration process described in the Section~\ref{par:admin_imi}; and can make accessible the iMIs that has in storage directly to a workstation that is connected in one of the networks for that purpose. 
-	
-	With the creation of the replication system, one more responsibility is added to this machine, since it is here that will reside the Master Node (described in Section~\ref{sub:impl_icbdrep_master_node}) that manages the entire replication service of iMIs.  For the deployment of this role on the Nova University cluster we created a VM with 4 vCPUs, 32GB vRAM and 2 Hard Disks (OS and Data).
 	%
-	\item [\textit{iCBD-rw}] This machine as the key role of making available temporary read/write space (in form of a directory by client) that the clients set up during the boot process. This way any changes that users make while using an IMI are saved but only while the workstation is in operation, once a session is closed the data is deleted. 
-	
-	One of the reasons for separating this functionality from the \textit{iCBD-imgs} machine is to provide a way to visualise the weight of having multiple clients booting iMIs at the same time, not polluting the results with reads and writes for regular usage. 
+	\item [\textit{iCBD-imgs}] This server can be considered the core of the iCBD platform, as it fulfils three iMI roles: administration (it handles the iMI administration process), storage of iMIs (in the platform storage backends), and the deployment of iMIs (to workstations). With the creation of the replication system, one more service was added to this server, since it is here that the Master Node, which manages the replication of iMIs, will run.
+
+	For the deployment of the iCBD-imgs role, a VM with 4 vCPUs, 32GB vRAM and 2 Hard Disks (OS and Data) was created in the iCBD cluster.
+	%
+	\item [\textit{iCBD-rw}] This server’s key role is to make temporary read/write space available to clients, during the boot process; clients see (mount) it as a directory and, while they are running, changes that both users and system apply are saved, but only for the duration of the session; once the session is over, that data is deleted.
+
+	One of the reasons for separating this functionality from those provided by the iCBD-imgs machine was to offer a simple way to visualise the load that results from multiple clients booting iMIs at the same time, separating that usage from reads and writes that occur during “normal” operation. Since the server’s only task is the provision of iSCSI and NFS servers that offer r\/w space, we think that we can lower the RAM usage when compared with iCBD-imgs and deploy a VM with 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data). 
 	
 	As the functionality of this machine is only the provision of iSCSI and NFS servers for accessing r/w space its specifications may be a bit more conservative with a VM boasting 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data).
 	%
-	\item [\textit{iCBD-home}] We can consider this role as optional, even so, it makes perfect sense in an infrastructure where there is a high percentage of users of Linux iMIs since it is this machine that hosts the home directories of each specific user. 
+	\item [\textit{iCBD-home}] This is an optional role, for an NFS-based service that handles access to user home directories, which makes sense in an environment where a large community uses Linux. The iCBD-home server will either host the storage itself or consume it from a storage backend; in any case it will hold the user’s home directories and export them to the user’s workstations in a secure way, in a straightforward process: each user has a home directory under the iCBD-home server’s \texttt{/home}; then, when the user boots his/her workstation from a Linux iMI, that directory is exported by NFS and mounted in the workstation’s \texttt{/home}, thus enabling the user to log in and access its contents.
+	The iCBD-home could also, in theory, act, in a Windows environment, as a gateway to a CIFS server; however, support for this type of “remote storage” for Windows clients was not implemented in our project.
 
-	This role has a straightforward process: a user have a home dir under the \texttt{/home} directory of this machine, then this path is made available by an NFS server. During a workstation boot process of a Linux iMIs, that directory which is exported by NFS is mounted in the client \texttt{/home}, allowing the login of any user and the access to his personal files. 
-	
-	The specifications chosen for this machine are very similar to \textit{iCBD-rw}, but with the particularity of the size of the disk responsible for the data storage is smaller.
+	The specifications for the iCBD-home VM are very similar to those of iCBD-rw, with the exception of the size of the second, “data”, disk - which could be zero, if that storage was provided by an external storage server, to the amount deemed suitable for the particular iCBD installation.
 	%
 	\begin{table}[]
 \centering
@@ -701,21 +706,20 @@ From the beginning of the project, the entire platform was supported by a single
 \label{tab:impl_VM_Specs}
 \end{table}
 
-	\item [\textit{iCBD-cache}] This role draws on one of the features of \textit{iCBD-imgs}, which is the provision of iMIs to workstations making its primary reason for existence. Like other roles, this machine can exist on physical or virtualised hardware, and aims to make the iMIs available as close to the workstations as possible, in order to overcome the challenges stated at the beginning of the chapter, such as the high latency between image server and workstations, and also the low transmission speeds that directly affect the users experience. 
+	\item [\textit{iCBD-cache}] This was the service (a.k.a. Cache Server) that we have architected, designed, implemented and deployed in this thesis. From the client’s point-of-view, it is indistinguishable from the iCBD-imgs service that provisions iMIs to workstations but, with the introduction of RCS, each Cache Server also runs the Replica Node service (introduced in Section~\ref{sub:impl_icbdrep_replica_node}), aiming to reduce the latency and increase the transmission rate between the image server and the workstations, thus improving the user’s experience. It may be implemented, as it was the case with the other roles, on physical or virtualised hardware. 
 
-	Like the case of \textit{iCBD-imgs}, the introduction of RCS brings more features, so each Cache Server deployed in the platform will run one of the Replica nodes introduced in Section~\ref{sub:impl_icbdrep_replica_node}. 
-	
-	On the Nova University site, two types of cache servers were set up, the virtual type given its greater convenience in deploying and to confirm executability of this role in the platform; and later a physical one that was connected directly to one of the laboratories and was responsible for delivering the iMIs to its workstations. Both configurations can be seen in the tables~\ref{tab:impl_VM_Specs} and ~\ref{tab:imple_cs}, respectively.
+	On the DI-FCT/NOVA site, two types of cache servers were set up: a virtual machine, because it was easier to deploy and test the correctness of its operation; and, later on, a physical server that was connected directly to one of the students’ labs and was responsible for delivering the iMIs to that lab’s workstations. Both configurations can be seen in the tables~\ref{tab:impl_VM_Specs} and ~\ref{tab:imple_cs}, respectively.
 	%
-	\item [\textit{iCBD-admin\_iMI}] This is a special role created specifically for the administration of iMIs. The process of administering an iMI is triggered and managed by scripts within \textit{iCBD-imgs}, but since administration always involves the need to run a VM with the iMI in question, this process can be triggered in two ways. 
-
-	One entails the administration VM to operate on top of the machine responsible for the \textit{iCBD-imgs} role, which can lead to the occurrence of nested virtualisation leading to a degrading of the performance. The second option is running that VM directly on the hypervisor of one of the cluster hosts not burdening any other role. 
-
-	This VM is created dynamically by the administration process and works in a similar way to a client. With the difference that the changes made to the IMI will be maintained and used to create a new version of that iMI.
-	%
-	\item [\textit{iCBD-client}] The platform client is the simplest of roles. Again, there are two cases, whether the client is a physical workstation or a VM. We can create a diskless virtual machine, and connect it to a network where an image server is located (\textit{iCBD-imgs} or \textit{iCBD-cache}) using a network boot process an iMI is made available to that VM. The same process can be used for a workstation, which when attached to a network with similar characteristics, using PXE is possible to get an iMI. This boot process is largely described in section~\ref{subsub:icbd_booting_imi}. 
+	\item [\textit{iCBD-admin\_iMI}] This is a special role created specifically for the administration of iMIs. The process of administering an iMI is triggered and managed by scripts that run within the iCBD-imgs server, but since administration always involves the need to run a VM based on the iMI we want to manage, this process can be carried out in two different ways: in the iCBD-imgs server itself, in nested virtualisation mode; or, running the iCBD-admin\_iMI VM as yet another VM running in the iCBD cluster.
 	
-	Still, there are other ways to boot an iMI on a workstation, such as, generate a bootable USB drives that connect the workstation to an image server, without using DHCP or PXE.
+	\textbf{Nested virtualisation mode}  Here the iCBD-admin\_iMI VM is executed under a VMware Workstation (or Player) Type II hypervisor, i.e., an hypervisor that executes as a OS process in a CentOS (our default choice) or another suitable hosting OS. Running in nested virtualisation mode has a moderate-to-high decrease in performance.
+	 
+	\textbf{Standard virtualisation mode}  Here the iCBD-admin\_iMI VM is executed directly on the VMware vSphere Type I (a.k.a. native, or bare-metal) hypervisor, i.e., an hypervisor that executes directly on the server’s hardware.
+	
+	Whatever our choice is, the iCBD-admin\_iMI VM is created dynamically by the administration process and works in a similar way to a client, with a difference: changes made to the IMI may be committed and used to create a new version of that iMI.
+	%
+	\item [\textit{iCBD-client}] The platform client is the simplest of roles. Again, there are two cases, depending on whether the client is a physical workstation or a VM: we can create a diskless virtual machine, and connect it to a network where an image server (iCBD-imgs or iCBD-cache) is located (visible) and boot the VM using a network boot process – the result is an iMI being provided to that to that VM, the TFTP will transfer the kernel,…, (as was largely described in section~\ref{subsub:icbd_booting_imi}) and the client will end running the chosen OS. Naturally, the same process can be used for a workstation provided that the physical network has connectivity to the appropriate iCBD networks. Furthermore, other ways to boot an iMI on a workstation, such as creating a bootable USB drive that connects the workstation to an image server, without using DHCP or PXE, are possible.
+	%
 \end{description}
 
 \begin{table}[htpb]
@@ -740,23 +744,22 @@ From the beginning of the project, the entire platform was supported by a single
 %https://bugs.centos.org/view.php?id=14228
 %https://bugzilla.redhat.com/show_bug.cgi
 
-As can be perceived from the number of roles described above and the complexity of their interactions within the platform, the creation of all these virtual machines and the installation of all services is not a trivial task. 
+As one may deduce from the number of roles described above and the complexity of their interactions, deploying the iCBD platform (services), even with the enormous benefits brought by virtualisation, is not a trivial task.
+First, the networking infrastructure connections must be made, and then the configuration must be deployed. Deploying the network configuration is a slow process because it involves many interactions with the Faculty group that is responsible for networking infrastructures at the university campus. The VLANs, security/firewall policies, etc., all must be defined and “negotiated”, as the iCBD switches must be managed by that same group (that is understandable because if they were managed by any other group – ourselves included – the opportunity for “breaking the rules” / “violating the policies” would be there).  New policies had to be defined so that the iCBD servers could “tap” into the student’s labs, for PXE booting, TFTP and/or HTTP image transfer,  and NFS or iSCSI mounting all were transparently handled without jeopardising the labs normal operation.
 
-In order to accomplish this task, the collaboration of the Division of Computer Infrastructures from FCT NOVA was essential, since various configurations, especially involving networking issues, are they responsibility at the level of the entire faculty. For example, we want the platform to be available not only within the internal network to the cluster but also in the laboratories mentioned. For this, several devices were configured by this division, including several switches, as well as, restructuring the already in place network boot configurations conjugating with those of the project enabling the boot of iMIs in laboratories without jeopardising their normal operation.
+The installation process was carried out in three phases. In the first phase, VMs for the various services (roles) - iCBD-imgs, iCBD-rw, and iCBD-home – were created from a vSphere template with a minimal CentOS 7 installation. Then, for each VM, the CentOS packages and other software that was necessary to support the role were installed and configured. Finally, some iMIs that were already available in the SolidNetworks site were transferred and prepared to operate in the DI site. At the end of the first phase, VMs posing as workstations could be started inside the cluster and boot the available iMIs.
 
-The installation process has therefore taken three phases. In the first instance, it was a priority to create the conditions for the platform to be in full operation. Beginning by the creation of VMs for the  roles - \textit{iCBD-imgs}, \textit{iCBD-rw}, and \textit{iCBD-home}. Then proceeding to the installation of an OS, multiple services and making the necessary configurations for the iCBD platform to work in the internal network. In the end, some iMIs already created in SolidNetworks site were installed and prepared to operate in this new site. At this stage, only virtualised clients within the cluster were able to run.
+The creation of multiple virtualised Cache Servers constitutes the second phase. The creation of these VMs was an easy step because the iCBD-imgs was used as a base VM from which the first Cache Server VM was created, through the use of a full cloning procedure. Then, the unnecessary functionalities (with regard to the new role) were removed, and the modules that provide the Replication service were added. This step was crucial to create a test environment for the replication modules, which before this phase, had not been tested with production iMIs.
 
-The second stage entailed the creation of multiple virtualised Cache Servers. This procedure was expedited by the fact that \textit{iCBD-imgs} was used as a base, performing a full clone and then removing the unnecessary functionalities. This step was crucial to create a test base for the replication modules, which up to this point had not been tested with production iMIs or in this type of environment.
+The last phase was the installation of a single physical Cache Server as close as possible to one of the labs, and that was accomplished by plugging it directly to the switch that interconnected all the lab 
+workstations. So, we successfully reached a point where we had two setups with access to the iCBD platform: one, where the lab’s 15 PCs were able to get their IMIs from a (physical) Cache Server; the other, where the lab’s 15 PCs had to get their iMIs from the iCBD-imgs virtual machine hosted in the cluster.
 
-The last step involved the installation of the physical Cache Server the closest possible to one of the laboratories, and for this, it was joined directly to the switch where the workstations of this laboratory are also connected. From this point on, we have two laboratories with access to the iCBD platform, one connected to the physical Cache Server and the other connected to the \textit{iCBD-imgs} virtual machine hosted in the cluster, so they both have the possibility of loading iMIs on the workstations present in those laboratories.
-
-Of course, the process of creating a single VM that does platform support is a lengthy one and with some significant details to be addressed. In this sense, the Annex~\ref{ann:icdb_install} provides a document that was produced at the same time as the installation process of the platform on the Nova University site proceeded, that document details with much clarity all the steps needed to create a VM, the installation and configuration process of the respective services required to execute the iCBD.
+The process of creating a single VM for the iCBD platform is, obviously, quite cumbersome (despite the short description we gave when discussing the first phase) and with some significant details that must be addressed. So, we have provided in Annex~\ref{ann:icdb_install} a document that was produced when the installation process of the iCBD DI platform was carried out. The document provides, we believe, a detailed and clear explanation of all steps needed to create the VM, and then install and configure each iCBD service.
 
 \paragraph{Btrfs bug found in CentOS 7 Kernel}
 \label{par:impl_centos_bug}
 
-As a curiosity during the process of building the \textit{iCBD-imgs} VM, we found a bug in a core component of the \textit{coreutils} tool introduced in the kernel version \texttt{3.10.0-693.5.2} of CentOS 7. The \texttt{cp} command when used with option \texttt{--reflink=always} failed with the indication "failed to clone 'someFile': Operation not supported". This behaviour was reported to both CentOS and Red Hat and was eventually resolved. A more in-depth description of this process can be found in Annex~\ref{ann:bug}.
-
+As a curiosity, during the process of building the iCBD-imgs VM, we found a bug in a fundamental component of the \textit{coreutils} tool delivered with the CentOS 7 kernel version \texttt{3.10.0-693.5.2}: the \texttt{cp} command, when used with option \texttt{--reflink=always}, failed with the error message "failed to clone ’someFile’: Operation not supported". This behaviour was reported to both CentOS and Red Hat and was eventually fixed. A more in-depth description of this process can be found in Annex~\ref{ann:bug}.
 
 
 

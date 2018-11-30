@@ -14,21 +14,23 @@
 %	\item Assert the performance gained by storing iMI closer to client workstations
 %\end{itemize}
 
-The following chapter reports the experimental work performed in order to study both the executability and performance of the Replication and Caching Service. We describe the tests defined and performed following with some analysis of the results obtained, always trying to co-relate to the effects observed throughout the platform.
+This chapter reports the experimental work performed in order to study both the functionality and performance of the Replication and Caching Service. We start by laying out the test plan followed by the results that we collected. We then analyse those results, always trying to co-relate them with other events observed in the platform.
 
 The chapter is divided into the following sections:
 
 \begin{description}
     %
-    \item [Section~\ref{sec:eval_exp_setup}] .
+    \item [Section~\ref{sec:eval_exp_setup}] begins by showing how it was applied and what changes were needed to the infrastructure described in the previous chapter, in order to carry out all the measurements that we propose to evaluate.
     %
-    \item [Section~\ref{sec:eval_method}] ..
+    \item [Section~\ref{sec:eval_method}] overviews the two procedures applied for the evaluation of the Replication and Caching Service, both for functional validation and performance analysis.
     %
-    \item [Section~\ref{sec:eval_rep_bench}] ..
+    \item [Section~\ref{sec:eval_rep_bench}] shows how was developed the benchmark for the performance test of the replication module, then presents the results of those tests, and ends with a comparative analysis.
     %
-    \item [Section~\ref{sub:eval_cache_bench}] ..
+    \item [Section~\ref{sub:eval_cache_bench}] finally details the performance tests conducted to the inclusion of a cache server in the iCBD platform, taking into account the boot time of the workstations and the provenience of the iMIs.
     %
 \end{description}
+
+\newpage
 
 %%-------------------------------------------------------------------
 %%	5. - Motivation
@@ -49,9 +51,7 @@ The chapter is divided into the following sections:
 \section{Experimental Setup}
 \label{sec:eval_exp_setup}
 
-To ensure the correct execution of all the tests we intended to carry out some adjustments to the iCBD platforms were necessary. To the infrastructure, we deployed two more virtual cache servers (adding to the physical cache server already in operation) with the entire iCBD solution including the RCS. 
-
-Also as discussed in the previous chapter, the Computer Science Department provided two laboratories (Lab 110 and Lab. 112) fully equipped with fifteen machines each (the general specifications of these machines can be seen in the table~\ref{tab:exp_lab_work}), with the objective of performing validation testing of the caching solution at a functional level and then the execution of performance tests.
+As discussed in the previous chapter, the DI (Computer Science Department) provided two laboratories (Lab 110 and Lab. 112) fully equipped with fifteen desktop PCs each (the general specifications of those machines can be seen in the table~\ref{tab:exp_lab_work}), for the validation of the caching solution both at the functional and performance levels.
 
 \begin{table}[]
 \centering
@@ -65,16 +65,9 @@ Also as discussed in the previous chapter, the Computer Science Department provi
 \label{tab:exp_lab_work}
 \end{table}
 
-There was also a need to make some changes to VMs that were already deployed, in order to make the laboratories fully functional. First, the VMs iCBD-rw and iCBD-home were connected to the networks of both laboratories configuring the interfaces with fixed IPs. Then, one interface of the iCBD-imgs VM was set up to be connected to the Lab. 110 network and also assigned a fixed IP, then some changes were performed in the iCBD configuration files to allow workstations connected to this network access to iMIs. Also, in the Physical Cache Server, one of the interfaces was configured in the network of Lab. 112, and similar configurations were necessary for this server to provide iMIs to the workstations of this Laboratory.
 
-It is still important to note two aspects, first the Physical Cache Server and the Lab. 112 workstations are attached to the same managed switch, so the communications between them only cross this device. Whereas all communications between workstations of both laboratories and VMs deploy in the cluster travel through various equipment in the FCT NOVA network and therefore may suffer from adverse network conditions entirely out of our control. Second, all of these connections described above are ensured by Gigabit links, either at the level of the network equipment or by the interfaces (virtual or physical) of the servers. A simplistic schematic of all these connections can be found in Figure~\ref{fig:eval_setup}.
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[height=4in]{cap5_lab_setup}
-	\caption{iCBD Nodes and Networking Setup}
-	\label{fig:eval_setup}
-\end{figure}
+To ensure the correct execution of all the tests we had planned, some adjustments to the iCBD platform were necessary. From the infrastructure point-of-view, we deployed two more virtual cache servers (raising their number to a total of three).
+From a functional point-of-view, the iCBD-rw and iCBD-home VMs were moved to the same networks (VLANs) of these labs, and their interfaces configured with the appropriate static IPs. Then, a vNIC (Virtual Network Interface Card) of the iCBD-imgs VM was connected to the Lab. 110 VLAN and assigned the appropriate fixed IP. This restructuring also required changes in the iCBD configuration files to allow the lab’s workstations to access iMIs. The Physical Cache Server also had one of its NICs configured in the Lab. 112 VLAN, and similar configurations were necessary in order to allow the server to provide iMIs to the lab’s workstations.
 
 \begin{table}[htpb]
 \centering
@@ -89,6 +82,17 @@ It is still important to note two aspects, first the Physical Cache Server and t
 \caption{Physical infrastructure of the FCT NOVA and SolidNetworks sites}
 \end{table}
 
+Finally, two more (but important) aspects should be referred: first, the Physical Cache Server and the Lab. 112 workstations were attached to the same switch, so the traffic flowing between them was internal to the device, whereas all communications between workstations (of the two labs) and the iCBD VMs had to cross a few switches in the faculty’s network and therefore may suffer from adverse network conditions that were entirely out of our control; the second aspect is link speeds - all connections are 1 Gbps links, including the physical interfaces of the servers and virtual interfaces of the VMs. A simplistic schematic of all connections can be found in Figure~\ref{fig:eval_setup}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap5_lab_setup}
+	\caption{iCBD Nodes and Networking Setup}
+	\label{fig:eval_setup}
+\end{figure}
+
+
+
 
 %%-------------------------------------------------------------------
 %%	5. - Metodology
@@ -96,28 +100,27 @@ It is still important to note two aspects, first the Physical Cache Server and t
 \section{Metodology}
 \label{sec:eval_method}
 
-The analysis of the RCS was divided into two distinct moments: a first part, which addressed the functional validation of both components of the RCS after being integrated into the iCBD platform, testing its execution correction; and a second part in which we focused on the performance of these components when faced with a production environment.
+The analysis of the RCS was performed in two distinct moments: in the first moment, we addressed the functional validation of RCS (we covered both components, replication and caching), after being integrated into the iCBD platform - the tests were to assert its correct operation; in the second moment, our focus was on the performance of both components in a production environment.
 
 \paragraph{Functional validation}
 \label{par:eval_func_val}
 
-Concerning the replication module, in order to test that this system is functional in a multi-node environment, the Master Node was started in the iCBD-imgs VM and three Replica Nodes, one in each Cache servers (virtual - iCBD-cache01 \& iCBD-Cache03 and physical - iCBD-Cache02). Being observed that the Replica Node had registered on the Name Server as expected and that the communications between the Master Node and Replicas were done correctly.
+In order to test the functional correctness of the replication module in a multi-node environment, the Master Node was started in the iCBD-imgs VM and three Replica Nodes were also started, one in each Cache Server (virtual: iCBD-cache01 and iCBD-cache03; physical - iCBD-cache02). We observed that the Replica Nodes had registered themselves on the Name Server, as expected, and that the communications between the Master Node and Replicas also performed as expected.
+Next, were repeatedly carried out two types of tests: one focused on sending a full iMI version (one that was not present in the Replicas’ Image Repository), forcing the data to be copied over the network.
+Furthermore, we wanted to verify that, when the transfer completed, the local Image Repository reflected the addition of the new iMI. This scenario is likely to occur the first time that a replica subscribes to a new iMI.
 
-Next, were carried out two types of test repeatedly. One focused on sending a complete version of an IMI that was not present in the Replicas' Image Repository, forcing the transportation of all the data that are part of this iMIs. We also took advantage of this moment to verify if after the sending process the local Image Repository reflected the addition of the new iMI. This scenario is likely to occur when its the first time that a replica subscribes to a new iMI.
+The second type of test addressed the process of sending iMI versions that were newer than those already available at Replica nodes. This test simulates the case where, after the administration of an iMI, the new, updated version should be distributed to the Replicas with conservation of bandwidth, i.e., where only the data differences were transferred. At the end of each test, a calculation of an MD5 hash was performed with the \texttt{md5sum} tool, in order to ensure that the received data was being reliably transferred and the replica was identical to the original.
 
-The second type of test revolved about sending versions of iMIs that Replicas already possessed older ones in their repository. This is done to simulate the case where after the administration of an iMI this update is distributed by the Replicas with only the changed data being sent. At the end of each of these tests, we performed a calculation of an MD5 hash with the \texttt{md5sum} tool, in order to ensure that the received data was being reliably transferred.
-
-In order to validate the correct functioning of Cache Servers we mainly focused on iCBD-cache02 (Physical Cache Server), mostly because it was connected directly to one of the laboratories allowing for immediate testing of a workstation iMI boot. Given the integration of the iCBD platform with the remaining network services and policies of  FCT NOVA, a considerable iterative process of experimentation was required, constantly tuning some parameters of some iCBD services until we arrived at a fully functional configuration.
-In the end, it was confirmed that it is possible to boot the workstations with iMIs powered by the Cache Server.
+Functional testing of Cache Servers was performed with iCBD-cache02, the physical Cache Server, mostly because it was connected directly to one of the labs and thus allowing for immediate testing of a workstation’s iMI boot. Given the degree of integration of the iCBD platform with the remaining network services and policies of FCT NOVA, a considerable iterative process of experimentation was required, tuning some parameters of a few iCBD services until we arrived at a fully functional configuration. In the end, it was confirmed that it was indeed possible to boot the workstations with iMIs delivered by the Cache Server.
 
 \paragraph{Performance Benchmarking}
 \label{par:eval_perf_bench}
 
-In this second phase of testing, the goal was to ascertain the performance of RCS in a production environment. In the case of the replication module, we make a comparison between multiple configurations of our solution (with or without compression and secure communications) and the \texttt{rsync} tool, measuring both the time spent on the transference process as well the amount of data transmitted between nodes.
+In this second phase of our tests, the goal was to ascertain the performance of RCS in a production environment. In the case of the replication module, we compared the results obtained from multiple configurations of our implementation (transfers performed with or without compression and over secure or plain communication channels) and the \texttt{rsync} tool; we measured both the time spent on the transfer as well the amount of data transmitted between nodes.
 
-While in the performance tests concerning the cache server, we measured the time spent on the boot process of a workstation. Comparing when the iMI was provided by the Cache Server or by the iCBD-imgs VM hosted at the cluster with more significant resources. For these test batteries, we consider the boot time the time elapsed from the beginning of a load of a kernel until the initialisation of all the services in userspace is finished, making use of the tool \texttt{systemd-analyze}.
+Another important metric that we observed was the time spent on the boot process of a workstation, and we compared the results obtained in the case where the iMI was transferred from the Cache Server against those gathered when it was transferred by the iCBD-imgs VM hosted at the cluster (this one was provided with more resources – vCPUs and vRAM). The time spent on the boot process was computed as the elapsed time between the start of the kernel loading operation, to the moment when the initialisation of all user-space services was finished. The utility that gathered these events was \texttt{systemd-analyze}.
 
-Unless stated otherwise, all tests were executed five times removing the best and worst result. The final result is the average of the remaining values. The results of the work performed in these two fields are demonstrated in the following sections.
+Finally, unless otherwise stated, all tests were executed five times; the best and worst results were then removed, and the final result is the average of the remaining values. The results of the benchmark are laid out in the following sections.
 
 
 %%-------------------------------------------------------------------
@@ -126,22 +129,24 @@ Unless stated otherwise, all tests were executed five times removing the best an
 \section{Replication Service Benchmark}
 \label{sec:eval_rep_bench}
 
-This benchmark where we want to evaluate the performance of iMI replications within the iCBD platform we idealised two scenarios. One where the full transfer of an iMI to a Replica Node is performed, and the other where the Replica Node already possesses a version of that iMI and only wants to receive the differences (deltas) associated to the new version.
+Let’s just briefly recall the two tests that we set out to perform: one, focused on sending a full iMI version (one that was not present in the Replicas’ Image Repository), forcing the data to be copied over the network; the other focused on sending iMI versions that were newer than those already available at Replica nodes, which should receive only receive the differences (deltas) associated with the new version.
 
-Regarding the IMI used in these tests, a Linux iMI was chosen that contains the Ubuntu 16.04 LTS distribution.  We make use of two sequential versions (v1 and v2) of this iMI in which from one version to the other, during the administration process we applied all the updates proposed by the APT package handling utility. 
-We know that the v1 of this iMI stores 38.60GB of data and with the resource to the tool \texttt{btrf-progs} we issued the command \texttt{btrfs filesystem df /path/} giving us the information that from the Btrfs point of view the differences between versions make up 4.45 GB.
+For these tests, a Linux iMI containing an Ubuntu Desktop 16.04 LTS distribution (with quite a few “extras”, such as OpenOffice) was chosen, and two consecutive versions, v1 and v2 were used. These versions were created as follows: v1, the base version of this iMI, occupies 38.60GB; we started an administration VM and performed a full update with the \texttt{apt} tool (an \texttt{apt-get update} followed by an \texttt{apt-get upgrade}), and committed the results to the new version, v2.
 
-For both test scenarios, we produced four sets of settings for the transfer:
+Using the \texttt{btrf-progs} package we issued the command \texttt{btrfs filesystem df /path/} to retrieve Btrfs’ view about the differences between versions v1 and v2, which the utility reported as being 4.45 GB.
+
+
+For both test scenarios, we created four different settings for the transfer tests:
 
 \begin{description}
 	%
 	\item [Rsync] Transfer of an iMI using the rsync tool \footnote{It should be noted that the rsync tool is not aware of a Btrfs subvolume, so the times presented only relate to data transmission, but more operations would be needed to make the iMI functional within the iCBD platform.} with the options \texttt{-r} (recurse into directories); \texttt{-t} (preserve modification times); \texttt{-p} (preserve permissions); \texttt{-l} (copy symlinks as symlinks) and \texttt{-u} (skip files that are newer on the receiver).
 	%
-	\item [iCBD-Rep - I] Use the iCBD-Replication platform to transfer the iMI using the standard python sockets and no compression.
+	\item [iCBD-Rep - I] Use the iCBD-Replication platform services to transfer the iMI using the standard Python sockets, and no compression.
 	%
-	\item [iCBD-Rep - II] Apply the iCBD-Replication platform to transfer the iMI using the standard python sockets but compressing the data in a stream with the LZ4 algorithm.
+	\item [iCBD-Rep - II] Use the iCBD-Replication platform services to transfer the iMI using the standard Python sockets , with compression using the LZ4 algorithm over the data stream.
 	%
-	\item [iCBD-Rep - III] Utilise the iCBD-Replication platform to transfer the iMI using an SSH connection to tunnel the data and not using any compression.
+	\item [iCBD-Rep - III] Use the iCBD-Replication platform services to transfer the iMI over an SSH tunnel, without compression.
 	%
 \end{description}
 
@@ -151,7 +156,8 @@ For both test scenarios, we produced four sets of settings for the transfer:
 \paragraph{Sending a complete version of an iMI}
 \label{par:eval_iMI_full}
 
-In this test that sends a complete iMI, that is all its 38.60GB of data; we can observe that the iCBD platform with its replication module performs similarly on the three sets of settings used. The results are shown in Table~\ref{tab:eval_imifull}. There is a noticeable advantage of the rsync tool which takes less time to perform this process. We believe this happens because it detects that there is no data in the replica and so does not perform its usual block-by-block data comparison routines that are very time consuming and resource wasteful. 
+This test that sends a complete iMI, that is, all its 38.60GB of data; we observed that our iCBD replication module performs similarly on the three tests (I to III), but lags when compared to rsync; the results are shown in Table~\ref{tab:eval_imifull}.
+It also shows that the rsync transfer process is faster than our Python-plus-btrfs-send code; however, using rsync has a drawback: after the transfer is complete, we have to use the Btrfs tools to recreate the versioning structure, and that takes time (which we have not measured).
 
 \begin{table}[h]
 \centering
@@ -166,8 +172,7 @@ In this test that sends a complete iMI, that is all its 38.60GB of data; we can 
 \label{tab:eval_imifull}
 \end{table}
 
-It can also be observed that even without obtaining more favourable times, the use of compression indicates that the IMI is compressible around 8.6\%, noting that not only the data of the IMI is compressed, as are the instructions generated by the \texttt{send} operation of the Btrfs.
-However, the is a caveat, because of the rsync's lack of understanding of the Btrfs internal structure, in the end of the process, the data replicated cannot be automatically made available to users, demanding further operations. While using our tool even though is showing that it takes more time to process the whole iMI, it is guaranteed that once the process is finished the transferred iMI is ready to be made accessible to the workstations. 
+The tests also indicate that the IMI is compressible, with savings at around 8.6\%. Compression, when applied to a btrfs-send stream, is applied to both data and instructions generated by the send operation.
 
 
 %\subsubsection{Sending only the delta between version of an iMI}
@@ -176,7 +181,7 @@ However, the is a caveat, because of the rsync's lack of understanding of the Bt
 \paragraph{Sending only the delta between version of an iMI}
 \label{par:eval_iMI_delta}
 
-We now present the results for the evaluation of the process of sending just the differences between the two versions of the chosen iMI. From the outset, one can see the drastic reduction of data transmitted by the network, as expected, only sending the data that was modified between v1 and v2 of the iMI. The results we obtained are shown in Table~\ref{tab:eval_imidelta}.
+We now present the results for the test cases where just the differences between the two versions of the iMI were transferred. From the outset, one can see, as expected, a drastic reduction on the amount of data transmitted over the network. The results are shown in Table~\ref{tab:eval_imidelta}.
 
 \begin{table}[h]
 \centering
@@ -191,7 +196,7 @@ We now present the results for the evaluation of the process of sending just the
 \label{tab:eval_imidelta}
 \end{table}
 
-Our solution using Btrfs send \/ receive operations shows as far superior to rsync's performance on the same data set. Even in the cases where the options of compression or cypher of the data were employed the results did not change dramatically.
+Our solution using Btrfs \texttt{send} and \texttt{receive} operations shows it to be far superior to rsync’s performance on the same data set. Even in the cases where the compression or cypher options were used, the results did not change dramatically. Here, our conclusion for the staggering difference between rsync and our solution(s) is that rsync takes an enormous amount of time computing the differences (with block-by-block comparisons) and “deciding” on what to send.
 
 %This is an optimum taking into account that these two operations are computationally heavy and therefore in addition to placing more load on the machines that by themselves with the replication process already throw high load values
 
@@ -235,21 +240,15 @@ Lastly, we need to explain the three types of boot tested in this section. The i
 		%
 \end{description}
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[height=4in]{cap5_NB_iSCSI}
-	\caption{Mean Boot Time of five workstations using iSCSI (Sequential Boot Scenario), comparing iMI provider and network speed}
-	\label{fig:boot_iscsi}
-\end{figure}
+It is important to note that not only tests were performed with Linux iMIs, during the development of iMIs were tested with Windows 7 and Windows 10. It was decided not to include any of the tests performed with these iMIs because there was detected an unresolved issue that led the boot process to be abnormally slow. Something that was only found on the FCT NOVA site, since on the SolidNetworks site we did not detect any problems, and the Windows iMIs boot process is nominal.
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[height=4in]{cap5_NB_NFS}
-	\caption{Mean Boot Time of five workstations using NFS (Sequential Boot Scenario), comparing iMI provider and network speed}
-	\label{fig:boot_nfs}
-\end{figure}
 
-\begin{table}[]
+
+
+\paragraph{Benchmark Sequential Boot}
+\label{par:eval_cache_bootstorm}
+
+\begin{table}[h]
 \centering
 \begin{tabular}{llcc}
 \textbf{iMI} &  & \textbf{iCBD-imgs} & \textbf{iCBD-Cache02} \\ \hline
@@ -264,41 +263,28 @@ Lastly, we need to explain the three types of boot tested in this section. The i
 \label{tab:boot_totaldata}
 \end{table}
 
-
-
-%\subsubsection{Benchmark in a Boot Storm condition}
-%\label{susub:eval_cache_bootstorm}
-\paragraph{Benchmark in a Boot Storm condition}
-\label{par:eval_cache_bootstorm}
-
-\begin{table}[]
-\centering
-\begin{tabular}{llcc}
-\textbf{iMI} & \textbf{} & \textbf{iCBD-imgs} & \textbf{iCBD-Cache02} \\ \hline
-\multirow{2}{*}{\textit{Linux iCBD Client Native}} & iSCSI & 20.035 s & 23.020 s \\
- & NFS & 23.248 s & 28.156 s \\ \hline
-\multirow{2}{*}{\textit{Linux iCBD Client VM}} & iSCSI & 42.627 s & 52.952 s \\
- & NFS & 44.734 s & 54.840 s
-\end{tabular}
-	\caption{Comparison of boot times in a boot storm situation in both providers (iCBD-imgs and iCBD-cache02)}
-	\label{tab:bootstorm_both}
-\end{table}
+In this case, we perform the boot tests of the workstations in varying two parameters - link speed (1 Gbps and 100 Mbps) and protocol used (iSCSI and NFS). It has been found that by changing the protocol by which workstations boot, the amount of data that is transferred from the repository (iCBD-imgs or iCBD-cache02) is influenced as shown in the Table~\ref{tab:boot_totaldata}. We can attribute this variation to the fact that the NFS protocol is a bit more resource hungry, resulting in the need to transfer a larger amount of data. This ultimately means that the workstations that boot using this protocol will also spend more time in this process. As can be observed when comparing Figures~\ref{fig:boot_iscsi} and ~\ref{fig:boot_nfs}.
 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[height=4in]{cap5_BS_combo}
-	\caption{Boot Time of fifteen workstations simultaneously (Boot Storm Scenario) comparing iMI provider}
-	\label{fig:bootstorm_time}
+	\includegraphics[height=4in]{cap5_NB_iSCSI}
+	\caption{Mean Boot Time of five workstations using iSCSI (Sequential Boot Scenario), comparing iMI provider and network speed}
+	\label{fig:boot_iscsi}
+\end{figure}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap5_NB_NFS}
+	\caption{Mean Boot Time of five workstations using NFS (Sequential Boot Scenario), comparing iMI provider and network speed}
+	\label{fig:boot_nfs}
 \end{figure}
 
 
+As for running tests varying the speed of the links, a significant degradation can be observed, with the workstations taking much longer in the boot process when the link speed was set at 100 Mbps.
+Having the extreme case, when doing tests with the boot type Linux iCBD VM in which the average of the times passes the minute mark.
+Finally, we can observe that workstations booting from the iCBD-cache02 spend more time in this process than the ones that boot from iCBD-imgs, although latency in the first case is theoretically lower. We can attribute these results to the fact that iCBD-cache02 has much lower specifications than iCBD-imgs. Which leads us to believe that the solution can be vertically scalable. Metrics regarding the behaviour of both servers during one of these tests can be observed in the Figures~\ref{fig:boot_imgs_stats} and ~\ref{fig:boot_cache_stats}.
 
-
-%\subsubsection{iMI provider system load}
-%\label{susub:eval_sys_load}
-\paragraph{iMI provider system load}
-\label{par:eval_sys_load}
 
 \begin{figure}[htbp]
 	\centering
@@ -316,12 +302,51 @@ Lastly, we need to explain the three types of boot tested in this section. The i
 \end{figure}
 
 
+%\subsubsection{Benchmark in a Boot Storm condition}
+%\label{susub:eval_cache_bootstorm}
+\paragraph{Benchmark in a Boot Storm condition}
+\label{par:eval_cache_bootstorm}
+
+
+Finally we present the results of a test carried out in a boot storm scenario. Some simplifications have been made for this. First, no tests were performed using the Linux Server VDI boot type, so all values result from the measurement of boot time of the 15 workstations of both laboratories.
+
+On the other hand, these tests were also performed only with the link speed of 1 Gbps\footnote{Although we believe that we would obtain interesting results with tests at 100 Mbps, such as the fact that at this speed the boot times would skyrocket to values where a good user experience would be impractical. }, utterly because the logistics related to the setup of this test are tremendous.
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{llcc}
+\textbf{iMI} & \textbf{} & \textbf{iCBD-imgs} & \textbf{iCBD-Cache02} \\ \hline
+\multirow{2}{*}{\textit{Linux iCBD Client Native}} & iSCSI & 20.035 s & 23.020 s \\
+ & NFS & 23.248 s & 28.156 s \\ \hline
+\multirow{2}{*}{\textit{Linux iCBD Client VM}} & iSCSI & 42.627 s & 52.952 s \\
+ & NFS & 44.734 s & 54.840 s
+\end{tabular}
+	\caption{Comparison of boot times in a boot storm situation in both providers (iCBD-imgs and iCBD-cache02)}
+	\label{tab:bootstorm_both}
+\end{table}
+
+The last change we made in this test, was the fact that unlike in all other measurements presented in this chapter, we only measured one boot time per iMI (Linux iCBD Client Native and Linux iCBD Client VM) and per protocol (iSCSI an NFS) was performed, we present those results in Table~\ref{tab:bootstorm_both}.
+
+Given the conditions described, we can still see encouraging results. In Figure~\ref{fig:bootstorm_time}, we show all the boot times of all 15 workstations when using the iSCSI protocol, achieving little variation in the times measured between all the machines and that the whole computing load of booting 15 workstations simultaneously does not substantially affect the machine that serves the iMIs to those workstations, as shown in the Figure~\ref{fig:bootstorm_cache_stats}.
+
+
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[height=4in]{cap5_bootstorm_cache_stats}
 	\caption{System metrics for one run on the iCBD-Cache02 in a boot storm scenario}
-	\label{fig:boot_cache_stats}
+	\label{fig:bootstorm_cache_stats}
 \end{figure}
+
+
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[height=4in]{cap5_BS_combo}
+	\caption{Boot Time of fifteen workstations simultaneously (Boot Storm Scenario) comparing iMI provider using iSCSI}
+	\label{fig:bootstorm_time}
+\end{figure}
+
 
 
 %\textbf{TOPICS :}
