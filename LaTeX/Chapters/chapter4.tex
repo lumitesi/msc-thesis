@@ -282,7 +282,7 @@ In this work, we included three algorithms that had the desired the framing form
 	%
 	\item [zlib] is a widely used, and kind of a \textit{de facto} standard, library of lossless data compression that uses an abstraction of the DEFLATE compression algorithm (also a variation of LZ77). The algorithm version written by Jean-loup Gailly and Mark Adler provides good compression on a wide variety of data sets and environments with the minimal use of system resources~\cite{zlib}. Written in C, it can be found in a wide diversity of platforms: in the Linux Kernel in multiple modules, and in multimedia libraries, databases, version control systems, and others. In the replication module, we use the zlib library~\cite{py_zlib} included in Python, which then provides an interface to the zlib C library.
 	%
-	\item [Snappy] is a compression \/ decompression library, created by Google~\cite{snappy}, that contrary to other algorithms, strives for very high speeds at reasonable compression rates, not maximum compression. The library is written in C++ but has several bindings for the most popular languages. In order to interface with Python, we used the Python binding~\cite{py_snappy} for the snappy C++ compression library provided by Andrés Moreira.
+	\item [Snappy] is a compression / decompression library, created by Google~\cite{snappy}, that contrary to other algorithms, strives for very high speeds at reasonable compression rates, not maximum compression. The library is written in C++ but has several bindings for the most popular languages. In order to interface with Python, we used the Python binding~\cite{py_snappy} for the snappy C++ compression library provided by Andrés Moreira.
 \end{description}
 
 %%-------------------------------------------------------------------
@@ -683,7 +683,7 @@ As previously reported, from the beginning of the project, the entire platform w
 	%
 	\item [\textit{iCBD-rw}] This server’s key role is to make temporary read/write space available to clients, during the boot process; clients see (mount) it as a directory and, while they are running, changes that both users and system apply are saved, but only for the duration of the session; once the session is over, that data is deleted.
 
-	One of the reasons for separating this functionality from those provided by the iCBD-imgs machine was to offer a simple way to visualise the load that results from multiple clients booting iMIs at the same time, separating that usage from reads and writes that occur during “normal” operation. Since the server’s only task is the provision of iSCSI and NFS servers that offer r\/w space, we think that we can lower the RAM usage when compared with iCBD-imgs and deploy a VM with 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data). 
+	One of the reasons for separating this functionality from those provided by the iCBD-imgs machine was to offer a simple way to visualise the load that results from multiple clients booting iMIs at the same time, separating that usage from reads and writes that occur during “normal” operation. Since the server’s only task is the provision of iSCSI and NFS servers that offer r/w space, we think that we can lower the RAM usage when compared with iCBD-imgs and deploy a VM with 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data). 
 	
 	As the functionality of this machine is only the provision of iSCSI and NFS servers for accessing r/w space its specifications may be a bit more conservative with a VM boasting 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data).
 	%
