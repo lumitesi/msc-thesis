@@ -13,16 +13,14 @@
 \label{cha:research_context}
 
 % TODO Cap2 - Rever frase AND OR 
-The focal point of this dissertation is the implementation of a scalable and coherent distributed data store on top of a set of local (and independent) file systems. The file systems, however, are not used for "general purpose" work: in our deployment, they store VMs - (1) their read-only base images (or templates) and / or (2) their running instances backstores and / or (3) their "support files" (VM specifications, NVRAM / BIOS images, etc).
-Furthermore, the target file systems are those which are able to natively provide snapshots and, for the purpose of this dissertation our choice was BTRFS.
+The focal point of this dissertation is the implementation of a scalable and coherent distributed data store on top of a set of local (and independent) file systems. The file systems, however, are not used for "general purpose" work: in our deployment, they store VMs - (1) their read-only base images (or templates) and / or (2) their running instances backstores and / or (3) their "support files" (VM specifications, Non-Volatile Random-Access Memory (NVRAM) / Basic Input/Output System (BIOS) images, etc).
+Furthermore, the target file systems are those which are able to natively provide snapshots and, for the purpose of this dissertation our choice was Btrfs.
 
 
  %challenges of implementing a distributed system based on a file system, that can store \textit{VMs} images while leveraging the benefits of snapshots and caching techniques.
  
  Moreover, our work should integrate smoothly into a broader infrastructure illustrated in detail in Section \ref{cha:icbd}.
-In this chapter, we start with a survey of core concepts directly associated with the thesis and compliment with some analysis on the state-of-art in the relevant fields.
-
-The organisation of this chapter is as follows:
+In this chapter, we start with a survey of core concepts directly associated with the thesis and compliment with some analysis on the state-of-art in the relevant fields. The organisation of this chapter is as follows:
 
 \begin{description}
 	\item [Section~\ref{sec:res_virtualisation}] overviews virtualisation as a core concept, describing significant properties and the inner works of hypervisors and finishes with a comprehensive discussion about the multiple VDI models.
@@ -94,7 +92,7 @@ An hypervisor can be classified into two different types~\cite{Aneja2011}, depic
 	In this architecture, the host operating system retains ownership of the physical components, with each VM having access to a confined subset of those devices, and the virtual machine monitor providing an environment that emulates the actual hardware per VM. 
 	%One advantage is quickness of installation and configuration since the installation process for most of these type of hypervisors only requires the execution of an elemental installer, delivering the instantaneous ability to run a multitude of different operating systems.
 	
-	All the above culminates in some advantages: Type 2 hypervisors are regularly deployed on desktop an laptop class of hosts, allowing: simulation of a rather complex testing virtualised systems without the expense and complexity of managing dedicated hardware; seamless integration with a graphical environment; host-guest file and print sharing.
+	All the above culminates in some advantages: Type 2 hypervisors are regularly deployed on desktop and laptop class of hosts, allowing: simulation of a rather complex testing virtualised systems without the expense and complexity of managing dedicated hardware; seamless integration with a graphical environment; host-guest file and print sharing.
 	%Also, provide support for running multiple OSs on the same physical machine, which can be valuable for those who rely on multiple applications written for a particular or legacy OS.
 \end{description}
 
@@ -105,6 +103,7 @@ With a virtualised infrastructure there is an opportunity for a substantial redu
 
 % subsection hypervisors (end)
 
+
 %%-------------------------------------------------------------------
 %%	2.1.X - VDI
 %%-------------------------------------------------------------------
@@ -114,7 +113,7 @@ With a virtualised infrastructure there is an opportunity for a substantial redu
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[height=3in]{cap2_VDIv2}
-	\caption{An exemple of a Virtual Desktop Infrastructure, adapted from AppDS~\cite{appds_2017}}
+	\caption[An exemple of a Virtual Desktop Infrastructure, adapted from AppDS]{An exemple of a Virtual Desktop Infrastructure, adapted from AppDS~\cite{appds_2017}}
 	\label{fig:VDI}
 \end{figure}
 
@@ -153,9 +152,9 @@ In this section, we present a summary of the technologies above-mentioned.
 
 		Since all computing work predominates on the client side, the support infrastructure (as far as servers are concerned) in this model as a much smaller footprint, having only as a general task to provide a storage environment. Alternatively, all the data could be already locally present in the hard drives of the clients, almost disowning the servers to sheer administration roles and the maintenance of other services.
 
-		The advantages remain close to the previous solution, with the added benefit of a reduced need for resources and the possibility of using some already present in the infrastructure. Although this approach presents itself as significantly more cost restrained, there isn't a notable adoption by software houses in developing products in this family. Reasons for this fact can be attributed to the implementation of such solutions that required a more complicated process, sometimes claiming the complete destruction of locally stored data on workstation hard disks.~\cite{VMblog_Citrix}. An example is a previously existing solution by Citrix, the XenClient~\cite{Citrix_XenDesktop}
+		The advantages remain close to the previous solution, with the added benefit of a reduced need for resources and the possibility of using some already present in the infrastructure. Although this approach presents itself as significantly more cost restrained, there isn't a notable adoption by software houses in developing products in this family. Reasons for this fact can be attributed to the implementation of such solutions that required a more complicated process, sometimes claiming the complete destruction of locally stored data on workstation hard disks.~\cite{VMblog_Citrix}. An example is a previously existing solution by Citrix, the XenClient~\cite{Citrix_XenDesktop}.
 	%
-	\item [Desktop as a Service] The third, and most modern, concept incorporate the VDI architecture with the made fashionable cloud services. In some aspects shows some astonishing similarities to the server-based method, where servers drive the computation, but here, the infrastructure, the resources and the management efforts are located in the midst of a public cloud.
+	\item [Desktop as a Service] The third, and most modern, concept incorporate the VDI architecture with the made fashionable cloud services. In some aspects shows some astonishing similarities to the server-based method, where servers drive the computation, but here, the infrastructure, the resources and the management efforts are located in the midst of a public cloud. An example of this design pattern is shown in Figure~\ref{fig:daas}.
 
 		The points in favour are some: There is good potential for cost reduction in the field of purchase and maintenance of infrastructure since those charges are imposed on third parties. Every subject related to data security is also in the hands of the platform providers. Enables what is called zero clients, an ultrathin client, typically in a small box form factor, which the only purpose is to connect the required peripherals and rendering pixels onto the user’s display.~\cite{VMWare_Zikmund2014} With the added benefit of presenting very competitive costs per workstation when compared to other types of clients (thick and thin clients) and a reasonable saving on energetic resources.
 
@@ -164,7 +163,7 @@ In this section, we present a summary of the technologies above-mentioned.
 		\begin{figure}[htbp]
 			\centering
 			\includegraphics[width=\textwidth]{cap2_daas}
-			\caption{Conceptual overview of DaaS architecture, adapted from Intel~\cite{Jain2014}}
+			\caption[Conceptual overview of DaaS architecture, adapted from Intel]{Conceptual overview of DaaS architecture, adapted from Intel~\cite{Jain2014}}
 			\label{fig:daas}
 		\end{figure}
 
@@ -279,7 +278,7 @@ At the end of the day, the idea is to present a solution that offers an appropri
 \subsection{Storage Challenges}
 \label{sub:res_storage_challenges}
 
-In a typical data centre application, with a well-designed infrastructure and in normal conditions, the storage system is steadily used but isn't being stressed continuously with requests I/O requests that directly affect the system performance. However, that postulate is no longer valid when talking about the storing of VM files for use in a VDI environment. In this type of context, some events can cascade in I/O storms that eventually introduce degradations in storage response time, which diminishes the performance of the overall system and in turn leads to a lower satisfaction level for the users of said system.
+%In a typical data centre application, with a well-designed infrastructure and in normal conditions, the storage system is steadily used but isn't being stressed continuously with requests I/O requests that directly affect the system performance. However, that postulate is no longer valid when talking about the storing of VM files for use in a VDI environment. In this type of context, some events can cascade in I/O storms that eventually introduce degradations in storage response time, which diminishes the performance of the overall system and in turn leads to a lower satisfaction level for the users of said system.
 
 \paragraph{I/O Storms}
 \label{par:res_ios_storms}
@@ -326,7 +325,7 @@ There are many different types of file systems, each one boasting unique feature
 \begin{description}
 	\item [Local file systems:] A local filesystem can establish and destroy directories, files can be written and read, both can move from place to place in the hierarchy but everything contained within a single computing node. 
 		Good performance can be improved in certain ways, incorporating caching techniques, read ahead, and carefully placing the blocks of the same file close to each other, although scalability will always be reduced. 
-		There are too many file systems of this genre to be here listed. Nevertheless, some of the most renowned may be mentioned. As the industry-standard File Allocation Table (FAT), the New Technology File System (NTFS) from Microsoft, the Apple's Hierarchical File System Plus (HFS+) also called Mac OS Extended and the B-tree file system (BTRFS) initially designed by Oracle.
+		There are too many file systems of this genre to be here listed. Nevertheless, some of the most renowned may be mentioned. As the industry-standard File Allocation Table (FAT), the New Technology File System (NTFS) from Microsoft, the Apple's Hierarchical File System Plus (HFS+) also called Mac OS Extended and the B-tree file system (Btrfs) initially designed by Oracle.
 	% 
 	\item [Distributed file system:] A distributed file system enables access to remote files using the same interfaces and semantics as local files, allowing users to access files from any computer on a network. 
 		Distributed file systems are being massively employed in today's model of computing. They offer state-of-the-art implementations that are highly scalable, provide great performance across all kinds of network topologies and recover from failures. 
@@ -349,12 +348,12 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 \subsection{Snapshots} % (fold)
 \label{sub:res_snapshots}
 
-In this work, the snapshot functionality of the file system itself is a valuable asset. This technique is present in some of the most recently designed file systems, such as the BTRFS. 
+In this work, the snapshot functionality of the file system itself is a valuable asset. This technique is present in some of the most recently designed file systems, such as the Btrfs. 
 As the name implies, a snapshot is an image at a given instant of the state of a resource,  we are particularly interested in snapshots of volumes (logical disks), and of files (individually or grouped, for example, in a directory).
 
 The implementation of a snapshot can be described as follows: a) the state of a resource is saved in the form of a persistent and immutable "object"; b) changes to the state of the resource forces the creation and storage of another object. Consequently, it is possible to return to any previous state, as long as, the object corresponding to that state is available. Snapshots are especially interesting in virtualised environments because the hypervisor can take snapshots of the most critical features of a VM: CPU, memory, and disk(s). 
 
-In this work, we propose to use the snapshot functionality of the file system itself, present in some of the most recently designed file systems, such as the BTRFS. This way the creation of linked-clones is handled by the file system capabilities as an alternative to linked-clones created by virtualisation software itself.
+In this work, we propose to use the snapshot functionality of the file system itself, present in some of the most recently designed file systems, such as the Btrfs. This way the creation of linked-clones is handled by the file system capabilities as an alternative to linked-clones created by virtualisation software itself.
 
 In order for multiple snapshots, do not take up space unnecessarily, data compression techniques are applied when implementing snapshots. So, the new object created to register the sequence of new changes of a resource only registers the modifications made, keeping unchanged the state in the initial (parent) object. This phenomenon (i.e. the changes between the current snapshot and the previous one) is called a "delta" connecting snapshots.
 

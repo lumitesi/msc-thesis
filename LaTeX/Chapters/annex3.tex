@@ -5,7 +5,7 @@
 %%
 %% Chapter with example of appendix with a short dummy text
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Bug on BTRFS affecting CoreUtils tool}
+\chapter{Bug on Btrfs affecting CoreUtils tool}
 \label{ann:bug}
 
 \section{Bug Report}
@@ -15,7 +15,7 @@ The bug was reported in both \textit{CentOS Bug Tracker} and \textit{Red Hat Bug
 
 \paragraph{Description of problem:}
 
-In a CentOS 7 VM with kernel \texttt{3.10.0-693.5.2.el7.x86\_64} including a mounted disk formatted with BTRFS and btrfs-progs v4.9.1.
+In a CentOS 7 VM with kernel \texttt{3.10.0-693.5.2.el7.x86\_64} including a mounted disk formatted with Btrfs and btrfs-progs v4.9.1.
 When executing a copy of files with the command \texttt{"cp --reflink=always"} the command fails with the indication \textit{"failed to clone 'someFile': Operation not supported"}
 
 \paragraph{Issue:}
@@ -36,7 +36,7 @@ It is always reproducible. Happens every time.
 \paragraph{Steps to Reproduce:}
 
 \begin{enumerate}
-	\item In a BTRFS mount execute:
+	\item In a Btrfs mount execute:
 	\item \texttt{dd if=/dev/urandom of=testb bs=1024k seek=1024 count=128}
 	\item \texttt{cp --reflink=always testb testb\_copy}
 \end{enumerate}
@@ -57,10 +57,10 @@ A clone of the file, looking precisely the same as the original with the same si
 
 \section{Resolution}
 \label{sec:resolution}
-On 5 of April of 2018, the problem was acknowledged by Red Hat, and a patch was provided. However, also informed that the fix would not be included in later RHEL7 releases, due to Red Hat deciding to deprecate BTRFS as of RHEL7.5.
+On 5 of April of 2018, the problem was acknowledged by Red Hat, and a patch was provided. However, also informed that the fix would not be included in later RHEL7 releases, due to Red Hat deciding to deprecate Btrfs as of RHEL7.5.
 
 \begin{listing}[ht]
 \inputminted{diff}{./Chapters/Code/annex3_btrfspatch.diff}
-\caption{BTRFS patch on a/fs/btrfs/super.c}
+\caption{Btrfs patch on a/fs/btrfs/super.c}
 \label{listing:bug_btrfsdiff}
 \end{listing}

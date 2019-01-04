@@ -98,6 +98,7 @@ The iCBD platform encompasses the use of multiple services; to achieve a better 
 \end{description}
  
 In the next subsections, we will provide a more detailed description of each of the above-mentioned layers.
+x
 
 %%-------------------------------------------------------------------
 %%	3.2. - iCBD Machine Image 
@@ -165,7 +166,9 @@ clients may still be using the old version. Therefore, \textbf{Decommission} is 
 % https://www.ibm.com/developerworks/library/l-linuxboot/index.html
 % https://utcc.utoronto.ca/~cks/space/blog/linux/LinuxBootOverview?
 
-From an end-user perspective, the only layer that is visible and, for “power-users”, requires interaction, is the boot layer – one that displays the set of images the user is allowed to boot, and waits for his/her choice. However not every single aspect is noticeable: while this happens in the workstation’s screen, in the background multiple services cooperate to run the chosen iCBD Machine Image.
+%From an end-user perspective, the only layer that is visible and, for “power-users”, requires interaction, is the boot layer – one that displays the set of images the user is allowed to boot, and waits for his/her choice. However not every single aspect is noticeable: while this happens in the workstation’s screen, in the background multiple services cooperate to run the chosen iCBD Machine Image.
+
+From an end-user perspective, the only layer that is visible and requires interaction, is the boot layer – one that displays the set of images the user is allowed to boot, and waits for his/her choice. However not every single aspect is noticeable: while this happens in the workstation’s screen, in the background multiple services cooperate to run the chosen iCBD Machine Image.
 
 The iCBD platform provides two distinct ways to remote boot an iMI: one instantiates, from an iMI, a native Operating System that runs on the workstation’s “bare metal” just like a standard diskless network boot of, say, Linux does; the other uses the above mechanism to start a minimal OS with an embedded hypervisor installed, then runs the hypervisor, and finally launches another iMI, one chosen from those available in the platform. Both approaches are entirely transparent to the user and, users who are not knowledgeable about virtualisation technologies will be completely unaware of whether they are running a native or virtualised OS.
 

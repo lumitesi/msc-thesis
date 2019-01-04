@@ -53,7 +53,7 @@ This is the umbrella (context) of our thesis/project: an infrastructure that run
 \section{Motivation} % (fold)
 \label{sec:intro_motivation}
 
-Virtualisation is the pillar technology that enabled the widespread availability of IaaS cloud providers, benefiting of economies of scale. These cloud providers, such as Amazon AWS~\cite{aws_2017}, Microsoft Azure~\cite{azure_2017} and Google Cloud Platform~\cite{gcp_2017}, manage thousands of physical machines all over the globe, with the vast majority of their infrastructures being multitenant oriented.
+Virtualisation is the pillar technology that enabled the widespread availability of IaaS cloud providers, benefiting of economies of scale. These cloud providers, such as Amazon AWS~\cite{aws_2017}, Microsoft Azure~\cite{azure_2017} and Google Cloud Platform~\cite{gcp_2017}, manage thousands of physical machines all over the globe, with the vast majority of their infrastructures being multi-tenant oriented.
 
 The sheer magnitude of those numbers leads to an obvious problem, i.e., how to store all this data efficiently. And, not only there is the need to store customer’s generated data but also to manage all the demands of the infrastructure and the multitude of services offered. One approach taken by these companies was the development of their proprietary storage solutions. For instance, Google uses BigTable distributed storage system~\cite{Chang2006}, to store application-specific data, and then serve it to users. This system relies on the Google File System underneath to provide a robust solution to store logs and data files and was designed to be reliable, scalable and fault tolerant.
 
@@ -78,7 +78,6 @@ The project’s primary objective is to develop a winning VDI product that separ
 %This dissertation work in enveloped in a larger project by the name iCBD, Infrastructure for Client-Based (Virtual) Desktop (Computing), were the objectives pass by the development of a computational infrastructure capable of supporting the execution of virtual desktops in an assortment of devices having as its main characteristic a non-intrusive approach. 
 
 %Taking this into account, there is a clear separation from other solutions previously and currently available, where there is a concern for the target device, without any writing being done to the local disks, preserving all the stored data, and giving the possibility to have other operating systems available for a local boot. To achieve this objective, all the needed components are loaded on-demand at the system startup and as part of the boot.
-
 
 
 %%-------------------------------------------------------------------
@@ -128,7 +127,7 @@ The iCBD project started about two years ago, and there has been a lot of work i
 
 These two avenues, file system and object-storage system, proved themselves well suited for the iCBD project, and resulted in the next step, namely on how to support a multi-node, scalable, and failure-tolerant iCBD infrastructure, one where nodes may be geographically dispersed.
 
-
+\newpage
 
 %%-------------------------------------------------------------------
 %%	1.4 - Problem Stating and Main Contributions
@@ -202,7 +201,7 @@ The main expected contributions are:
 
 \begin{itemize}
   %
-  \item Perform a throughout analysis of the iCBD platform layers and modules that already implemented, in order to understand its internals, to document it and allow an efficient planning of the remaining of our work. 
+  \item Perform a throughout analysis of the iCBD platform layers and modules that are already implemented, in order to understand its internals, to document it and allow an efficient planning of the remaining of our work. 
   %
   \item Study, develop, and evaluate an implementation of a distributed and replicated storage platform to support VMs, built on top of Btrfs.
   %
@@ -272,7 +271,7 @@ The rest of the document is structured as follows:
 	%
   \item \textit{Chapter~\ref{cha:research_context}}  \textbf{Research Context} - This chapter presents existing technologies and theoretical approaches which were studied; examples include storage systems and their features, and details on virtualisation techniques and hypervisors.
 	%
-  \item \textit{Chapter~\ref{cha:icbd}} \textbf{iCBD - Infrastructure for Client-Based Desktop} - In this chapter, we present the iCBD platform: we start with an overview of the solution, describe the multiple layers and try to explain the conceptual and architectural decisions that were made. This chapter is essential to the understanding of the bigger picture and where our work fits in.
+  \item \textit{Chapter~\ref{cha:icbd}} \textbf{iCBD - Infrastructure for Client-Based Desktop} - In this chapter, we present the iCBD platform: we start with an overview of the solution, describe the multiple layers and explains the conceptual and architectural decisions that were made. This chapter is essential to the understanding of the bigger picture and where our work fits in.
   %
   \item \textit{Chapter~\ref{cha:impl_replication_caching}} \textbf{Implementation of the \textit{iCBD-Replication and Cache Server}} - We start with an in-depth view of the implementation of the iCBD Replication module, detailing the architectural decisions and the implemented components. Then, a description is given on the efforts to build, on the FCT NOVA campus, a server infrastructure exclusively dedicated to the iCBD project. Then we explain how to build and deploy the iCBD Cache Server software for a node that will support a student’s computer lab with 15 workstations in the Computer Science Department.
   %

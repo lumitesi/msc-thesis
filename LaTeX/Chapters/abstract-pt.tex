@@ -8,7 +8,7 @@
 
 Nos últimos anos tem-se assistido a mudanças fundamentais na forma como a capacidade computacional é utilizada - com o grande aumento da utilização da virtualização, tanto a forma como são geridas as máquinas físicas como os modelos de infraestruturas num centro de dados sofreram grandes alterações. Estas mudanças são o resultado da procura por uma forma de disponibilizar rapidamente \textit{VMs} num ambiente altamente consolidado e com necessidades mínimas de intervenção humana na sua gestão.
 
-Estão a ser desenvolvidas novas abordagens às técnicas de virtualização a um ritmo nunca visto, o que leva à existência de um ecossistema altamente volátil com novas plataformas e serviços a serem criados a todo o momento. É possível apreciar o esforço de grandes empresas da indústria das tecnologias de informação relativamente a problemas como a virtualização de desktops - com algum sucesso, mas ignorando completamente o poder de computação que está presente nos PCs instalados, optando por uma via de custo elevado, baseada em máquinas poderosas. Existe ainda espaço para melhores soluções e para o desenvolvimento de tecnologias que façam uso das capacidades de computação que já se encontrem presentes nas organizações, mantendo a simplicidade da sua configuração.
+Estão a ser desenvolvidas novas abordagens às técnicas de virtualização a um ritmo nunca visto, o que leva à existência de um ecossistema altamente volátil com novas plataformas e serviços a serem criados a todo o momento. É possível apreciar o esforço de grandes empresas da indústria das tecnologias de informação relativamente a problemas como a virtualização de desktops - com algum sucesso, mas ignorando completamente o poder de computação que está presente nos Personal Computers (PCs) instalados, optando por uma via de custo elevado, baseada em máquinas poderosas. Existe ainda espaço para melhores soluções e para o desenvolvimento de tecnologias que façam uso das capacidades de computação que já se encontrem presentes nas organizações, mantendo a simplicidade da sua configuração.
 
 Esta tese foca-se no desenvolvimento de mecanismos de replicação e \textit{caching} para imagens de máquinas virtuais armazenadas num sistema de ficheiros local que tem a funcionalidade (pouco habitual) de suportar \textit{snapshots}. A arquitectura da solução proposta tem de ser distribuída e integrar-se na solução \textit{client-based VDI} já desenvolvida no projecto iCBD; tem de suportar eficientemente ficheiros com vários GB (alguns deles resultantes da criação de \textit{snapshots}) acedidos em leitura, e manter destes múltiplas versões. A solução desenvolvida tem ainda de oferecer desempenho, alta disponibilidade, e escalabilidade na presença de elevado número de clientes geograficamente distribuídos.
 
@@ -16,6 +16,6 @@ Esta tese foca-se no desenvolvimento de mecanismos de replicação e \textit{cac
 
 % Palavras-chave do resumo em Português
 \begin{keywords}
-	VDI, BTRFS, Snapshots, Replication Middleware, Cache Servers.
+	VDI, Sistema de Ficheiros Btrfs, Snapshots, Middleware de Replicação, Servidor de Caching.
 \end{keywords}
 % to add an extra black line
