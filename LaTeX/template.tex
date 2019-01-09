@@ -114,7 +114,7 @@
 
 \usepackage{tabularx,tabulary,multirow} %for tables
 
-\usepackage{listings}     	% For pretty code
+%\usepackage{listings}     	% For pretty code
 \usepackage{minted}			% For code highlighting
 \usepackage{zi4}            	% Nice font
 
@@ -250,6 +250,11 @@
 \addlisttofrontmatter{\listoffigures}  % The List of Figures. Comment to omit.
 \addlisttofrontmatter{\listoftables}   % The List of Tables. Comment to omit.
 %\addlisttofrontmatter{\lstlistoflistings}  % The List of Code Listings. Comment to omit.
+\renewcommand{\listoflistings}{%
+  \cleardoublepage
+  \addcontentsline{toc}{chapter}{\listoflistingscaption}%
+  \listof{listing}{\listoflistingscaption}%
+}
 \addlisttofrontmatter{\listoflistings}
 \addlisttofrontmatter{\glsnogroupskiptrue\setlength{\glsdescwidth}{0.8\textwidth}\printnoidxglossaries}  % The Glossary and List of Acrnonyms
 
