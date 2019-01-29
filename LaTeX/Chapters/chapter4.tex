@@ -36,7 +36,7 @@ system that provides replication features in an integrated way to the iCBD platf
 
 One of the key objectives of iCBD is to provide a platform that can stretch from a fully hosted, on-site architecture to one where an important part of its services is cloud-based. Naturally, in-the-middle solutions are also interesting, such as one where, e.g., both the administration and storage of \textit{“golden”} iMIs are cloud-based, while the rest is on-premises. Therefore, it becomes evident that data locality is an important subject, and thus one must study how data flows between the components of the iCBD platform – a complex, data-intensive platform, boasting multiple storage devices and many different networks, accessed by multiple consumers demanding data at any given time.
 
-All these factors, allied to the desire of having a distributed and scalable platform architecture, result in the need to design a new service whose mission is to ensure that data is correctly replicated in the appropriate places, and consistency of the various versions of the iCBD Machine Images stored is maintained. This led to the high-level architecture of Figure~\ref{fig:impl_icbd_rep_arch_simple}
+All these factors, allied to the desire of having a distributed and scalable platform architecture, result in the need to design a new service whose mission is to ensure that data is correctly replicated in the appropriate places, and consistency of the various versions of the iCBD Machine Images stored is maintained. This led to the high-level architecture of Figure~\ref{fig:impl_icbd_rep_arch_simple}.
 
 %\subsection{Motivation}
 %\label{sub:impl_mot}
@@ -90,7 +90,7 @@ iCBD was designed from the start based on the assumption that the storage layer 
 
 %Moreover, it should be taken in account the locality of the data, since the communications could originate and end in the same data centre and the same local network, or happening between different locations that can be in opposite sides of the world. Such aspects as the bandwidth used and the encryption of the data becomes essential to address, requiring the examination of several compression algorithms that can be accommodated to the way the data is processed and also ways of keeping this data secure by encrypting the communications.
 
-Btrfs is a modern file system based on the concept of copy-on-write (COW): it is capable of creating lightweight copies of filesystem structures – files, directories, volumes. We already detailed the importance of this trait in Section~\ref{sub:icbd_storage_layer}. Therefore, a mandatory step was to investigate Btrfs-provided tools that could help us to achieve our primary goal: being able to move information (“base” iMIs and their snapshots) around, from “master” to “secondary” nodes, while consuming the minimum bandwidth – one must not forget that, while a typical Linux iMI is less than 10 GB, a Windows 10 iMI is circa 40 GB. We found that Btrfs has incremental backup capabilities, and therefore we set out to explore those.
+Btrfs is a modern file system based on the concept of copy-on-write (CoW): it is capable of creating lightweight copies of filesystem structures – files, directories, volumes. We already detailed the importance of this trait in Section~\ref{sub:icbd_storage_layer}. Therefore, a mandatory step was to investigate Btrfs-provided tools that could help us to achieve our primary goal: being able to move information (“base” iMIs and their snapshots) around, from “master” to “secondary” nodes, while consuming the minimum bandwidth – one must not forget that, while a typical Linux iMI is less than 10 GB, a Windows 10 iMI is circa 40 GB. We found that Btrfs has incremental backup capabilities, and therefore we set out to explore those.
  
 So,  Btrfs’s incremental backup capabilities are a good starting point; however, their purpose is to help in data transfer; but that is not enough. Preservation of consistency of the iMIs is also a concern, as one has to assure that iMIs cached in the RCSs are up-to-date, and when a new iMI is created its distribution will start “immediately”, to ensure high availability in case of faults. Moreover, the locality of the data should be taken into account, since data transfer endpoints may be located within the same data centre, or at, e.g., geographically disperse regions in the world. Bandwidth use and data encryption become essential, requiring the study of compression algorithms and encryption techniques.
 
@@ -160,13 +160,13 @@ Our middleware is composed of several modules and includes all the necessary fun
 An overview with a small description of the functionality of each component of the RCS system, displayed in Figure~\ref{fig:icbd_rep_mods_comms}, follows:
 
 \begin{description}
-	\item [Master Node] This node acts both as a controller to the replication system and an interface to interact with a client whether through a CLI or REST API. This node shall reside on an iCBD Administration machine since it must deliver changes made to iMIs to all replicas. It is also responsible for communicating with the Name Server to gather information about which nodes are present on the platform, or what is their status; even instruct the replicate nodes to execute certain operations.
+	\item [Master Node] This node acts both as a controller to the replication system and an interface to interact with a client whether through a CLI or REST API. This node shall reside on an iCBD Administration machine since it must deliver changes made to iMIs to all replicas. It is also responsible for communicating with the Name Server to gather information about which nodes are present on the platform, or what is their status; even instruct the Replica Nodes to execute certain operations.
 	%
-	\item [Replica Node] Its main task is to maintain the list of subscribed iMIs that are not up-to-date, receive the updates as soon as the Master Node sends them, and store them locally. Upon request, the Replica Node can deliver the list of iMIs that are locally stored and their version numbers, and subscribe (or unsubscribe) for new IMIs.
+	\item [Replica Node] Its main task is to maintain the list of subscribed iMIs that are not up-to-date, receive the updates as soon as the Master Node sends them, and store them locally. Upon request, the Replica Node can deliver the list of iMIs that are locally stored and their version numbers, and subscribe (or unsubscribe) for new iMIs.
 	%
 	\item [Name Server] This service lives in the same machine as the Master Node, holds records about nodes in the replication system, in a phone book type simple database. Nodes register themselves in the name server during the startup process (and leave on shutdown) and can, at any moment, query about the location of other nodes.
 	%
-	\item [Keep Alive] It's a Master Node thread that periodically checks if Replica Nodes are still operating correctly. When it identifies that a replica node is no longer responding, it immediately sends a request to the for the removal of the dead node from the Name Server’s directory.
+	\item [Keep Alive] It's a Master Node thread that periodically checks if Replica Nodes are still operating correctly. When it identifies that a Replica Node is no longer responding, it immediately sends a request to the for the removal of the dead node from the Name Server’s directory.
 	%
 	\item [Image Repository] This module is a custom-made data structure that holds a (large) set of iCBD Snapshot objects in a \texttt{key:value} store. In addition to storing these objects, it has an interface that provides quick answers to queries that ask which iMIs are stored in the node’s repository. Every node in the platform (i.e. Master or Replica) must necessarily hold one repository.
 \end{description}
@@ -190,7 +190,7 @@ All the previously described components interact with a number of “objects”,
 
 %Even though the libraries presented above are not enough for the appropriate implementation of the all functionalities of the replication module, more libraries implemented by the community were necessary to handle aspects like communication between nodes, algorithms for data compression and to secure the data transmission between networks. Some of which we list and describe below  (a full list of Python packets imported in the project is shown in the Listing~\ref{listing:impl_icbd_pipfile}), also throughout the remaining text we detail in each module the libraries that help to accomplish its purpose.
 
-The libraries we created to implemented the common set of functionalities required for the replication module, do require more libraries, implemented by the Python community. An inventory with the library dependencies is presented in Listing~\ref{listing:impl_icbd_pipfile}. These are necessary to handle communication between nodes, algorithms for data compression, and secure data transmission; the most relevant ones are described through the remaining text in this section.
+The libraries we created to implement the common set of functionalities required for the replication module, do require more libraries, implemented by the Python community. An inventory with the library dependencies is presented in Listing~\ref{listing:impl_icbd_pipfile}. These are necessary to handle communication between nodes, algorithms for data compression, and secure data transmission; the most relevant ones are described through the remaining text in this section.
 
 \begin{listing}[ht]
 \inputminted{python}{./Chapters/Code/cap4_pip.py}
@@ -374,7 +374,7 @@ The interface that the Image Repository provides is very simple, and consists of
 
 %Given that all the relevant data is stored locally in a node (i.e. the actual VM file; the boot package; the iSCSI configuration files) the \textit{icbdSnapshot} object only needs to maintain the paths to that data in relation to the local filesystem, leading to a clean and straightforward interface that can be seen in Listing~\ref{listing:impl_icbdSnapshot}.
 
-Inside the replication module the iMI, as presented in Section~\ref{sub:icbd_imi}, is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to unequivocally identify the multiple images present in the system unequivocally; but it does not hold actual data.
+Inside the replication module the iMI, as presented in Section~\ref{sub:icbd_imi}, is treated as a first-class citizen, being represented by the class \textit{icbdSnapshot}. This object stores the relevant metadata and properties of an iMI that are essential to unequivocally identify the multiple images present in the system; but it does not hold actual data.
 
 In that sense, from this lightweight object, we can get hold of: the name of the iMI, its version number, the full path to the VM files in the filesystem, the location of the boot package associated with that particular version, and the configuration file for the iSCSI target.
 
@@ -430,7 +430,7 @@ The overall process follows these steps: when the task of administrating an iMI 
 
 The replication procedure proceeds as follows: first, the list of nodes that have subscribed to that iMI is gathered; then one obtains the last version available in the Replica’s Image Repository and that “value” will be used to determine if the new version can be sent immediately, or if it is necessary to transfer some intermediate versions. In any case, only the differences between versions are sent, not the whole iMI. Assuming that only the last delta (the most recent changes) will be shipped, it is now necessary to decide whether the transfer will occur using a plain or encrypted communication channel and/or whether some compression algorithm will be applied to the data before being sent. This information is also conveyed to the receiving side so that it is ready to accept the data.
 
-Only after completion of the above-described process, will the data transfer be carried out, using the btrfsLib, compressionLib and sshLib libraries. The process of receiving an IMI can be found in Section~\ref{par:impl_receive_snap}.
+Only after completion of the above-described process, will the data transfer be carried out, using the btrfsLib, compressionLib and sshLib libraries. The process of receiving an iMI can be found in Section~\ref{par:impl_receive_snap}.
 
 \paragraph{Keep Alive}
 \label{par:impl_icbdrep_keep_alive}
@@ -489,7 +489,7 @@ Following we demonstrate the functions provided by this interface (the help outp
 	%
 	\item \texttt{Send iMI Snapshot Secure Connection (SSH)} - This functionality is similar to the one presented above. In particular case, they share a large portion of the code, because they carry out the same operations. They only differ in the method of sending the data, which in this instance are transmitted in an encrypted fashion through an SSH tunnel. This functionality is sure to add some overhead to the transfer process, but the encryption of the data is essential in situations where the nodes are in separate networks, where there is no control wheresoever to the data security.
 	%
-	\item \texttt{Delete iMI version} - Finally, it is necessary to provide a way to delete versions of a given IMI in a node. Either because no longer is desired to make an IMI available or for reasons of proper management the storage space on a replica node. It is important to note that because of the way different versions of iMIs are stored in the platform, deleting older versions may not result in a space release equal to the size of the full iMI, since newer versions probably will still need this data.
+	\item \texttt{Delete iMI version} - Finally, it is necessary to provide a way to delete versions of a given iMI in a node. Either because no longer is desired to make an iMI available or for reasons of proper management the storage space on a replica node. It is important to note that because of the way different versions of iMIs are stored in the platform, deleting older versions may not result in a space release equal to the size of the full iMI, since newer versions probably will still need this data.
 \end{description}
 
 
@@ -588,15 +588,15 @@ Documentation for all this project was generated using a tool called Sphinx~\cit
 Once the process of creating a mechanism to support the replication of iMIs has been completed, we have reached a stage where we must tackle the set of problems that may arise when supporting a large number of clients. A short list is: limited bandwidth between the central repository and distant (in terms of latency, but also bandwidth) workstations; high latencies and jitter resulting from network congestion events and/or configuration errors in the network equipment.
 We believe that bringing the iMIs closer to the workstations is a way to solve all these problems at once.
 
-When our work started, there was already an iCBD infrastructure in place at DI-FCT/NOVA; however, all iCBD support services were deployed in a single VM, with limited resources (when we took into account that the infrastructure had a lot more resources) and tests were run on a couple of VMs that were used as a (virtual) replacement for the user’s physical workstations. And the software versions were both quite old, when compared with the iCBD development infrastructure held at SolidNetworks, and missing important features that were then available at the development site.
+When our work started, there was already an iCBD infrastructure in place at DI - FCT NOVA; however, all iCBD support services were deployed in a single VM, with limited resources (when we took into account that the infrastructure had a lot more resources) and tests were run on a couple of VMs that were used as a (virtual) replacement for the user’s physical workstations. And the software versions were both quite old, when compared with the iCBD development infrastructure held at SolidNetworks, and missing important features that were then available at the development site.
 
 Those limitations originated from the fact that iCBD project had no dedicated infrastructure, it was sharing the same already scarce resources with other research projects and services at DI. Fortunately, that situation changed with the acquisition of new equipment dedicated solely to this project, and that created the perfect opportunity to re-evaluate the architecture of the iCBD services and carry out a fresh installation of the whole platform.
 
 
-\subsection{The iCBD infrastructure at DI-FCT NOVA}
+\subsection{The iCBD infrastructure at DI - FCT NOVA}
 \label{sub:impl_infrastructure}
 
-The core of the iCBD infrastructure at DI-FCT NOVA is a two-node cluster based on HPE ProLiant DL380 Gen9 servers interconnected via an HPE Flexfabric 5700 managed switch with 10Gbps links with external storage provided by an HPE MSA 2040 SAN Storage Disk Array.
+The core of the iCBD infrastructure at DI - FCT NOVA is a two-node cluster based on HPE ProLiant DL380 Gen9 servers interconnected via an HPE Flexfabric 5700 managed switch with 10Gbps links with external storage provided by an HPE MSA 2040 SAN Storage Disk Array.
 For the “remote” nodes, i.e., the replication and cache servers, the project proposal that was submitted for funding had low-end/low-cost servers in mind; in our tests, a desktop PC that was disposed from another research project was reconditioned, and we upgraded the amount of RAM and added a second hard disk.
 
 Finally, the workstation/client testbed was provided by two student laboratories at DI (Labs. 110 and 112), each containing 15 modern PCs (CPU - Intel Core i3-7100 @ 3.90GHz; RAM - 8 GB; Gigabit Ethernet). An important feature was the i3 CPU, which supports Intel VT and is able to run hypervisors.
@@ -652,7 +652,7 @@ The iCBD infrastructure uses two DVSs:
 	%
 \end{description}
 
-Table~\ref{tab:impl_dvs} lists the relationship between the VDS portgroups and the FCT/NOVA VLANs (which are managed by an external entity – the Divisão de Infraestruturas Informáticas).
+Table~\ref{tab:impl_dvs} lists the relationship between the VDS port groups and the FCT NOVA VLANs (which are managed by an external entity – the \textit{Divisão de Infraestruturas Informáticas}).
 
 \begin{table}[]
 \centering
@@ -691,7 +691,7 @@ As previously reported, from the beginning of the project, the entire platform w
 
 	One of the reasons for separating this functionality from those provided by the iCBD-imgs machine was to offer a simple way to visualise the load that results from multiple clients booting iMIs at the same time, separating that usage from reads and writes that occur during “normal” operation. Since the server’s only task is the provision of iSCSI and NFS servers that offer r/w space, we think that we can lower the RAM usage when compared with iCBD-imgs and deploy a VM with 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data). 
 	
-	As the functionality of this machine is only the provision of iSCSI and NFS servers for accessing r/w space its specifications may be a bit more conservative with a VM boasting 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data).
+	%As the functionality of this machine is only the provision of iSCSI and NFS servers for accessing r/w space its specifications may be a bit more conservative with a VM boasting 4 vCPUs, 8GB vRAM and 2 Hard Disks (OS and Data).
 	%
 	\item [\textit{iCBD-home}] This is an optional role, for an NFS-based service that handles access to user home directories, which makes sense in an environment where a large community uses Linux. The iCBD-home server will either host the storage itself or consume it from a storage backend; in any case it will hold the user’s home directories and export them to the user’s workstations in a secure way, in a straightforward process: each user has a home directory under the iCBD-home server’s \texttt{/home}; then, when the user boots his/her workstation from a Linux iMI, that directory is exported by NFS and mounted in the workstation’s \texttt{/home}, thus enabling the user to log in and access its contents.
 	The iCBD-home could also, in theory, act, in a Windows environment, as a gateway to a CIFS server; however, support for this type of “remote storage” for Windows clients was not implemented in our project.
@@ -714,7 +714,7 @@ As previously reported, from the beginning of the project, the entire platform w
 
 	\item [\textit{iCBD-cache}] This was the service (a.k.a. Cache Server) that we have architected, designed, implemented and deployed in this thesis. From the client’s point-of-view, it is indistinguishable from the iCBD-imgs service that provisions iMIs to workstations but, with the introduction of RCS, each Cache Server also runs the Replica Node service (introduced in Section~\ref{sub:impl_icbdrep_replica_node}), aiming to reduce the latency and increase the transmission rate between the image server and the workstations, thus improving the user’s experience. It may be implemented, as it was the case with the other roles, on physical or virtualised hardware. 
 
-	On the DI-FCT/NOVA site, two types of cache servers were set up: a virtual machine, because it was easier to deploy and test the correctness of its operation; and, later on, a physical server that was connected directly to one of the students’ labs and was responsible for delivering the iMIs to that lab’s workstations. Both configurations can be seen in the tables~\ref{tab:impl_VM_Specs} and ~\ref{tab:imple_cs}, respectively.
+	On the DI - FCT NOVA site, two types of cache servers were set up: a virtual machine, because it was easier to deploy and test the correctness of its operation; and, later on, a physical server that was connected directly to one of the students’ labs and was responsible for delivering the iMIs to that lab’s workstations. Both configurations can be seen in the tables~\ref{tab:impl_VM_Specs} and ~\ref{tab:imple_cs}, respectively.
 	%
 	\item [\textit{iCBD-admin\_iMI}] This is a special role created specifically for the administration of iMIs. The process of administering an iMI is triggered and managed by scripts that run within the iCBD-imgs server, but since administration always involves the need to run a VM based on the iMI we want to manage, this process can be carried out in two different ways: in the iCBD-imgs server itself, in nested virtualisation mode; or, running the iCBD-admin\_iMI VM as yet another VM running in the iCBD cluster.
 	
@@ -722,7 +722,7 @@ As previously reported, from the beginning of the project, the entire platform w
 	 
 	\textbf{Standard virtualisation mode}  Here the iCBD-admin\_iMI VM is executed directly on the VMware vSphere Type I (a.k.a. native, or bare-metal) hypervisor, i.e., an hypervisor that executes directly on the server’s hardware.
 	
-	Whatever our choice is, the iCBD-admin\_iMI VM is created dynamically by the administration process and works in a similar way to a client, with a difference: changes made to the IMI may be committed and used to create a new version of that iMI.
+	Whatever our choice is, the iCBD-admin\_iMI VM is created dynamically by the administration process and works in a similar way to a client, with a difference: changes made to the iMI may be committed and used to create a new version of that iMI.
 	%
 	\item [\textit{iCBD-client}] The platform client is the simplest of roles. Again, there are two cases, depending on whether the client is a physical workstation or a VM: we can create a diskless virtual machine, and connect it to a network where an image server (iCBD-imgs or iCBD-cache) is located (visible) and boot the VM using a network boot process – the result is an iMI being provided to that to that VM, the TFTP will transfer the kernel,…, (as was largely described in section~\ref{subsub:icbd_booting_imi}) and the client will end running the chosen OS. Naturally, the same process can be used for a workstation provided that the physical network has connectivity to the appropriate iCBD networks. Furthermore, other ways to boot an iMI on a workstation, such as creating a bootable USB drive that connects the workstation to an image server, without using DHCP or PXE, are possible.
 	%
@@ -758,7 +758,7 @@ The installation process was carried out in three phases. In the first phase, VM
 The creation of multiple virtualised Cache Servers constitutes the second phase. The creation of these VMs was an easy step because the iCBD-imgs was used as a base VM from which the first Cache Server VM was created, through the use of a full cloning procedure. Then, the unnecessary functionalities (with regard to the new role) were removed, and the modules that provide the Replication service were added. This step was crucial to create a test environment for the replication modules, which before this phase, had not been tested with production iMIs.
 
 The last phase was the installation of a single physical Cache Server as close as possible to one of the labs, and that was accomplished by plugging it directly to the switch that interconnected all the lab 
-workstations. So, we successfully reached a point where we had two setups with access to the iCBD platform: one, where the lab’s 15 PCs were able to get their IMIs from a (physical) Cache Server; the other, where the lab’s 15 PCs had to get their iMIs from the iCBD-imgs virtual machine hosted in the cluster.
+workstations. So, we successfully reached a point where we had two setups with access to the iCBD platform: one, where the lab’s 15 PCs were able to get their iMIs from a (physical) Cache Server; the other, where the lab’s 15 PCs had to get their iMIs from the iCBD-imgs virtual machine hosted in the cluster.
 
 The process of creating a single VM for the iCBD platform is, obviously, quite cumbersome (despite the short description we gave when discussing the first phase) and with some significant details that must be addressed. So, we have provided in Annex~\ref{ann:icdb_install} a document that was produced when the installation process of the iCBD DI platform was carried out. The document provides, we believe, a detailed and clear explanation of all steps needed to create the VM, and then install and configure each iCBD service.
 

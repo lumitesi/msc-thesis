@@ -16,7 +16,7 @@ The bug was reported in both \textit{CentOS Bug Tracker} and \textit{Red Hat Bug
 \paragraph{Description of problem:}
 
 In a CentOS 7 VM with kernel \texttt{3.10.0-693.5.2.el7.x86\_64} including a mounted disk formatted with Btrfs and btrfs-progs v4.9.1.
-When executing a copy of files with the command \texttt{"cp --reflink=always"} the command fails with the indication \textit{"failed to clone 'someFile': Operation not supported"}
+When executing a copy of files with the command \texttt{``cp --reflink=always''} the command fails with the indication \textit{`failed to clone someFile': Operation not supported''}
 
 \paragraph{Issue:}
 
@@ -25,7 +25,7 @@ While trying to find the cause, it seems to be some bug in the ioctl operation. 
 
 This problem only manifests itself in the kernel \texttt{3.10.0-693.5.2.el7.x86\_64}. If the same operation is executed in the system with the kernel \texttt{3.10.0-514.2.2.el7.x86\_64} all goes well.
 More evidence that this is probably a bug introduced in this version of the kernel can be found in the git repository in the first commit of the new kernel~\footnote{https://git.centos.org/commit/rpms!kernel.git/d6bfd60741b14479a15b43acaa1ea5a8d73df543}.
-In the file "SPECS/kernel.spec" line 15011~\footnote{https://git.centos.org/blob/rpms!kernel.git/d6bfd60741b14479a15b43acaa1ea5a8d73df543/SPECS!kernel.spec\#L15011} that some changes were made in the ioctl - \textit{"[fs] btrfs: fix uninit variable in clone ioctl (Bill O'Donnell) [1298680]"}
+In the file ``SPECS/kernel.spec'' line 15011~\footnote{https://git.centos.org/blob/rpms!kernel.git/d6bfd60741b14479a15b43acaa1ea5a8d73df543/SPECS!kernel.spec\#L15011} that some changes were made in the ioctl - \textit{``[fs] btrfs: fix uninit variable in clone ioctl (Bill O'Donnell) [1298680]''}
 
 As a workaround, an older version of the kernel can be used, but this is not optimal, as future releases may have the same problem.
 
@@ -42,7 +42,7 @@ It is always reproducible. Happens every time.
 \end{enumerate}
 
 \paragraph{Actual results:}
-The copy operation returns with "failed to clone 'testb': Operation not supported" and creates a zero bytes file in the destination of the copy.
+The copy operation returns with ``failed to clone `testb': Operation not supported'' and creates a zero bytes file in the destination of the copy.
 
 \paragraph{Expected results:}
 

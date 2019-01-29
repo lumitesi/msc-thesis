@@ -13,7 +13,7 @@
 \label{cha:research_context}
 
 % TODO Cap2 - Rever frase AND OR 
-The focal point of this dissertation is the implementation of a scalable and coherent distributed data store on top of a set of local (and independent) file systems. The file systems, however, are not used for "general purpose" work: in our deployment, they store VMs - (1) their read-only base images (or templates) and / or (2) their running instances backstores and / or (3) their "support files" (VM specifications, Non-Volatile Random-Access Memory (NVRAM) / Basic Input/Output System (BIOS) images, etc).
+The focal point of this dissertation is the implementation of a scalable and coherent distributed data store on top of a set of local (and independent) file systems. The file systems, however, are not used for ``general purpose'' work: in our deployment, they store VMs - (1) their read-only base images (or templates) and / or (2) their running instances backstores and / or (3) their ``support files'' (VM specifications, Non-Volatile Random-Access Memory (NVRAM) / Basic Input/Output System (BIOS) images, etc).
 Furthermore, the target file systems are those which are able to natively provide snapshots and, for the purpose of this dissertation our choice was Btrfs.
 
 
@@ -29,7 +29,7 @@ In this chapter, we start with a survey of core concepts directly associated wit
 	%
 	\item [Section~\ref{sec:res_caching}] talks about the problem of the locality of the data, and how that fact can influence the performance and scalability of a system.
 	%
-	\item [Section~\ref{sec:res_replication}] expands on the fact the storing data in a single location is not enough for compliance with current requirements, such as high availability, fault tolerance and performance standards in critical systems.
+	\item [Section~\ref{sec:res_replication}] expands on the fact that storing data in a single location is not enough for compliance with current requirements, such as high availability, fault tolerance and performance standards in critical systems.
 \end{description}
 
 %%-------------------------------------------------------------------
@@ -246,7 +246,7 @@ The basic anatomy of a Virtual Machine encompasses a collection of files that de
     %
     \item \emph{The file that stores the BIOS} - The \texttt{.nvram} file stores the state of the virtual machine's BIOS.
     %
-    \item \emph{The suspended state file} - The \texttt{.vmss} saves contains the state of a suspended virtual machine. This file is utilised when virtual machines enter a suspended state giving the functionality of preserving the memory contents of a running VM so it can start up again where it left off.  When a VM is returned from a suspend state, the contents of this file are rewritten into the physical memory of the host, being deleted in the event of the next VM Poweroff.
+    \item \emph{The suspended state file} - The \texttt{.vmss} contains the state of a suspended virtual machine. This file is utilised when virtual machines enter a suspended state giving the functionality of preserving the memory contents of a running VM so it can start up again where it left off.  When a VM is returned from a suspend state, the contents of this file are rewritten into the physical memory of the host, being deleted in the event of the next VM Poweroff.
     %
     \item \emph{Log files} - A collection of \texttt{.log} files is created to log information about the virtual machine and often handled for troubleshooting purposes. A new log file is created either during a VM power off and back on process, or if the log file stretches to the maximum designated size limit.
 	%
@@ -351,11 +351,11 @@ It is worthwhile to enumerate some examples such as CephFS~\cite{Weil2006}, Open
 In this work, the snapshot functionality of the file system itself is a valuable asset. This technique is present in some of the most recently designed file systems, such as the Btrfs. 
 As the name implies, a snapshot is an image at a given instant of the state of a resource,  we are particularly interested in snapshots of volumes (logical disks), and of files (individually or grouped, for example, in a directory).
 
-The implementation of a snapshot can be described as follows: a) the state of a resource is saved in the form of a persistent and immutable "object"; b) changes to the state of the resource forces the creation and storage of another object. Consequently, it is possible to return to any previous state, as long as, the object corresponding to that state is available. Snapshots are especially interesting in virtualised environments because the hypervisor can take snapshots of the most critical features of a VM: CPU, memory, and disk(s). 
+The implementation of a snapshot can be described as follows: a) the state of a resource is saved in the form of a persistent and immutable ``object''; b) changes to the state of the resource forces the creation and storage of another object. Consequently, it is possible to return to any previous state, as long as, the object corresponding to that state is available. Snapshots are especially interesting in virtualised environments because the hypervisor can take snapshots of the most critical features of a VM: CPU, memory, and disk(s). 
 
 In this work, we propose to use the snapshot functionality of the file system itself, present in some of the most recently designed file systems, such as the Btrfs. This way the creation of linked-clones is handled by the file system capabilities as an alternative to linked-clones created by virtualisation software itself.
 
-In order for multiple snapshots, do not take up space unnecessarily, data compression techniques are applied when implementing snapshots. So, the new object created to register the sequence of new changes of a resource only registers the modifications made, keeping unchanged the state in the initial (parent) object. This phenomenon (i.e. the changes between the current snapshot and the previous one) is called a "delta" connecting snapshots.
+In order for multiple snapshots, do not take up space unnecessarily, data compression techniques are applied when implementing snapshots. So, the new object created to register the sequence of new changes of a resource only registers the modifications made, keeping unchanged the state in the initial (parent) object. This phenomenon (i.e. the changes between the current snapshot and the previous one) is called a ``delta'' connecting snapshots.
 
 
 
@@ -375,7 +375,7 @@ Caching often plays a crucial role in the performance and scalability of a file 
 Caches may be found beside each client or they may be located on a server that can be shared by numerous clients.
 
 \begin{description}
-	\item [Server-side Cache:] Server side caching is when the caching data occur on the server. There is no right way to the approach of caching data; it can be cached anywhere and at any point on the server assuming it makes sense. It is common to cache frequently used data from a DataBase to prevent connecting to the DB every time some data is requested. In a web context, it is common to cache entire pages or page fragments so that there is no need to generate a web page every single time a visitor arrives.
+	\item [Server-side Cache:] Server side caching is when the caching data occur on the server. There is no right way to the approach of caching data; it can be cached anywhere and at any point on the server assuming it makes sense. It is common to cache frequently used data from a Database to prevent connecting to the DB every time some data is requested. In a web context, it is common to cache entire pages or page fragments so that there is no need to generate a web page every single time a visitor arrives.
 	%
 	\item [Client-side Cache:] Maintaining the analogy to the Web environment, caches are also used on the client side. For instances, Web browsers keep a cache of lately visited web pages and other web resources in the client’s local file system. Then when the time comes to serve a page that is stored in the cache, a special HTTP request is used to check, with the corresponding server, if the cached page is up-to-date. In a positive response the page is simply displayed from the cache, if not, the client just needs to make a normal request.
 \end{description}
