@@ -10,16 +10,19 @@ V1 – 06 Mar 2018
 
 2. Motivation
 
-3. Project Presentation ??
+3. Project Presentation 
 
    1. iCBD Project
    2. Previous Work
 
-4. Project Contributions
+4. Problem Stating and Main Contributions
+
+   1. Replication and Caching - The Problem
+   2. Main Expected Contributions
 
 5. Document Structure
 
-   ​
+   
 
 ### 2 – Research Context
 
@@ -29,8 +32,6 @@ V1 – 06 Mar 2018
    3. Virtual Machine Image Storage
 2. Storage
    1. Storage Challenges
-      1. I/O Storms
-      2. Cost by Workstation
    2. File Systems
    3. Snapshots
 3. Caching
@@ -43,42 +44,40 @@ V1 – 06 Mar 2018
 
 1. The Concept
 2. The Architecture
-   1. Boot Layer
-   2. Administration Layer
-   3. Client Layer
-   4. Storage Layer
-3. Replication and Caching - The Problem
-   1. Motivation and Goals
-   2. System Overview
-   3. Requirements 
-4. …
+   1. iCBD Machine Image
+   2. Boot Services Layer
+   3. Administration Layer
+   4. Client Support Layer
+   5. Storage Layer
 
 
 
 
 ### 4 - Implementation of iCBD-Replication and Cache Server
 
-1. Implementation of a Replication Module
-   1. Requirements of the Module
-      1. Preliminary testing on the BTRFS Incremental Backup features
-   2. Architecture
-   3. Image Repository
-      1. iCBD Snapshot Structure
-   4. Communications between Image Repositories
-2. Building a iCBD Cache Server
-   1. Replication of the iCBD platform in a new cluster
-3. …
+1. Motivation and System Architecture
+2. Implementation of a Replication Module
+   1. Requirements
+   2. System Overview
+   3. Communications between nodes
+   4. Name Server
+   5. Image Repository
+   6. Master Node
+   7. Replica Node
+3. Deploying an iCBD Platform with Cache Server
+   1. The iCBD infrastructure at DI - FCT NOVA
+   2. Roles in the Platform
+   3. Installing the iCBD Core Services
 
 
 
 
 ### 5 - Evaluation
 
-1. Motivation
-2. Functional Testing
-   1. Unittest
-3. Integration Testing
-4. …
+1. Experimental Setup
+2. Methodology
+3. Replication Service Benchmark
+4. Cache Server Performance Benchmark
 
 
 
@@ -90,3 +89,23 @@ V1 – 06 Mar 2018
 
 
 ### Bibliography
+
+
+
+### Annex 1 - iCBD-Replication Documentation
+
+
+
+### Annex 2 - iCBD Installation Guide
+
+
+
+#### Annex 3 - Bug on BTRFS affecting CoreUtils tool
+
+ 	1. Bug Report
+ 	2. Resolution
+
+
+
+### Annex 4 - iCBD Cluster Rack Diagram
+
